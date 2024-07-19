@@ -10,13 +10,13 @@ import { createMaterialTopTabNavigator } from "@react-navigation/material-top-ta
 import HomeScreen from "./screen/HomeScreen";
 import { createMaterialBottomTabNavigator } from "@react-navigation/material-bottom-tabs";
 import { SafeAreaProvider } from "react-native-safe-area-context";
+import OrderScreen from "./screen/OrderScreen";
 
 export default function App() {
   const BottomTab = createMaterialBottomTabNavigator();
 
-  return (
-    <NavigationContainer>
-      <View style={styles.container}></View>
+  const BottomView = () => {
+    return (
       <BottomTab.Navigator
         initialRouteName="Home"
         activeColor="#f0edf6"
@@ -75,7 +75,29 @@ export default function App() {
             ),
           }}
         />
+                <BottomTab.Screen
+          name="주문하기"
+          component={OrderScreen}
+          options={{
+            tabBarLabel: "주문",
+            tabBarIcon: () => (
+              <MaterialCommunityIcons
+                name="account-circle"
+                color={"#000000"}
+                size={20}
+              />
+            ),
+          }}
+        />
       </BottomTab.Navigator>
+      
+    );
+  };
+
+  return (
+    <NavigationContainer>
+      <View style={styles.container}></View>
+      <BottomView />
     </NavigationContainer>
   );
 }
