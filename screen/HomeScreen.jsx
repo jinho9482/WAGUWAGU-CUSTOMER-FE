@@ -1,4 +1,5 @@
 import {
+  Dimensions,
   FlatList,
   StyleSheet,
   Text,
@@ -48,13 +49,15 @@ export default function HomeScreen() {
     },
   ];
   const [selectedId, setSelectedId] = useState();
-
+  const dimensionWidth = Dimensions.get("window").width / 4;
   const Item = ({ item, onPress, backgroundColor, textColor }) => (
-    <TouchableOpacity
-      onPress={onPress}
-      style={[styles.item, { backgroundColor }]}
-    >
-      <SpeechBubble textColor={{ textColor }} content={item.title} />
+    <TouchableOpacity onPress={onPress} style={[styles.item]}>
+      <SpeechBubble
+        width={dimensionWidth}
+        textColor={{ textColor }}
+        content={item.title}
+        backgroundColor={backgroundColor}
+      />
     </TouchableOpacity>
   );
 
@@ -73,23 +76,39 @@ export default function HomeScreen() {
   };
 
   return (
-    <View>
-      <FlatList
-        data={DATA}
-        renderItem={renderItem}
-        keyExtractor={(item) => item.id}
-        extraData={selectedId}
-      />
+    <View
+      style={{
+        flexDirection: "row",
+        flexWrap: "wrap",
+        flexShrink: 1,
+      }}
+    >
+      {/* <ScrollView> */}
+      {DATA.map((item) => {
+        const backgroundColor = item.id === selectedId ? "#94D35C" : "#ffffff";
+        const color = item.id === selectedId ? "white" : "black";
+        return (
+          <Item
+            key={item.id}
+            item={item}
+            onPress={() => setSelectedId(item.id)}
+            backgroundColor={backgroundColor}
+            textColor={color}
+          />
+        );
+      })}
+      {/* </ScrollView> */}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 0.5,
+    flex: 1,
   },
   item: {
-    padding: 20,
+    // padding: 20,
+    // flex: 1,
     marginVertical: 8,
     marginHorizontal: 16,
   },

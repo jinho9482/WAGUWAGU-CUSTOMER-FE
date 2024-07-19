@@ -1,22 +1,44 @@
 import React from "react";
-import { Pressable, StyleSheet } from "react-native";
+import { Pressable, StyleSheet, TouchableOpacity, View } from "react-native";
 import { Button, Text } from "react-native-paper";
 
 export default SpeechBubble = (props) => {
   return (
-    <Button styles={[styles.container, { color: props.textColor }]}>
-      <Text>{props.content}</Text>
-    </Button>
+    <View
+      style={[
+        styles.container,
+        // { width: props.width },
+        { width: props.width },
+        { backgroundColor: props.backgroundColor },
+      ]}
+    >
+      <Text
+        style={[
+          styles.text,
+          { color: props.textColor },
+          //   { backgroundColor: props.backgroundColor },
+        ]}
+      >
+        {props.content}
+      </Text>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    width: "30px",
-    height: "30px",
+    borderTopLeftRadius: 25,
+    borderTopRightRadius: 25,
+    borderBottomRightRadius: 25,
+    // padding: 25,
+    height: 80,
+    // width: 30,
     color: "#94D35C",
-    backgroundColor: "#94D35C",
-    alignItems: "flex-start",
+    backgroundColor: "#FFFFFF",
+    alignItems: "center",
     justifyContent: "center",
+  },
+  text: {
+    fontSize: 17,
   },
 });
