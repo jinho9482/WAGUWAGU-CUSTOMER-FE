@@ -14,9 +14,8 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 export default function App() {
   const BottomTab = createMaterialBottomTabNavigator();
 
-  return (
-    <NavigationContainer>
-      <View style={styles.container}></View>
+  const BottomView = () => {
+    return (
       <BottomTab.Navigator
         initialRouteName="Home"
         activeColor="#f0edf6"
@@ -76,6 +75,13 @@ export default function App() {
           }}
         />
       </BottomTab.Navigator>
+    );
+  };
+
+  return (
+    <NavigationContainer>
+      <View style={styles.container}></View>
+      <BottomView />
     </NavigationContainer>
   );
 }
