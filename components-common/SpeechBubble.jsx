@@ -9,6 +9,7 @@ export default SpeechBubble = (props) => {
         styles.container,
         // { width: props.width },
         { width: props.width },
+        { height: props.height },
         { backgroundColor: props.backgroundColor },
       ]}
     >
@@ -31,7 +32,7 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 25,
     borderBottomRightRadius: 25,
     // padding: 25,
-    height: 80,
+    // height: 80,
     // width: 30,
     color: "#94D35C",
     backgroundColor: "#FFFFFF",

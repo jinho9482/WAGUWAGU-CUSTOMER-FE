@@ -53,6 +53,7 @@ export default function HomeScreen() {
   const Item = ({ item, onPress, backgroundColor, textColor }) => (
     <TouchableOpacity onPress={onPress} style={[styles.item]}>
       <SpeechBubble
+        height={80}
         width={dimensionWidth}
         textColor={{ textColor }}
         content={item.title}
@@ -60,20 +61,6 @@ export default function HomeScreen() {
       />
     </TouchableOpacity>
   );
-
-  const renderItem = ({ item }) => {
-    const backgroundColor = item.id === selectedId ? "#94D35C" : "#ffffff";
-    const color = item.id === selectedId ? "white" : "black";
-
-    return (
-      <Item
-        item={item}
-        onPress={() => setSelectedId(item.id)}
-        backgroundColor={backgroundColor}
-        textColor={color}
-      />
-    );
-  };
 
   return (
     <View
