@@ -1,13 +1,15 @@
 import React from 'react';
-import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
+import {View, Image, StyleSheet, Dimensions, Text, TouchableOpacity} from 'react-native';
+import SpeechBubble from '../components-common/SpeechBubble';
 
 const MyPage = () => {
     return (
         <View style={styles.container}>
             <View style={styles.profile}>
                 <Image
-                    source={require('../assets/Vector.png')}
+                    source={require('../assets/김세현ㅋㅋ.png')}
                     style={styles.profileImage}
+                    resizeMode="cover" // Adjust this as needed
                 />
                 <Text style={styles.greeting}>먹짱! 김세현</Text>
             </View>
@@ -27,21 +29,66 @@ const MyPage = () => {
                     <Text style={styles.value}>서울특별시 서초구 효령로 335</Text>
                 </View>
             </View>
-            <TouchableOpacity style={styles.button}>
-                <Text style={styles.buttonText}>수정하기</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.button}>
-                <Text style={styles.buttonText}>찜한 가게 보기</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.button}>
-                <Text style={styles.buttonText}>쿠폰 보기</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.button}>
-                <Text style={styles.buttonText}>내가 쓴 리뷰 보기</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.button}>
-                <Text style={styles.buttonText}>로그아웃</Text>
-            </TouchableOpacity>
+            <View style={styles.buttonContainer}>
+                <TouchableOpacity>
+                    <SpeechBubble
+                        content="수정하기"
+                        backgroundColor="#ffffff"
+                        textColor="black"
+                        onPress={() => console.log("수정하기 Pressed")}
+                        height={50}
+                        width="100%"
+                    />
+                </TouchableOpacity>
+            </View>
+            <View style={styles.buttonContainer}>
+                <TouchableOpacity>
+                    <SpeechBubble
+                        content="찜한 가게 보기"
+                        backgroundColor="#ffffff"
+                        textColor="black"
+                        onPress={() => console.log("찜한 가게 보기 Pressed")}
+                        height={50}
+                        width="100%"
+                    />
+                </TouchableOpacity>
+            </View>
+            <View style={styles.buttonContainer}>
+                <TouchableOpacity>
+                    <SpeechBubble
+                        content="쿠폰 보기"
+                        backgroundColor="#ffffff"
+                        textColor="black"
+                        onPress={() => console.log("수정하기 Pressed")}
+                        height={50}
+                        width="100%"
+                    />
+                </TouchableOpacity>
+            </View>
+            <View style={styles.buttonContainer}>
+                <TouchableOpacity>
+                    <SpeechBubble
+                        content="내가 쓴 리뷰 보기"
+                        backgroundColor="#ffffff"
+                        textColor="black"
+                        onPress={() => console.log("내가 쓴 리뷰 보기 Pressed")}
+                        height={50}
+                        width="100%"
+                    />
+                </TouchableOpacity>
+            </View>
+            <View style={styles.buttonContainer}>
+                <TouchableOpacity>
+                    <SpeechBubble
+                        content="로그아웃"
+                        backgroundColor="#ffffff"
+                        textColor="black"
+                        onPress={() => console.log("로그아웃 Pressed")}
+                        height={50}
+                        width="100%"
+                    />
+                </TouchableOpacity>
+            </View>
         </View>
     );
 };
@@ -51,6 +98,7 @@ const styles = StyleSheet.create({
         flex: 1,
         alignItems: 'center',
         padding: 20,
+        backgroundColor: '#f5f5f5',
     },
     profile: {
         alignItems: 'center',
@@ -59,7 +107,7 @@ const styles = StyleSheet.create({
     profileImage: {
         width: 80,
         height: 80,
-        borderRadius: 50,
+        borderRadius: 40, // Half of the width/height
         marginBottom: 10,
     },
     greeting: {
@@ -93,19 +141,9 @@ const styles = StyleSheet.create({
         borderColor: 'black',
         marginVertical: 5,
     },
-    button: {
-        width: '100%',
-        padding: 15,
-        backgroundColor: 'white',
-        borderRadius: 10,
-        alignItems: 'center',
+    buttonContainer: {
+        width: '100%', // Ensure the container takes full width
         marginBottom: 10,
-        borderWidth: 1,
-        borderColor: '#dcdcdc',
-    },
-    buttonText: {
-        fontSize: 16,
-        fontWeight: 'bold',
     },
 });
 
