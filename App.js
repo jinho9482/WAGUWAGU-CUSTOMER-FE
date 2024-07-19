@@ -1,20 +1,37 @@
 import { NavigationContainer } from "@react-navigation/native";
 import { StatusBar } from "expo-status-bar";
-import { StyleSheet, Text, View } from "react-native";
+import { SafeAreaView, StyleSheet, Text, View } from "react-native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import SearchScreen from "./screen/SearchScreen";
 import OrderHistoryScreen from "./screen/OrderHistoryScreen";
 import MypageScreen from "./screen/MypageScreen";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
+import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
+import HomeScreen from "./screen/HomeScreen";
+import { createMaterialBottomTabNavigator } from "@react-navigation/material-bottom-tabs";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 
 export default function App() {
-  const BottomTab = createBottomTabNavigator();
+  const BottomTab = createMaterialBottomTabNavigator();
+
   return (
-    // <View style={styles.container}>
     <NavigationContainer>
+      <View style={styles.container}></View>
       <BottomTab.Navigator
-        screenOptions={{ tabBarActiveBackgroundColor: "#94D35C" }}
+        initialRouteName="Home"
+        activeColor="#f0edf6"
+        barStyle={{ backgroundColor: "#94D35C" }}
       >
+        <BottomTab.Screen
+          name="홈"
+          component={HomeScreen}
+          options={{
+            tabBarLabel: "홈",
+            tabBarIcon: ({ color, size }) => (
+              <MaterialCommunityIcons name="home" color={"#000000"} size={20} />
+            ),
+          }}
+        />
         <BottomTab.Screen
           name="검색"
           component={SearchScreen}
@@ -60,14 +77,14 @@ export default function App() {
         />
       </BottomTab.Navigator>
     </NavigationContainer>
-    // </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    backgroundColor: "#fff",
+    flex: 0.02,
+    padding: 16,
+    backgroundColor: "#94D35C",
     alignItems: "center",
     justifyContent: "center",
   },
