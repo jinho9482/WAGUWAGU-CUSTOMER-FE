@@ -1,13 +1,15 @@
 import {
   Dimensions,
   FlatList,
+  Image,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
 import SpeechBubble from "../components-common/SpeechBubble";
-import { useState } from "react";
+import React, { useState } from "react";
+import { Searchbar } from "react-native-paper";
 
 export default function HomeScreen() {
   const DATA = [
@@ -62,29 +64,51 @@ export default function HomeScreen() {
     </TouchableOpacity>
   );
 
+  const Search = () => {
+    const [searchQuery, setSearchQuery] = React.useState("");
+
+    return (
+      <Searchbar
+        style={styles.search}
+        placeholder="Search"
+        onChangeText={setSearchQuery}
+        value={searchQuery}
+      />
+    );
+  };
+
   return (
-    <View
-      style={{
-        flexDirection: "row",
-        flexWrap: "wrap",
-        flexShrink: 1,
-      }}
-    >
-      {/* <ScrollView> */}
-      {DATA.map((item) => {
-        const backgroundColor = item.id === selectedId ? "#94D35C" : "#ffffff";
-        const color = item.id === selectedId ? "white" : "black";
-        return (
-          <Item
-            key={item.id}
-            item={item}
-            onPress={() => setSelectedId(item.id)}
-            backgroundColor={backgroundColor}
-            textColor={color}
-          />
-        );
-      })}
-      {/* </ScrollView> */}
+    <View>
+      <Image
+        style={[styles.image, { resizeMode: "contain" }]}
+        source={require("./../assets/waguwagu.png")}
+      />
+
+      <Search />
+      <View
+        style={{
+          flexDirection: "row",
+          flexWrap: "wrap",
+          flexShrink: 1,
+        }}
+      >
+        {/* <ScrollView> */}
+        {DATA.map((item) => {
+          const backgroundColor =
+            item.id === selectedId ? "#94D35C" : "#ffffff";
+          const color = item.id === selectedId ? "white" : "black";
+          return (
+            <Item
+              key={item.id}
+              item={item}
+              onPress={() => setSelectedId(item.id)}
+              backgroundColor={backgroundColor}
+              textColor={color}
+            />
+          );
+        })}
+        {/* </ScrollView> */}
+      </View>
     </View>
   );
 }
@@ -101,5 +125,14 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 32,
+  },
+  image: {
+    width: Dimensions.get("window").width - 50,
+    height: 150,
+    padding: 50,
+    alignSelf: "center",
+  },
+  search: {
+    margin: 20,
   },
 });
