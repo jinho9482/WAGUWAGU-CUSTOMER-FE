@@ -10,6 +10,7 @@ import { createMaterialTopTabNavigator } from "@react-navigation/material-top-ta
 import HomeScreen from "./screen/HomeScreen";
 import { createMaterialBottomTabNavigator } from "@react-navigation/material-bottom-tabs";
 import { SafeAreaProvider } from "react-native-safe-area-context";
+import MenuDetailScreen from "./screen/MenuDetailScreen";
 
 export default function App() {
   const BottomTab = createMaterialBottomTabNavigator();
@@ -68,6 +69,20 @@ export default function App() {
             tabBarIcon: () => (
               <MaterialCommunityIcons
                 name="account-circle"
+                color={"#000000"}
+                size={20}
+              />
+            ),
+          }}
+        />
+        <BottomTab.Screen
+          name="메뉴디테일"
+          component={MenuDetailScreen}
+          options={{
+            tabBarLabel: "메뉴",
+            tabBarIcon: ({ color, size }) => (
+              <MaterialCommunityIcons
+                name="text-box-outline"
                 color={"#000000"}
                 size={20}
               />
