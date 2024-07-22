@@ -2,6 +2,7 @@ import {
   Dimensions,
   FlatList,
   Image,
+  ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -11,7 +12,7 @@ import SpeechBubble from "../components-common/SpeechBubble";
 import React, { useState } from "react";
 import { Searchbar } from "react-native-paper";
 
-export default function HomeScreen() {
+export default function HomeScreen({ navigation }) {
   const DATA = [
     {
       id: "1",
@@ -101,7 +102,10 @@ export default function HomeScreen() {
             <Item
               key={item.id}
               item={item}
-              onPress={() => setSelectedId(item.id)}
+              onPress={() => {
+                setSelectedId(item.id);
+                navigation.navigate("StoreList", { category: item.title });
+              }}
               backgroundColor={backgroundColor}
               textColor={color}
             />
