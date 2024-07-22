@@ -1,10 +1,36 @@
 import { storeApi } from "./storeNetwork";
 
-// export const getDiaryAllByPostId = async (id) => {
+// export const getAllStores = async () => {
 //   try {
-//     const res = await storeApi(`/api/v1/diaries/posts/${id}`, "get");
+//     const res = await storeApi(`/api/v1/store`, "get");
 //     return res.data;
 //   } catch (error) {
-//     console.error("Error in getAllByPostId", error);
+//     console.error("Error in getAllStores", error);
+//   }
+// };
+
+export const getAllStoresNearUser = async (data) => {
+  try {
+    const res = await storeApi(
+      `/api/v1/distance-cal/user-near-store`,
+      "post",
+      data
+    );
+    return res.data;
+  } catch (error) {
+    // console.error("Error in getAllStoresNearUser", error);
+  }
+};
+
+// export const getStoresDistanceAndDeliveryFee = async (storeId, data) => {
+//   try {
+//     const res = await storeApi(
+//       `/api/v1/distance-cal/store/${storeId}/accept-order`,
+//       "post",
+//       data
+//     );
+//     return res.data;
+//   } catch (error) {
+//     console.error("Error in getStoresDistanceAndDeliveryFee", error);
 //   }
 // };
