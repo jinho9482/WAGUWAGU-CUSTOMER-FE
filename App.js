@@ -11,6 +11,7 @@ import HomeScreen from "./screen/HomeScreen";
 import { createMaterialBottomTabNavigator } from "@react-navigation/material-bottom-tabs";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import MenuDetailScreen from "./screen/MenuDetailScreen";
+import CartScreen from "./screen/CartScreen";
 
 export default function App() {
   const BottomTab = createMaterialBottomTabNavigator();
@@ -86,6 +87,16 @@ export default function App() {
                 color={"#000000"}
                 size={20}
               />
+            ),
+          }}
+        />
+        <BottomTab.Screen
+          name="장바구니"
+          component={CartScreen}
+          options={{
+            tabBarLabel: "장바구니",
+            tabBarIcon: ({ color, size }) => (
+              <MaterialCommunityIcons name="cart" color={"#000000"} size={20} />
             ),
           }}
         />
