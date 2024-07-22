@@ -1,50 +1,64 @@
-// OptionList.js
-import React, { useState } from "react";
-import { View, Text, FlatList, StyleSheet } from "react-native";
-import Option from "./Option";
+// OptionList.jsx
+import React from "react";
+import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { COLORS } from "../assets/constants/theme";
 
-const OptionList = ({ optionList }) => {
-  const [options, setOptions] = useState(optionList.options);
-
-  const toggleOption = (optionId) => {
-    setOptions((prevOptions) =>
-      prevOptions.map((option) =>
-        option.optionId === optionId
-          ? { ...option, isChecked: !option.isChecked }
-          : option
-      )
+const OptionList = ({ optionList, onOptionChange }) => {
+  const handleOptionToggle = (optionId) => {
+    const updatedOptions = optionList.options.map((option) =>
+      option.optionId === optionId
+        ? { ...option, isChecked: !option.isChecked }
+        : option
     );
+    onOptionChange(updatedOptions);
   };
 
   return (
-    <View style={styles.listContainer}>
-      <Text style={styles.listTitle}>{optionList.listName}</Text>
-      <FlatList
-        data={options}
-        renderItem={({ item }) => (
-          <Option option={item} onToggle={toggleOption} />
-        )}
-        keyExtractor={(item) => item.optionId.toString()}
-      />
+    <View style={styles.container}>
+      <Text style={styles.title}>{optionList.listName}</Text>
+      {optionList.options.map((option) => (
+        <TouchableOpacity
+          key={option.optionId}
+          style={styles.option}
+          onPress={() => handleOptionToggle(option.optionId)}
+        >
+          <Text style={styles.optionText}>
+            {option.optionTitle} (+{option.optionPrice}원)
+          </Text>
+          <Text style={styles.checkbox}>
+            {option.isChecked && <View style={styles.checkboxChecked} />}
+          </Text>
+        </TouchableOpacity>
+      ))}
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  listContainer: {
-    margin: 10,
-    borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 5,
-    overflow: "hidden",
-  },
-  listTitle: {
-    fontSize: 18,
-    fontWeight: "bold",
+  container: { marginVertical: 10, padding: 20 },
+  title: { fontSize: 18, fontWeight: "bold" },
+  option: {
+    flexDirection: "row",
+    justifyContent: "space-between",
     padding: 10,
-    backgroundColor: "#f5f5f5",
-    borderBottomWidth: 1,
-    borderBottomColor: "#ccc",
+  },
+  optionText: { fontSize: 16 },
+  checkbox: {
+    width: 20,
+    height: 20,
+    borderRadius: 4,
+    borderWidth: 1,
+    borderColor: COLORS.gray,
+    marginRight: 10,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+
+  checkboxChecked: {
+    width: 20,
+    height: 20,
+    backgroundColor: COLORS.darkgray,
+    borderRadius: 3,
   },
 });
 
