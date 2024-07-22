@@ -126,6 +126,11 @@ export default function App() {
                     component={KaKaoLoginScreen}
                     options={{ headerShown: false }}
                 />
+                <Stack.Screen
+                    name="SignupScreen"
+                    component={SignupScreen}
+                    options={{ headerShown: false }}
+                />
             </Stack.Navigator>
         </NavigationContainer>
     );

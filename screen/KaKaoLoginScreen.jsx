@@ -1,11 +1,13 @@
 import React from "react";
 import { View, StyleSheet } from "react-native";
 import { WebView } from 'react-native-webview';
+import { useNavigation } from '@react-navigation/native';
 
 const REST_API_KEY = 'f8609808f0ad80f284bc679eb3d80315';
 const REDIRECT_URI = 'http://192.168.0.15:8081/Home';
 
 const KaKaoLoginScreen = () => {
+    const navigation = useNavigation(); // useNavigation 훅을 사용하여 네비게이션 객체를 가져옵니다.
 
     const handleNavigationChange = (navState) => {
         const { url } = navState;
@@ -15,7 +17,8 @@ const KaKaoLoginScreen = () => {
         if (condition !== -1) {
             const authorize_code = url.substring(condition + exp.length);
             console.log(authorize_code);
-            // 여기에서 authorize_code를 사용하여 인증을 완료하거나 다른 작업을 수행할 수 있습니다.
+            // 인증 코드로 SignInScreen으로 이동
+            navigation.navigate("SignupScreen", { authorize_code }); // 인증 코드와 함께 이동합니다.
         }
     };
 
