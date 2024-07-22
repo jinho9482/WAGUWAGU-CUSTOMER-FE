@@ -13,7 +13,7 @@ import OptionList from "../components/OptionList.jsx";
 
 const basePrice = 20000;
 
-const MenuDetailScreen = () => {
+const MenuDetailScreen = ({ navigation }) => {
   const [optionList1, setOptionList1] = useState({
     listId: 1,
     listName: "기본 옵션",
@@ -181,6 +181,7 @@ const MenuDetailScreen = () => {
           paddingRight: SIZES.padding * 2,
           justifyContent: "center",
         }}
+        onPress={() => navigation.navigate("Mycart")}
       >
         <Image
           source={require("../assets/icons/shopping-basket.png")}
