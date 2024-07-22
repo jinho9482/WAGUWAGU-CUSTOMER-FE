@@ -1,8 +1,20 @@
-import React from 'react';
-import {View, Image, StyleSheet, Dimensions, Text, TouchableOpacity} from 'react-native';
+import React, { useState } from 'react';
+import { View, Image, StyleSheet, Text, TouchableOpacity, TextInput } from 'react-native';
 import SpeechBubble from '../components-common/SpeechBubble';
 
 const MyPage = () => {
+    const [modify, setModify] = useState(false);
+    const [nickname, setNickname] = useState('김세현');
+    const [address, setAddress] = useState('서울특별시 서초구 효령로 335');
+
+    const handleModify = () => {
+        if (modify) {
+            setModify(false); // Exit edit mode
+        } else {
+            setModify(true); // Enter edit mode
+        }
+    };
+
     return (
         <View style={styles.container}>
             <View style={styles.profile}>
@@ -11,31 +23,56 @@ const MyPage = () => {
                     style={styles.profileImage}
                     resizeMode="cover" // Adjust this as needed
                 />
-                <Text style={styles.greeting}>먹짱! 김세현</Text>
+                <Text style={styles.greeting}>먹짱! {nickname}</Text>
             </View>
             <View style={styles.infoBox}>
-                <View style={styles.infoRow}>
-                    <Text style={styles.label}>이메일</Text>
-                    <Text style={styles.value}>abc123@naver.com</Text>
-                </View>
-                <View style={styles.separator} />
-                <View style={styles.infoRow}>
-                    <Text style={styles.label}>전화번호</Text>
-                    <Text style={styles.value}>010-1234-5678</Text>
-                </View>
-                <View style={styles.separator} />
-                <View style={styles.infoRow}>
-                    <Text style={styles.label}>주소</Text>
-                    <Text style={styles.value}>서울특별시 서초구 효령로 335</Text>
-                </View>
+                {modify ? (
+                    <>
+                        <View style={styles.infoRow}>
+                            <Text style={styles.label}>닉네임</Text>
+                            <TextInput
+                                style={styles.input}
+                                value={nickname}
+                                onChangeText={setNickname}
+                                textAlign="right" // Align text to the right
+                            />
+                        </View>
+                        <View style={styles.separator} />
+                        <View style={styles.infoRow}>
+                            <Text style={styles.label}>주소    </Text>
+                            <TextInput
+                                style={styles.input}
+                                value={address}
+                                onChangeText={setAddress}
+                                textAlign="right" // Align text to the right
+                            />
+                        </View>
+                    </>
+                ) : (
+                    <>
+                        <View style={styles.infoRow}>
+                            <Text style={styles.label}>이메일</Text>
+                            <Text style={styles.value}>abc123@naver.com</Text>
+                        </View>
+                        <View style={styles.separator} />
+                        <View style={styles.infoRow}>
+                            <Text style={styles.label}>전화번호</Text>
+                            <Text style={styles.value}>010-1234-5678</Text>
+                        </View>
+                        <View style={styles.separator} />
+                        <View style={styles.infoRow}>
+                            <Text style={styles.label}>주소</Text>
+                            <Text style={styles.value}>{address}</Text>
+                        </View>
+                    </>
+                )}
             </View>
             <View style={styles.buttonContainer}>
-                <TouchableOpacity>
+                <TouchableOpacity onPress={handleModify}>
                     <SpeechBubble
-                        content="수정하기"
+                        content={modify ? "저장하기" : "수정하기"}
                         backgroundColor="#ffffff"
                         textColor="black"
-                        onPress={() => console.log("수정하기 Pressed")}
                         height={50}
                         width="100%"
                     />
@@ -47,7 +84,6 @@ const MyPage = () => {
                         content="찜한 가게 보기"
                         backgroundColor="#ffffff"
                         textColor="black"
-                        onPress={() => console.log("찜한 가게 보기 Pressed")}
                         height={50}
                         width="100%"
                     />
@@ -59,7 +95,6 @@ const MyPage = () => {
                         content="쿠폰 보기"
                         backgroundColor="#ffffff"
                         textColor="black"
-                        onPress={() => console.log("수정하기 Pressed")}
                         height={50}
                         width="100%"
                     />
@@ -71,7 +106,6 @@ const MyPage = () => {
                         content="내가 쓴 리뷰 보기"
                         backgroundColor="#ffffff"
                         textColor="black"
-                        onPress={() => console.log("내가 쓴 리뷰 보기 Pressed")}
                         height={50}
                         width="100%"
                     />
@@ -83,7 +117,6 @@ const MyPage = () => {
                         content="로그아웃"
                         backgroundColor="#ffffff"
                         textColor="black"
-                        onPress={() => console.log("로그아웃 Pressed")}
                         height={50}
                         width="100%"
                     />
@@ -126,14 +159,21 @@ const styles = StyleSheet.create({
     infoRow: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        paddingVertical: 5,
+        paddingVertical: 10,
     },
     label: {
         fontSize: 16,
         fontWeight: 'bold',
+        paddingRight: 10
     },
     value: {
         fontSize: 16,
+    },
+    input: {
+        flex: 1,
+        fontSize: 18,
+        borderColor: '#ddd',
+        borderBottomWidth: 1,
     },
     separator: {
         borderBottomWidth: 1,
