@@ -11,6 +11,7 @@ import OrderHistoryScreen from './screen/OrderHistoryScreen';
 import MypageScreen from './screen/MypageScreen';
 import OrderScreen from './screen/OrderScreen';
 import LoginScreen from './screen/LoginScreen';
+import SignupScreen from './screen/SignupScreen';
 
 const Stack = createStackNavigator();
 const BottomTab = createMaterialBottomTabNavigator();
@@ -30,7 +31,7 @@ const BottomView = () => {
                     options={{
                         tabBarLabel: "홈",
                         tabBarIcon: ({ color, size }) => (
-                            <MaterialCommunityIcons name="home" color={color} size={size} />
+                            <MaterialCommunityIcons name="home" color={color} size={20} />
                         ),
                     }}
                 />
@@ -43,7 +44,7 @@ const BottomView = () => {
                             <MaterialCommunityIcons
                                 name="file-search-outline"
                                 color={color}
-                                size={size}
+                                size={20}
                             />
                         ),
                     }}
@@ -57,7 +58,7 @@ const BottomView = () => {
                             <MaterialCommunityIcons
                                 name="text-box-outline"
                                 color={color}
-                                size={size}
+                                size={20}
                             />
                         ),
                     }}
@@ -71,7 +72,7 @@ const BottomView = () => {
                             <MaterialCommunityIcons
                                 name="account-circle"
                                 color={color}
-                                size={size}
+                                size={20}
                             />
                         ),
                     }}
@@ -85,7 +86,7 @@ const BottomView = () => {
                             <MaterialCommunityIcons
                                 name="account-circle"
                                 color={color}
-                                size={size}
+                                size={20}
                             />
                         ),
                     }}
@@ -107,6 +108,11 @@ export default function App() {
                 <Stack.Screen
                     name="Main"
                     component={BottomView}
+                    options={{ headerShown: false }}
+                />
+                <Stack.Screen
+                    name="SignUp"
+                    component={SignupScreen}
                     options={{ headerShown: false }}
                 />
             </Stack.Navigator>
