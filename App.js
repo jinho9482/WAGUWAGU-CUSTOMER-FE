@@ -10,10 +10,13 @@ import { createMaterialTopTabNavigator } from "@react-navigation/material-top-ta
 import HomeScreen from "./screen/HomeScreen";
 import { createMaterialBottomTabNavigator } from "@react-navigation/material-bottom-tabs";
 import { SafeAreaProvider } from "react-native-safe-area-context";
+import { createStackNavigator } from "@react-navigation/stack";
+import TestScreen from "./screen/StoreListScreen";
+import StoreListScreen from "./screen/StoreListScreen";
 
 export default function App() {
   const BottomTab = createMaterialBottomTabNavigator();
-
+  const Stack = createStackNavigator();
   const BottomView = () => {
     return (
       <BottomTab.Navigator
@@ -81,7 +84,25 @@ export default function App() {
   return (
     <NavigationContainer>
       <View style={styles.container}></View>
-      <BottomView />
+      <Stack.Navigator initialRouteName="BottomView">
+        <Stack.Screen
+          name="BottomTabNavigator"
+          component={BottomView}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="HomeScreen"
+          component={HomeScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen name="MypageScreen" component={MypageScreen} />
+        <Stack.Screen
+          name="OrderHistoryScreen"
+          component={OrderHistoryScreen}
+        />
+        <Stack.Screen name="SearchScreen" component={SearchScreen} />
+        <Stack.Screen name="StoreList" component={StoreListScreen} />
+      </Stack.Navigator>
     </NavigationContainer>
   );
 }
