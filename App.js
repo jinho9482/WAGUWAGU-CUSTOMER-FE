@@ -115,6 +115,11 @@ export default function App() {
                     component={SignupScreen}
                     options={{ headerShown: false }}
                 />
+                <Stack.Screen
+                    name="Mypage"
+                    component={MypageScreen}
+                    options={{ headerShown: false }}
+                />
             </Stack.Navigator>
         </NavigationContainer>
     );

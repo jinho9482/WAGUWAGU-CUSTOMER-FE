@@ -11,18 +11,18 @@ const SignupScreen = ({ navigation }) => {
     const handleSignup = () => {
         const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         const phonePattern = /^\d{11}$/;
-        if (!emailPattern.test(email)) {
-            Alert.alert('유효하지 않은 이메일', '올바른 이메일 형식이 아닙니다!');
-            return;
-        }
-        if (!email || !nickname || !phone || !address) {
-            Alert.alert('빈 칸 오류', '빈 칸 없이 모두 입력해주세요!');
-            return;
-        }
-        if (!phonePattern.test(phone)) {
-            Alert.alert('유효하지 않은 전화번호', '전화번호는 11자리 숫자로 입력해주세요!');
-            return;
-        }
+        // if (!emailPattern.test(email)) {
+        //     Alert.alert('유효하지 않은 이메일', '올바른 이메일 형식이 아닙니다!');
+        //     return;
+        // }
+        // if (!email || !nickname || !phone || !address) {
+        //     Alert.alert('빈 칸 오류', '빈 칸 없이 모두 입력해주세요!');
+        //     return;
+        // }
+        // if (!phonePattern.test(phone)) {
+        //     Alert.alert('유효하지 않은 전화번호', '전화번호는 11자리 숫자로 입력해주세요!');
+        //     return;
+        // }
 
         navigation.replace('Main');
     };
