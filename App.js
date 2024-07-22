@@ -19,6 +19,7 @@ import LoginScreen from './screen/LoginScreen';
 import SignupScreen from './screen/SignupScreen';
 
 import StoreListScreen from "./screen/StoreListScreen";
+import OrderScreen from "./screen/OrderScreen";
 
 export default function App() {
   const BottomTab = createMaterialBottomTabNavigator();

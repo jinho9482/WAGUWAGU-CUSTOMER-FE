@@ -1,4 +1,4 @@
-// import { createOrder } from './orderApi';
+import { orderApi } from '../config/orderNetwork';
 
     export const createOrder = async (data) => {
         const userRequestDto = {
@@ -31,7 +31,7 @@
         };
     
         try {
-            const res = await orderApi('/history', 'post', userRequestDto);
+            const res = await orderApi('api/v1/Order/history', 'post', userRequestDto);
             return res.data; // Return the response data
         } catch (error) {
             console.error('Error creating order:', error);
