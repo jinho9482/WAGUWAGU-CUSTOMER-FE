@@ -1,82 +1,116 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, StyleSheet, ActivityIndicator } from "react-native";
+import {
+  StyleSheet,
+  View,
+  Text,
+  FlatList,
+  TouchableOpacity,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import axios from "axios";
+import { useRecoilState } from "recoil";
+import { cartState } from "../state/CartState.js";
+import { SIZES, COLORS, FONTS } from "../assets/constants/theme";
 
-const getCartByUserId = async (userId) => {
-  try {
-    const res = await axios.get(
-      `http://192.168.0.26:8080/api/v1/cart/userId?userId=${userId}`
-    );
-    return res.data;
-  } catch (error) {
-    console.error(
-      "Error fetching cart:",
-      error.response ? error.response.data : error.message
-    );
-    throw error;
-  }
-};
+const CartScreen = ({ route }) => {
+  const userId = route.params?.userId; // Extract userId from route params
+  const [cart, setCart] = useRecoilState(cartState);
 
-const CartScreen = ({ userId }) => {
-  const [cart, setCart] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
+  // Fetch cart items from the server using the userId
   useEffect(() => {
-    const fetchCart = async () => {
+    const fetchCartItems = async () => {
       try {
-        const cartData = await getCartByUserId(5);
-        setCart(cartData);
-      } catch (err) {
-        setError(err);
-      } finally {
-        setLoading(false);
+        const response = await axios.get(
+          `http://192.168.0.26:8080/api/v1/cart/userId?userId=${userId}`
+        );
+        setCart(response.data);
+      } catch (error) {
+        console.error("Error fetching cart items:", error);
       }
     };
 
-    fetchCart();
+    fetchCartItems();
   }, [userId]);
 
-  if (loading) {
-    return <ActivityIndicator size="large" color="#0000ff" />;
-  }
-
-  if (error) {
-    return <Text>Error fetching cart: {error.message}</Text>;
-  }
+  // Render cart items
+  const renderCartItem = ({ item }) => (
+    <View style={styles.cartItemContainer}>
+      <Text style={styles.cartItemStore}>{item.store.storeName}</Text>
+      <Text style={styles.cartItemPrice}>{item.totalPrice}원</Text>
+      <Text style={styles.cartItemOptions}>
+        {item.optionList.options.map((option) => (
+          <Text key={option.optionId} style={styles.cartItemOption}>
+            {option.optionTitle} (+{option.optionPrice}원)
+          </Text>
+        ))}
+      </Text>
+    </View>
+  );
 
   return (
-    <View style={styles.container}>
-      {cart ? (
-        <View>
-          <Text style={styles.title}>장바구니</Text>
-          <Text>Store: {cart.store.storeName}</Text>
-          <Text>Total Price: {cart.totalPrice}원</Text>
-          <Text>Options:</Text>
-          {cart.optionList.options.map((option) => (
-            <Text key={option.optionId}>
-              {option.optionTitle}: {option.optionPrice}원 (
-              {option.checked ? "Checked" : "Unchecked"})
-            </Text>
-          ))}
-        </View>
-      ) : (
-        <Text>장바구니가 비어있습니다.</Text>
-      )}
-    </View>
+    <SafeAreaView style={styles.container}>
+      <FlatList
+        data={cart}
+        renderItem={renderCartItem}
+        keyExtractor={(item) => item.cartId.toString()}
+        contentContainerStyle={styles.flatListContent}
+      />
+      <TouchableOpacity
+        style={styles.checkoutButton}
+        onPress={() => {
+          // Handle checkout process
+          console.log("Proceeding to checkout...");
+        }}
+      >
+        <Text style={styles.checkoutButtonText}>결제하기</Text>
+      </TouchableOpacity>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
-    backgroundColor: "#fff",
+    backgroundColor: COLORS.lightGray2,
   },
-  title: {
-    fontSize: 24,
-    fontWeight: "bold",
-    marginBottom: 10,
+  cartItemContainer: {
+    padding: SIZES.padding,
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.gray,
+  },
+  cartItemStore: {
+    ...FONTS.h2,
+    color: COLORS.black,
+  },
+  cartItemPrice: {
+    ...FONTS.body3,
+    color: COLORS.primary,
+  },
+  cartItemOptions: {
+    ...FONTS.body4,
+    color: COLORS.darkGray,
+  },
+  cartItemOption: {
+    marginVertical: 2,
+  },
+  flatListContent: {
+    paddingBottom: 80,
+  },
+  checkoutButton: {
+    backgroundColor: "#94D35C",
+    padding: SIZES.padding * 2,
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 2,
+    borderColor: COLORS.white,
+    borderRadius: SIZES.radius,
+    position: "absolute",
+    bottom: 0,
+    width: "100%",
+  },
+  checkoutButtonText: {
+    ...FONTS.h2,
+    color: COLORS.white,
   },
 });
 

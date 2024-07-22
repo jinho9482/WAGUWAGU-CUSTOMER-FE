@@ -8,6 +8,7 @@ import { createMaterialBottomTabNavigator } from "@react-navigation/material-bot
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { createStackNavigator } from "@react-navigation/stack";
 import * as React from "react";
+import { RecoilRoot } from "recoil";
 
 import SearchScreen from "./screen/SearchScreen";
 import OrderHistoryScreen from "./screen/OrderHistoryScreen";
@@ -134,49 +135,52 @@ export default function App() {
   };
 
   return (
-    <NavigationContainer>
-      <View style={styles.container}></View>
-      <Stack.Navigator initialRouteName="Login">
-        <Stack.Screen
-          name="Login"
-          component={LoginScreen}
-          options={{ headerShown: false }}
-        />
+    <RecoilRoot>
+      <NavigationContainer>
+        <View style={styles.container}></View>
+        <Stack.Navigator initialRouteName="Login">
+          <Stack.Screen
+            name="Login"
+            component={LoginScreen}
+            options={{ headerShown: false }}
+          />
 
-        <Stack.Screen
-          name="HomeScreen"
-          component={HomeScreen}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen name="MypageScreen" component={MypageScreen} />
-        <Stack.Screen
-          name="OrderHistoryScreen"
-          component={OrderHistoryScreen}
-        />
-        <Stack.Screen name="SearchScreen" component={SearchScreen} />
-        <Stack.Screen name="StoreList" component={StoreListScreen} />
-        <Stack.Screen
-          name="Main"
-          component={BottomView}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="SignUp"
-          component={SignupScreen}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="Mypage"
-          component={MypageScreen}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="Mycart"
-          component={CartScreen}
-          options={{ headerShown: false }}
-        />
-      </Stack.Navigator>
-    </NavigationContainer>
+          <Stack.Screen
+            name="HomeScreen"
+            component={HomeScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen name="MypageScreen" component={MypageScreen} />
+          <Stack.Screen
+            name="OrderHistoryScreen"
+            component={OrderHistoryScreen}
+          />
+          <Stack.Screen name="SearchScreen" component={SearchScreen} />
+          <Stack.Screen name="StoreList" component={StoreListScreen} />
+          <Stack.Screen
+            name="Main"
+            component={BottomView}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="SignUp"
+            component={SignupScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="Mypage"
+            component={MypageScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="Mycart"
+            component={CartScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen name="CartScreen" component={CartScreen} />
+        </Stack.Navigator>
+      </NavigationContainer>
+    </RecoilRoot>
   );
 }
 
