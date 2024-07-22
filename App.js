@@ -12,6 +12,7 @@ import MypageScreen from './screen/MypageScreen';
 import OrderScreen from './screen/OrderScreen';
 import LoginScreen from './screen/LoginScreen';
 import SignupScreen from './screen/SignupScreen';
+import KaKaoLoginScreen from "./screen/KaKaoLoginScreen";
 
 const Stack = createStackNavigator();
 const BottomTab = createMaterialBottomTabNavigator();
@@ -118,6 +119,11 @@ export default function App() {
                 <Stack.Screen
                     name="Mypage"
                     component={MypageScreen}
+                    options={{ headerShown: false }}
+                />
+                <Stack.Screen
+                    name="KaKaoLoginScreen" // 여기에서 KaKaoLoginScreen을 추가합니다.
+                    component={KaKaoLoginScreen}
                     options={{ headerShown: false }}
                 />
             </Stack.Navigator>
