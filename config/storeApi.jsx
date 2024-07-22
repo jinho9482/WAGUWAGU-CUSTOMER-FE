@@ -22,6 +22,20 @@ export const getAllStoresNearUser = async (data) => {
   }
 };
 
+export const getStoreDetail = async (storeId, data) => {
+  try {
+    const res = await storeApi(
+      `/api/v1/distance-cal/store/${storeId}`,
+      "post",
+      data
+    );
+    return res.data;
+  } catch (error) {
+    // console.error("Error in getStoreDetail", error);
+  }
+};
+
+
 // export const getStoresDistanceAndDeliveryFee = async (storeId, data) => {
 //   try {
 //     const res = await storeApi(

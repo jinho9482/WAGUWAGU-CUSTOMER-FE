@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Dimensions, StyleSheet, Text, View } from "react-native";
 import { getAllStoresNearUser } from "../config/storeApi";
 import StoreListSpeechBubble from "../components-store/StoreListSpeechBubble";
+import { TouchableOpacity } from "react-native-gesture-handler";
 
 export default function StoreListScreen({ navigation, route }) {
   const { category } = route.params;
@@ -45,6 +46,12 @@ export default function StoreListScreen({ navigation, route }) {
       {stores ? (
         stores.map((store) => {
           return (
+            <TouchableOpacity
+              key={store.storeId}
+              onPress={() =>
+                navigation.navigate("Store", { storeId: store.storeId })
+              }
+            >
             <StoreListSpeechBubble
               key={store.storeId}
               width={dimensionWidth}
@@ -63,6 +70,7 @@ export default function StoreListScreen({ navigation, route }) {
                 // navigation.navigate("StoreList");
               }}
             />
+            </TouchableOpacity>
           );
         })
       ) : (
