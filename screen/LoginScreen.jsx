@@ -1,10 +1,13 @@
-import React, { useState } from 'react';
-import {View, Text, StyleSheet, Image, TouchableOpacity} from 'react-native';
+import React from 'react';
+import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
+import { useNavigation } from "@react-navigation/native";
 
-const LoginScreen = ({ navigation }) => {
+const LoginScreen = () => {
+    const navigation = useNavigation(); // useNavigation 훅을 컴포넌트 최상위에서 호출
+
     const handleLogin = () => {
-        // 로그인 성공 시 메인 화면으로 이동
-        navigation.replace('SignUp');
+        // 로그인 성공 시 KaKaoLogin 화면으로 이동
+        navigation.navigate("KaKaoLoginScreen");
     };
 
     return (
@@ -45,14 +48,21 @@ const styles = StyleSheet.create({
         width: 95,
         height: 95,
     },
-    logoImage:{
-        width: 300, 
+    logoImage: {
+        width: 300,
     },
-    logoText:{
+    logoText: {
         color: '#4C241D',
-        fontSize:16,
+        fontSize: 16,
         marginBottom: 20,
-    }
+    },
+    button: {
+        marginTop: 20,
+    },
+    image: {
+        width: 200,
+        height: 50,
+    },
 });
 
 export default LoginScreen;
