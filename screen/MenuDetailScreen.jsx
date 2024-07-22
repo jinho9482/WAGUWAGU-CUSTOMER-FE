@@ -55,7 +55,12 @@ const MenuDetailScreen = () => {
         optionPrice: 0,
         isChecked: false,
       },
-      { optionId: 3, optionTitle: "스파게티", optionPrice: 0, isChecked: false },
+      {
+        optionId: 3,
+        optionTitle: "스파게티",
+        optionPrice: 0,
+        isChecked: false,
+      },
     ],
   });
 
@@ -88,6 +93,11 @@ const MenuDetailScreen = () => {
 
   const renderFoodInfo = () => (
     <View>
+      <View>
+        <Text style={{ marginVertical: 10, textAlign: "center", ...FONTS.h2 }}>
+          피자가게
+        </Text>
+      </View>
       <View style={{ height: SIZES.height * 0.3 }}>
         <Image
           source={require("../assets/images/pizza.jpg")}
@@ -187,7 +197,7 @@ const MenuDetailScreen = () => {
   return (
     <SafeAreaView style={styles.container}>
       <FlatList
-        data={[]} // Empty data since we are not listing anything here
+        data={[]}
         ListHeaderComponent={
           <>
             {renderHeader()}

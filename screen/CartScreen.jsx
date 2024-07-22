@@ -2,8 +2,6 @@ import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet, ActivityIndicator } from "react-native";
 import axios from "axios";
 
-// Function to fetch cart data by user ID
-// round?round=${round}`
 const getCartByUserId = async (userId) => {
   try {
     const res = await axios.get(
@@ -63,7 +61,7 @@ const CartScreen = ({ userId }) => {
           ))}
         </View>
       ) : (
-        <Text>No cart data available</Text>
+        <Text>장바구니가 비어있습니다.</Text>
       )}
     </View>
   );
