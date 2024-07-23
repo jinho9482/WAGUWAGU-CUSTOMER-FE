@@ -1,15 +1,14 @@
 import React, { useState, useEffect } from "react";
-import { Text, View, StyleSheet, Dimensions, TouchableOpacity, ScrollView } from "react-native";
-import { Searchbar } from 'react-native-paper';
+import { Text, View, StyleSheet, Dimensions, TouchableOpacity, ScrollView, TouchableWithoutFeedback } from "react-native";
 import SpeechBubble from "../components-common/SpeechBubble";
 import { searchHistory } from '../config/orderApi';
 
 export default function OrderHistoryScreen() {
   const [selectedId, setSelectedId] = useState(null);
   const [orders, setOrders] = useState([]);
-  const [searchQuery, setSearchQuery] = useState("");
   const [error, setError] = useState(null);
-  const [selectedOrder, setSelectedOrder] = useState(null);  // 추가된 상태
+  const [selectedOrder, setSelectedOrder] = useState(null);
+  const [isDetailsVisible, setIsDetailsVisible] = useState(false);
   const dimensionWidth = Dimensions.get("window").width / 4;
 
   const handledGetHistory = async () => {
@@ -24,16 +23,16 @@ export default function OrderHistoryScreen() {
   };
 
   useEffect(() => {
-    handledGetHistory();  // 컴포넌트 마운트 시 함수 호출
+    handledGetHistory();
   }, []);
 
   const Item = ({ item, onPress, backgroundColor, textColor }) => (
-    <TouchableOpacity onPress={onPress} style={[styles.item, { backgroundColor }]}>
+    <TouchableOpacity onPress={onPress} style={[styles.item]}>
       <SpeechBubble
-        height={80}
+        height={100}
         width={dimensionWidth}
         textColor={textColor}
-        content={item.menuName}  // item.title 대신 item.menuName 사용
+        content={`${item.storeName}\n${item.menuName}`} // 텍스트를 두 줄로 나눔
         backgroundColor={backgroundColor}
       />
     </TouchableOpacity>
@@ -42,46 +41,47 @@ export default function OrderHistoryScreen() {
   const handleItemPress = (item) => {
     setSelectedId(item.orderId.timestamp);
     setSelectedOrder(item);
+    setIsDetailsVisible(true);
+  };
+
+  const handleBackgroundPress = () => {
+    setIsDetailsVisible(false);
   };
 
   return (
-    <View style={styles.container}>
-      <Searchbar
-        style={styles.search}
-        placeholder="Search"
-        onChangeText={setSearchQuery}
-        value={searchQuery}
-      />
-      {error && <Text style={styles.errorText}>{error}</Text>}
-      <ScrollView contentContainerStyle={styles.scrollViewContainer}>
-        {orders.filter(order => order.menuName && order.menuName.includes(searchQuery)).map((item) => {  // title 대신 menuName 사용
-          const backgroundColor = item.orderId.timestamp === selectedId ? "#94D35C" : "#ffffff";  // id 대신 orderId.timestamp 사용
-          const color = item.orderId.timestamp === selectedId ? "white" : "black";
-          return (
-            <Item
-              key={item.orderId.timestamp}
-              item={item}
-              onPress={() => handleItemPress(item)}
-              backgroundColor={backgroundColor}
-              textColor={color}
-            />
-          );
-        })}
-        {selectedOrder && (
-        <View style={styles.detailsContainer}>
-          <Text>Menu Name: {selectedOrder.menuName}</Text>
-          <Text>Order Total Amount: {selectedOrder.orderTotalAmount}</Text>
-          <Text>Store Name: {selectedOrder.storeName}</Text>
-          <Text>Store Address: {selectedOrder.storeAddressString}</Text>
-          <Text>Order State: {selectedOrder.orderState.join(", ")}</Text>
-          <Text>Customer Requests: {selectedOrder.customerRequests}</Text>
-          <Text>Rider Requests: {selectedOrder.riderRequests}</Text>
-          {/* 필요한 다른 정보들도 여기에 추가 */}
-        </View>
-      )}
-      </ScrollView>
-      
-    </View>
+    <TouchableWithoutFeedback onPress={handleBackgroundPress}>
+      <View style={styles.container}>
+        {error && <Text style={styles.errorText}>{error}</Text>}
+        <ScrollView contentContainerStyle={styles.scrollViewContainer}>
+          {orders.filter(order => order.menuName).map((item) => {
+            const backgroundColor = item.orderId.timestamp === selectedId ? "#94D35C" : "#ffffff";
+            const color = item.orderId.timestamp === selectedId ? "white" : "black";
+            return (
+              <Item
+                key={item.orderId.timestamp}
+                item={item}
+                onPress={() => handleItemPress(item)}
+                backgroundColor={backgroundColor}
+                textColor={color}
+              />
+            );
+          })}
+        </ScrollView>
+        {isDetailsVisible && selectedOrder && (
+          <View style={styles.detailsContainer}>
+            <Text>Menu Name: {selectedOrder.menuName}</Text>
+            <Text>option Name: {selectedOrder.optionTitle}</Text>
+            <Text>Order Total Amount: {selectedOrder.orderTotalAmount}</Text>
+            <Text>Store Name: {selectedOrder.storeName}</Text>
+            <Text>Store Address: {selectedOrder.storeAddressString}</Text>
+            <Text>Order State: {selectedOrder.orderState.join(", ")}</Text>
+            <Text>Customer Requests: {selectedOrder.customerRequests}</Text>
+            <Text>Rider Requests: {selectedOrder.riderRequests}</Text>
+            {/* 필요한 다른 정보들도 여기에 추가 */}
+          </View>
+        )}
+      </View>
+    </TouchableWithoutFeedback>
   );
 }
 
@@ -89,6 +89,8 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   item: {
     marginVertical: 8,
@@ -100,7 +102,8 @@ const styles = StyleSheet.create({
   scrollViewContainer: {
     flexDirection: "row",
     flexWrap: "wrap",
-    flexShrink: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   errorText: {
     color: 'red',
@@ -117,5 +120,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.8,
     shadowRadius: 2,
     elevation: 5,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
