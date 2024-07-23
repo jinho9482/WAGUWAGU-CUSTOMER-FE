@@ -24,126 +24,117 @@ import MenuDetailScreen from "./screen/MenuDetailScreen";
 import KaKaoLoginScreen from "./screen/KaKaoLoginScreen";
 
 export default function App() {
-    const BottomTab = createMaterialBottomTabNavigator();
-    const Stack = createStackNavigator();
+  const BottomTab = createMaterialBottomTabNavigator();
+  const Stack = createStackNavigator();
 
-    const BottomView = () => {
-        return (
-            <View style={{ flex: 1 }}>
-                <View style={styles.container}></View>
-                <BottomTab.Navigator
-                    initialRouteName="Home"
-                    activeColor="#f0edf6"
-                    barStyle={{ backgroundColor: "#94D35C" }}
-                >
-                    <BottomTab.Screen
-                        name="홈"
-                        component={HomeScreen}
-                        options={{
-                            tabBarLabel: "홈",
-                            tabBarIcon: ({ color, size }) => (
-                                <MaterialCommunityIcons name="home" color={color} size={20} />
-                            ),
-                        }}
-                    />
-                    <BottomTab.Screen
-                        name="검색"
-                        component={SearchScreen}
-                        options={{
-                            tabBarLabel: "검색",
-                            tabBarIcon: ({ color, size }) => (
-                                <MaterialCommunityIcons
-                                    name="file-search-outline"
-                                    color={color}
-                                    size={20}
-                                />
-                            ),
-                        }}
-                    />
-                    <BottomTab.Screen
-                        name="주문내역"
-                        component={OrderHistoryScreen}
-                        options={{
-                            tabBarLabel: "주문내역",
-                            tabBarIcon: ({ color, size }) => (
-                                <MaterialCommunityIcons
-                                    name="text-box-outline"
-                                    color={color}
-                                    size={20}
-                                />
-                            ),
-                        }}
-                    />
-                    <BottomTab.Screen
-                        name="마이페이지"
-                        component={MypageScreen}
-                        options={{
-                            tabBarLabel: "마이페이지",
-                            tabBarIcon: ({ color, size }) => (
-                                <MaterialCommunityIcons
-                                    name="account-circle"
-                                    color={color}
-                                    size={20}
-                                />
-                            ),
-                        }}
-                    />
-                    <BottomTab.Screen
-                        name="주문하기"
-                        component={OrderScreen}
-                        options={{
-                            tabBarLabel: "주문",
-                            tabBarIcon: ({ color, size }) => (
-                                <MaterialCommunityIcons
-                                    name="account-circle"
-                                    color={color}
-                                    size={20}
-                                />
-                            ),
-                        }}
-                    />
-                    <BottomTab.Screen
-                        name="장바구니"
-                        component={CartScreen}
-                        options={{
-                            tabBarLabel: "장바구니",
-                            tabBarIcon: ({ color, size }) => (
-                                <MaterialCommunityIcons
-                                    name="account-circle"
-                                    color={color}
-                                    size={20}
-                                />
-                            ),
-                        }}
-                    />
-                    <BottomTab.Screen
-                        name="메뉴"
-                        component={MenuDetailScreen}
-                        options={{
-                            tabBarLabel: "메뉴 상세",
-                            tabBarIcon: ({ color, size }) => (
-                                <MaterialCommunityIcons
-                                    name="account-circle"
-                                    color={color}
-                                    size={20}
-                                />
-                            ),
-                        }}
-                    />
-                </BottomTab.Navigator>
-            </View>
-        );
-    };
-
+  const BottomView = () => {
     return (
-        <NavigationContainer>
-            <View style={styles.container}></View>
-            <Stack.Navigator initialRouteName="Login">
-                <Stack.Screen
-                    name="Login"
-                    component={LoginScreen}
-                    options={{ headerShown: false }}
+      <View style={{ flex: 1 }}>
+        <View style={styles.container}></View>
+        <BottomTab.Navigator
+          initialRouteName="Home"
+          activeColor="#f0edf6"
+          barStyle={{ backgroundColor: "#94D35C" }}
+        >
+          <BottomTab.Screen
+            name="홈"
+            component={HomeScreen}
+            options={{
+              tabBarLabel: "홈",
+              tabBarIcon: ({ color, size }) => (
+                <MaterialCommunityIcons name="home" color={color} size={20} />
+              ),
+            }}
+          />
+          <BottomTab.Screen
+            name="검색"
+            component={SearchScreen}
+            options={{
+              tabBarLabel: "검색",
+              tabBarIcon: ({ color, size }) => (
+                <MaterialCommunityIcons
+                  name="file-search-outline"
+                  color={color}
+                  size={20}
                 />
+              ),
+            }}
+          />
+          <BottomTab.Screen
+            name="주문내역"
+            component={OrderHistoryScreen}
+            options={{
+              tabBarLabel: "주문내역",
+              tabBarIcon: ({ color, size }) => (
+                <MaterialCommunityIcons
+                  name="text-box-outline"
+                  color={color}
+                  size={20}
+                />
+              ),
+            }}
+          />
+          <BottomTab.Screen
+            name="마이페이지"
+            component={MypageScreen}
+            options={{
+              tabBarLabel: "마이페이지",
+              tabBarIcon: ({ color, size }) => (
+                <MaterialCommunityIcons
+                  name="account-circle"
+                  color={color}
+                  size={20}
+                />
+              ),
+            }}
+          />
+          <BottomTab.Screen
+            name="주문하기"
+            component={OrderScreen}
+            options={{
+              tabBarLabel: "주문",
+              tabBarIcon: ({ color, size }) => (
+                <MaterialCommunityIcons
+                  name="account-circle"
+                  color={color}
+                  size={20}
+                />
+              ),
+            }}
+          />
+          <BottomTab.Screen
+            name="장바구니"
+            component={CartScreen}
+            options={{
+              tabBarLabel: "장바구니",
+              tabBarIcon: ({ color, size }) => (
+                <MaterialCommunityIcons
+                  name="account-circle"
+                  color={color}
+                  size={20}
+                />
+              ),
+            }}
+          />
+          <BottomTab.Screen
+            name="메뉴"
+            component={MenuDetailScreen}
+            options={{
+              tabBarLabel: "메뉴 상세",
+              tabBarIcon: ({ color, size }) => (
+                <MaterialCommunityIcons
+                  name="account-circle"
+                  color={color}
+                  size={20}
+                />
+              ),
+            }}
+          />
+        </BottomTab.Navigator>
+      </View>
+    );
+  };
+
   return (
     <RecoilRoot>
       <NavigationContainer>
@@ -155,52 +146,6 @@ export default function App() {
             options={{ headerShown: false }}
           />
 
-                <Stack.Screen
-                    name="HomeScreen"
-                    component={HomeScreen}
-                    options={{ headerShown: false }}
-                />
-                <Stack.Screen name="MypageScreen" component={MypageScreen} />
-                <Stack.Screen
-                    name="OrderHistoryScreen"
-                    component={OrderHistoryScreen}
-                />
-                <Stack.Screen name="SearchScreen" component={SearchScreen} />
-                <Stack.Screen name="StoreList" component={StoreListScreen} />
-                <Stack.Screen
-                    name="Main"
-                    component={BottomView}
-                    options={{ headerShown: false }}
-                />
-                <Stack.Screen
-                    name="SignUp"
-                    component={SignupScreen}
-                    options={{ headerShown: false }}
-                />
-                <Stack.Screen
-                    name="Mypage"
-                    component={MypageScreen}
-                    options={{ headerShown: false }}
-                />
-                <Stack.Screen
-                    name="Mycart"
-                    component={CartScreen}
-                    options={{ headerShown: false }}
-                />
-                <Stack.Screen
-                    name="KaKaoLoginScreen" // 여기에서 KaKaoLoginScreen을 추가합니다.
-                    component={KaKaoLoginScreen}
-                    options={{ headerShown: false }}
-                />
-                <Stack.Screen
-                    name="SignupScreen"
-                    component={SignupScreen}
-                    options={{ headerShown: false }}
-                />
-            </Stack.Navigator>
-        </NavigationContainer>
-    );
-  };
           <Stack.Screen
             name="HomeScreen"
             component={HomeScreen}
@@ -233,6 +178,21 @@ export default function App() {
             component={CartScreen}
             options={{ headerShown: false }}
           />
+          <Stack.Screen
+            name="KaKaoLoginScreen" // 여기에서 KaKaoLoginScreen을 추가합니다.
+            component={KaKaoLoginScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="SignupScreen"
+            component={SignupScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="Store"
+            component={StoreScreen}
+            options={{ headerShown: false }}
+          />
           <Stack.Screen name="CartScreen" component={CartScreen} />
         </Stack.Navigator>
       </NavigationContainer>
@@ -241,11 +201,11 @@ export default function App() {
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 0.02,
-        padding: 16,
-        backgroundColor: "#94D35C",
-        alignItems: "center",
-        justifyContent: "center",
-    },
+  container: {
+    flex: 0.02,
+    padding: 16,
+    backgroundColor: "#94D35C",
+    alignItems: "center",
+    justifyContent: "center",
+  },
 });
