@@ -5,30 +5,21 @@ import StoreListSpeechBubble from "../components-store/StoreListSpeechBubble";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-export default async function StoreListScreen({ navigation, route }) {
+export default function StoreListScreen({ navigation, route }) {
   const { category } = route.params;
   const [stores, setStores] = useState([]);
 
-  const customerLongitudeString = await AsyncStorage.getItem(
-    "customerLongitude"
-  );
-  const customerLatitudeString = await AsyncStorage.getItem("customerLatitude");
 
   const getAllStoresNearUserApi = async () => {
     const customerLatitude = 0.0;
     const customerLongitude = 0.0;
     try {
-      if (customerLatitudeString !== null) {
-        customerLatitude = parseFloat(customerLatitudeString);
-      }
-      if (customerLongitudeString !== null) {
-        customerLongitude = parseFloat(customerLongitudeString);
-      }
-      console.log(await AsyncStorage.getItem("customerLongitude"));
-
+      
       const response = await getAllStoresNearUser({
-        longitude: parseFloat(customerLongitude),
-        latitude: parseFloat(customerLatitude),
+
+        longitude: parseFloat(await AsyncStorage.getItem("customerLongitude")),
+        latitude: parseFloat(await AsyncStorage.getItem("customerLatitude")),
+
         category: category,
       });
       console.log(response);
