@@ -31,8 +31,8 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 25,
     borderTopRightRadius: 25,
     borderBottomRightRadius: 25,
-      borderWidth: 1, // Add this line
-      borderColor: '#dcdcdc', // Your border color
+      borderWidth: 1, 
+      borderColor: '#dcdcdc', 
     // padding: 25,
     // height: 80,
     // width: 30,
