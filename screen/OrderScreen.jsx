@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Text, View, StyleSheet, TouchableOpacity, ScrollView, Image, TextInput } from "react-native";
+import SpeechBubble from "../components-common/SpeechBubble";
 import { createOrder } from '../config/orderApi';
 
 export default function OrderScreen() {
@@ -7,6 +8,8 @@ export default function OrderScreen() {
   const [consumerRequest, setConsumerRequest] = useState("");
   const [showInput, setShowInput] = useState(false);
   const [showInput1, setShowInput1] = useState(false);
+  const [storeName, setStoreName] = useState("");
+  const [menuName, setMenuName] = useState("");
   const [orderData, setOrderData] = useState({
     customerId: 1,
     ownerId: 4444,
@@ -14,9 +17,9 @@ export default function OrderScreen() {
     orderState: ["CREATED"],
     orderCreatedAt: '2024-07-18T15:00:00',
     storePhone: '010-1234-5678',
-    storeName: '정수리수리수리정수리',
+    storeName: storeName,
     storeAddressString: '서울 서초구 효령로 289 장곡빌딩',
-    menuName: '자장면',
+    menuName: menuName,
     menuIntroduction: 'Delicious Pizza',
     menuPrice: 10000,
     optionTitle: 'Extra Cheese',
@@ -87,102 +90,104 @@ export default function OrderScreen() {
 
 const handleCreateOrder = async () => {
   try {
-   
-    const result = await createOrder(orderData);
+    const updatedOrderData = {
+      ...orderData,
+      storeName: storeName,
+      menuName: menuName,
+    };
+    const result = await createOrder(updatedOrderData);
     console.log('Order created successfully:', result);
   } catch (error) {
     console.error('Failed to create order:', error);
   }
 };
 
-
   return (
     <ScrollView style={styles.container}>
-     
       <Text style={styles.title}>주문하기</Text>
      
-            <View style={styles.deliveryInfo}>
-          
-              <Text style={styles.deliveryText}>한집 배달</Text>
-                    <Image
-                      source={require('../assets/ugoolee.png')}
-                      style={styles.image}
-                    />
-          
-              <Text style={styles.deliveryText}>15분~30분</Text>
-            </View>
+      <View style={styles.deliveryInfo}>
+        <Text style={styles.deliveryText}>한집 배달</Text>
+        <Image
+          source={require('../assets/ugoolee.png')}
+          style={styles.image}
+        />
+        <Text style={styles.deliveryText}>15분~30분</Text>
+      </View>
      
- 
-       <View style={styles.section}>
-     
+      <View style={styles.section}>
+        <TextInput
+          style={styles.input}
+          placeholder="가게 이름을 입력하세요"
+          value={storeName}
+          onChangeText={setStoreName}
+        />
+        <TextInput
+          style={styles.input}
+          placeholder="메뉴 이름을 입력하세요"
+          value={menuName}
+          onChangeText={setMenuName}
+        />
 
-              <Text style={styles.buttonText}>고객 주소 보여주기</Text>
-
-           
-            <TouchableOpacity
-              style={styles.button}
-              onPress={() => setShowInput1(!showInput)}
-            >
-              <Text style={styles.buttonText}>라이더님께 요청 사항 전달</Text>
-           
-            </TouchableOpacity>
-            {showInput1 && (
-              <TextInput
-                style={styles.input}
-                placeholder="라이더 요청 사항을 입력해주세요"
-                value={riderRequest}
-                onChangeText={setRiderRequest}
-              />
-            )}
-           
-            <TouchableOpacity
-              style={styles.button}
-              onPress={() => setShowInput(!showInput)}
-            >
-              <Text style={styles.buttonText}>가게 사장님께 요청 사항 전달</Text>
-            </TouchableOpacity>
-           
-            {showInput && (
-              <TextInput
-                style={styles.input}
-                placeholder="가게 사장님께 요청 사항을 입력해주세요"
-                value={consumerRequest}
-                onChangeText={setConsumerRequest}
-              />
-            )}
-          
-            <TouchableOpacity style={styles.button}>
-              <Text style={styles.buttonText}>결제수단</Text>
-            </TouchableOpacity>
-          
-            <TouchableOpacity style={styles.button}>
-              <Text style={styles.buttonText}>할인 쿠폰</Text>
-            </TouchableOpacity>
-           
-            <TouchableOpacity style={styles.button}>
-              <Text style={styles.buttonText}>선물함</Text>
-            </TouchableOpacity>
-           
-            <TouchableOpacity style={styles.button}>
-              <Text style={styles.buttonText}>포인트</Text>
-          
-            </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => setShowInput1(!showInput1)}
+        >
+          <Text style={styles.buttonText}>라이더님께 요청 사항 전달</Text>
+        </TouchableOpacity>
+        {showInput1 && (
+          <TextInput
+            style={styles.input}
+            placeholder="라이더 요청 사항을 입력해주세요"
+            value={riderRequest}
+            onChangeText={setRiderRequest}
+          />
+        )}
+        
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => setShowInput(!showInput)}
+        >
+          <Text style={styles.buttonText}>가게 사장님께 요청 사항 전달</Text>
+        </TouchableOpacity>
+        {showInput && (
+          <TextInput
+            style={styles.input}
+            placeholder="가게 사장님께 요청 사항을 입력해주세요"
+            value={consumerRequest}
+            onChangeText={setConsumerRequest}
+          />
+        )}
+        
+        <TouchableOpacity style={styles.button}>
+          <Text style={styles.buttonText}>결제수단</Text>
+        </TouchableOpacity>
+        
+        <TouchableOpacity style={styles.button}>
+          <Text style={styles.buttonText}>할인 쿠폰</Text>
+        </TouchableOpacity>
+        
+        <TouchableOpacity style={styles.button}>
+          <Text style={styles.buttonText}>선물함</Text>
+        </TouchableOpacity>
+        
+        <TouchableOpacity style={styles.button}>
+          <Text style={styles.buttonText}>포인트</Text>
+        </TouchableOpacity>
       </View>
 
-
       <View style={styles.paymentSection}>
-          <Text style={styles.paymentText}>결제금액</Text>
-          <Text style={styles.paymentDetail}>총금액 35678원</Text>
-          <Text style={styles.paymentDetail}>할인 금액 -3216원</Text>
-          <Text style={styles.paymentDetail}>최종 금액 32424원</Text>
+        <Text style={styles.paymentText}>결제금액</Text>
+        <Text style={styles.paymentDetail}>총금액 35678원</Text>
+        <Text style={styles.paymentDetail}>할인 금액 -3216원</Text>
+        <Text style={styles.paymentDetail}>최종 금액 32424원</Text>
       </View>
       
       <View style={styles.container}>
-            <TouchableOpacity style={styles.button} onPress={handleCreateOrder}>
-                <Text style={styles.buttonText}>주문하기</Text>
-            </TouchableOpacity>
-        </View>     
-
+        <TouchableOpacity style={styles.button} onPress={handleCreateOrder}>
+          <Text style={styles.buttonText}>주문하기</Text>
+        </TouchableOpacity>
+      </View>
     </ScrollView>
   );
 }
@@ -220,11 +225,6 @@ const styles = StyleSheet.create({
   },
   section: {
     marginBottom: 20,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: "500",
-    marginBottom: 10,
   },
   button: {
     backgroundColor: '#94D35C',

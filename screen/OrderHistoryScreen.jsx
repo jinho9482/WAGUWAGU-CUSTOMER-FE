@@ -27,12 +27,12 @@ export default function OrderHistoryScreen() {
   }, []);
 
   const Item = ({ item, onPress, backgroundColor, textColor }) => (
-    <TouchableOpacity onPress={onPress} style={[styles.item, { backgroundColor }]}>
+    <TouchableOpacity onPress={onPress} style={[styles.item]}>
       <SpeechBubble
         height={100}
         width={dimensionWidth}
         textColor={textColor}
-        content={item.menuName}
+        content={`${item.storeName}\n${item.menuName}`} // 텍스트를 두 줄로 나눔
         backgroundColor={backgroundColor}
       />
     </TouchableOpacity>
@@ -70,6 +70,7 @@ export default function OrderHistoryScreen() {
         {isDetailsVisible && selectedOrder && (
           <View style={styles.detailsContainer}>
             <Text>Menu Name: {selectedOrder.menuName}</Text>
+            <Text>option Name: {selectedOrder.optionTitle}</Text>
             <Text>Order Total Amount: {selectedOrder.orderTotalAmount}</Text>
             <Text>Store Name: {selectedOrder.storeName}</Text>
             <Text>Store Address: {selectedOrder.storeAddressString}</Text>
