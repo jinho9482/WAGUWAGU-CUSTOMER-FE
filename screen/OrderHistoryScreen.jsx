@@ -86,6 +86,7 @@ export default function OrderHistoryScreen() {
         {isDetailsVisible && selectedOrder && (
           <View style={styles.detailsContainer}>
             <Text>Menu Name: {selectedOrder.menuName}</Text>
+            <Text>Menu Name: {selectedOrder.customerAddress}</Text>
             <Text>option Name: {selectedOrder.optionTitle}</Text>
             <Text>Order Total Amount: {selectedOrder.orderTotalAmount}</Text>
             <Text>Store Name: {selectedOrder.storeName}</Text>
