@@ -9,7 +9,6 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 import { createStackNavigator } from "@react-navigation/stack";
 import * as React from "react";
 import { RecoilRoot } from "recoil";
-
 import SearchScreen from "./screen/SearchScreen";
 import OrderHistoryScreen from "./screen/OrderHistoryScreen";
 import MypageScreen from "./screen/MypageScreen";
@@ -23,6 +22,7 @@ import OrderScreen from "./screen/OrderScreen";
 import CartScreen from "./screen/CartScreen";
 import MenuDetailScreen from "./screen/MenuDetailScreen";
 import KaKaoLoginScreen from "./screen/KaKaoLoginScreen";
+import StoreScreen from "./screen/StoreScreen";
 
 export default function App() {
   const BottomTab = createMaterialBottomTabNavigator();
@@ -191,9 +191,10 @@ export default function App() {
           <Stack.Screen
             name="Store"
             component={StoreScreen}
-            options={{ headerShown: false }}
+            // options={{ headerShown: false }}
           />
           <Stack.Screen name="CartScreen" component={CartScreen} />
+          <Stack.Screen name="MenuDetailScreen" component={MenuDetailScreen} />
         </Stack.Navigator>
       </NavigationContainer>
     </RecoilRoot>

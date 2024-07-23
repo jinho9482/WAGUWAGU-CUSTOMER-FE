@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Dimensions, StyleSheet, Text, View } from "react-native";
 import { getAllStoresNearUser } from "../config/storeApi";
 import StoreListSpeechBubble from "../components-store/StoreListSpeechBubble";
+import { TouchableOpacity } from "react-native-gesture-handler";
 
 export default function StoreListScreen({ navigation, route }) {
   const { category } = route.params;
@@ -45,24 +46,31 @@ export default function StoreListScreen({ navigation, route }) {
       {stores ? (
         stores.map((store) => {
           return (
-            <StoreListSpeechBubble
+            <TouchableOpacity
               key={store.storeId}
-              width={dimensionWidth}
-              title={store.storeName}
-              time={
-                parseInt(store.distanceFromStoreToCustomer * 4 + 10) +
-                "~" +
-                parseInt(store.distanceFromStoreToCustomer * 4 + 25) +
-                "분"
+              onPress={() =>
+                navigation.navigate("Store", { storeId: store.storeId })
               }
-              storeMinimumOrderAmount={
-                "최소 주문 금액 " + store.storeMinimumOrderAmount + "원"
-              }
-              fee={"배달팁 " + store.deliveryFee + "원"}
-              onPress={() => {
-                // navigation.navigate("StoreList");
-              }}
-            />
+            >
+              <StoreListSpeechBubble
+                key={store.storeId}
+                width={dimensionWidth}
+                title={store.storeName}
+                time={
+                  parseInt(store.distanceFromStoreToCustomer * 4 + 10) +
+                  "~" +
+                  parseInt(store.distanceFromStoreToCustomer * 4 + 25) +
+                  "분"
+                }
+                storeMinimumOrderAmount={
+                  "최소 주문 금액 : " + store.storeMinimumOrderAmount + "원"
+                }
+                fee={"배달팁 : " + store.deliveryFee + "원"}
+                onPress={() => {
+                  // navigation.navigate("StoreList");
+                }}
+              />
+            </TouchableOpacity>
           );
         })
       ) : (
