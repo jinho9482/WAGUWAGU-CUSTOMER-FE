@@ -90,11 +90,13 @@ export default function OrderScreen() {
   const handleCreateOrder = async () => {
     try {
       const id = await AsyncStorage.getItem("customerId");
+      const customerAddress = await AsyncStorage.getItem("customerAddress");
       const updatedOrderData = {
         ...orderData,
         customerId: id, 
         storeName: storeName,
         menuName: menuName,
+        customerAddress: customerAddress,
         customerRequests: consumerRequest,
         riderRequests: riderRequest,
       };
