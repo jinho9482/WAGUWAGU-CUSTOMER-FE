@@ -3,6 +3,7 @@ import { orderApi } from '../config/orderNetwork';
 export const createOrder = async (data) => {
     const userRequestDto = {
         customerId: data.customerId,
+        customerAddress: data.customerAddress,
         ownerId: data.ownerId,
         changeTime: data.changeTime,
         orderState: data.orderState,
