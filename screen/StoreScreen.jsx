@@ -15,18 +15,21 @@ import {
 import { StyleSheet } from "react-native";
 import { Text } from "react-native";
 import SpeechBubble from "../components-common/SpeechBubble";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
-export default function StoreScreen({ navigation, route }) {
+export default async function StoreScreen({ navigation, route }) {
   const { storeId } = route.params;
   const [store, setStore] = useState({});
   const [categories, setCategories] = useState([]);
   const [menus, setMenus] = useState([]);
+  const customerLongitude = await AsyncStorage.getItem("customerLongitude");
+  const customerLatitude = await AsyncStorage.getItem("customerLatitude");
   const getStoreDetailApi = async () => {
     console.log(storeId);
     try {
       const response = await getStoreDetail(storeId, {
-        longitude: 127.00539708137512,
-        latitude: 37.484274664803216,
+        longitude: customerLongitude,
+        latitude: customerLatitude,
       });
       console.log(response);
       setStore(response);
