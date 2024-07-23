@@ -190,9 +190,10 @@ export default function App() {
           <Stack.Screen
             name="Store"
             component={StoreScreen}
-            options={{ headerShown: false }}
+            // options={{ headerShown: false }}
           />
           <Stack.Screen name="CartScreen" component={CartScreen} />
+          <Stack.Screen name="MenuDetailScreen" component={MenuDetailScreen} />
         </Stack.Navigator>
       </NavigationContainer>
     </RecoilRoot>
