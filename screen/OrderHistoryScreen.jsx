@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { Text, View, StyleSheet, Dimensions, TouchableOpacity, ScrollView, TouchableWithoutFeedback, RefreshControl } from "react-native";
 import SpeechBubble from "../components-common/SpeechBubble";
 import { searchHistory } from '../config/orderApi';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function OrderHistoryScreen() {
   const [selectedId, setSelectedId] = useState(null);
@@ -12,9 +13,13 @@ export default function OrderHistoryScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const dimensionWidth = Dimensions.get("window").width / 4;
 
+ 
+
+
   const handledGetHistory = async () => {
-    try {
-      const result = await searchHistory({ consumerId: "1" });
+    try { 
+      const consumerId = await AsyncStorage.getItem("customerId")
+      const result = await searchHistory({ consumerId: consumerId});
       console.log('searchHistory successfully:', result);
       setOrders(result);
       setRefreshing(false);
