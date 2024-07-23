@@ -10,6 +10,9 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { SIZES, COLORS, FONTS } from "../assets/constants/theme";
 import OptionList from "../components/OptionList.jsx";
+import { useRecoilState } from "recoil";
+import { cartState } from "../state/CartState.js";
+import axios from "axios";
 
 const basePrice = 20000;
 
@@ -65,6 +68,7 @@ const MenuDetailScreen = ({ navigation }) => {
   });
 
   const [totalPrice, setTotalPrice] = useState(basePrice);
+  const [cart, setCart] = useRecoilState(cartState);
 
   useEffect(() => {
     const calculateTotalPrice = () => {
@@ -89,6 +93,40 @@ const MenuDetailScreen = ({ navigation }) => {
         options: updatedOptions,
       }));
     }
+  };
+
+  const handleAddToCart = async () => {
+    const selectedOptions = [
+      ...optionList1.options,
+      ...optionList2.options,
+    ].filter((option) => option.isChecked);
+
+    const cartItem = {
+      cartId: 1,
+      userId: 5, // Example user ID
+      store: {
+        storeId: 1, // Example store ID
+        storeName: "피자가게",
+      },
+      totalPrice: totalPrice,
+      optionList: {
+        listId: 1,
+        listName: "기본 옵션",
+        options: selectedOptions,
+      },
+    };
+
+    // Update Recoil state
+    setCart((prevCart) => [...prevCart, cartItem]);
+    console.log("Navigating to CartScreen with userId:", userId);
+    // Save to server
+    try {
+      await axios.post("http://192.168.0.26:8080/api/v1/cart/save", cartItem);
+      console.log("Cart item added to server:", cartItem);
+    } catch (err) {
+      console.error("Error saving cart item:", err);
+    }
+    navigation.navigate("CartScreen", { userId: userId });
   };
 
   const renderFoodInfo = () => (
@@ -219,7 +257,10 @@ const MenuDetailScreen = ({ navigation }) => {
           </>
         }
         ListFooterComponent={
-          <TouchableOpacity style={styles.addToCartButton}>
+          <TouchableOpacity
+            style={styles.addToCartButton}
+            onPress={handleAddToCart}
+          >
             <Text style={styles.addToCartButtonText}>장바구니에 추가</Text>
           </TouchableOpacity>
         }
@@ -235,7 +276,7 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.lightGray2,
   },
   scrollViewContent: {
-    paddingBottom: 80, // Extra padding to prevent the content from being cut off
+    paddingBottom: 80,
   },
   addToCartButton: {
     backgroundColor: "#94D35C",
