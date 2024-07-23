@@ -7,6 +7,7 @@ import {
 import {
   Dimensions,
   Image,
+  ImageBackground,
   ScrollView,
   TouchableOpacity,
   View,
@@ -110,12 +111,21 @@ export default function StoreScreen({ navigation, route }) {
                             menuId: menu.menuId,
                           })
                         }
+                        disabled={!menu.menuPossible}
                       >
-                        <View key={menu.menuId} style={styles.menuContainer}>
+                        <View key={menu.menuId} style={[styles.menuContainer]}>
                           <View>
-                            <Text style={{ fontSize: 20 }}>
-                              {menu.menuName}
-                            </Text>
+                            {menu.menuPossible ? (
+                              <Text style={{ fontSize: 20 }}>
+                                {menu.menuName}
+                              </Text>
+                            ) : (
+                              <Text
+                                style={[{ fontSize: 20 }, { color: "red" }]}
+                              >
+                                [품절] {menu.menuName}
+                              </Text>
+                            )}
                             <Text
                               numberOfLines={1}
                               style={[
