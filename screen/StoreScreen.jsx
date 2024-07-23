@@ -22,6 +22,7 @@ export default function StoreScreen({ navigation, route }) {
   const [categories, setCategories] = useState([]);
   const [menus, setMenus] = useState([]);
   const getStoreDetailApi = async () => {
+    console.log(storeId);
     try {
       const response = await getStoreDetail(storeId, {
         longitude: 127.00539708137512,
@@ -37,6 +38,7 @@ export default function StoreScreen({ navigation, route }) {
 
   const getMenuCategoryByStoreApi = async () => {
     try {
+      console.log("hi");
       const response = await getMenuCategoryByStore(storeId);
       console.log(response);
       setCategories(response);
