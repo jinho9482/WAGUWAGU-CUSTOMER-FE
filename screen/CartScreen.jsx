@@ -5,6 +5,7 @@ import {
   Text,
   FlatList,
   TouchableOpacity,
+  Pressable,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import axios from "axios";
@@ -44,6 +45,9 @@ const CartScreen = ({ route }) => {
           </Text>
         ))}
       </Text>
+      <Pressable style={styles.removeButtonContainer}>
+        <Text style={styles.removeButton}>삭제</Text>
+      </Pressable>
     </View>
   );
 
@@ -74,9 +78,11 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.lightGray2,
   },
   cartItemContainer: {
+    flexDirection: "row",
     padding: SIZES.padding,
     borderBottomWidth: 1,
     borderBottomColor: COLORS.gray,
+    alignItems: "center",
   },
   cartItemStore: {
     ...FONTS.h2,
@@ -111,6 +117,19 @@ const styles = StyleSheet.create({
   checkoutButtonText: {
     ...FONTS.h2,
     color: COLORS.white,
+  },
+  removeButtonContainer: {
+    marginLeft: SIZES.padding * 5,
+    paddingLeft: "30",
+    backgroundColor: "#94D35C",
+  },
+  removeButton: {
+    ...FONTS.body4,
+    color: COLORS.black,
+    backgroundColor: COLORS.red,
+    paddingVertical: 5,
+    paddingHorizontal: 10,
+    borderRadius: SIZES.radius,
   },
 });
 
