@@ -20,6 +20,7 @@ export default function OrderHistoryScreen() {
     try { 
       const consumerId = await AsyncStorage.getItem("customerId")
       const result = await searchHistory({ consumerId: consumerId});
+
       console.log('searchHistory successfully:', result);
       setOrders(result);
       setRefreshing(false);
@@ -86,7 +87,7 @@ export default function OrderHistoryScreen() {
         {isDetailsVisible && selectedOrder && (
           <View style={styles.detailsContainer}>
             <Text>Menu Name: {selectedOrder.menuName}</Text>
-            <Text>Menu Name: {selectedOrder.customerAddress}</Text>
+            <Text>customerAddress: {selectedOrder.customerAddress}</Text>
             <Text>option Name: {selectedOrder.optionTitle}</Text>
             <Text>Order Total Amount: {selectedOrder.orderTotalAmount}</Text>
             <Text>Store Name: {selectedOrder.storeName}</Text>
