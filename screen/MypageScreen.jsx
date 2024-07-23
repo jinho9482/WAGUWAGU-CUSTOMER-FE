@@ -1,14 +1,43 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Image, StyleSheet, Text, TouchableOpacity, TextInput } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import SpeechBubble from '../components-common/SpeechBubble';
 
 const MyPage = () => {
     const [modify, setModify] = useState(false);
-    const [nickname, setNickname] = useState('김세현');
-    const [address, setAddress] = useState('서울특별시 서초구 효령로 335');
+    const [nickname, setNickname] = useState('');
+    const [address, setAddress] = useState('');
+    const [email, setEmail] = useState('');
+    const [phone, setPhone] = useState('');
 
-    const handleModify = () => {
+    useEffect(() => {
+        const loadUserData = async () => {
+            try {
+                const storedNickname = await AsyncStorage.getItem('customerNickname');
+                const storedAddress = await AsyncStorage.getItem('customerAddress');
+                const storedEmail = await AsyncStorage.getItem('customerEmail');
+                const storedPhone = await AsyncStorage.getItem('customerPhone');
+
+                if (storedNickname) setNickname(storedNickname);
+                if (storedAddress) setAddress(storedAddress);
+                if (storedEmail) setEmail(storedEmail);
+                if (storedPhone) setPhone(storedPhone);
+            } catch (error) {
+                console.error('Failed to load user data:', error);
+            }
+        };
+
+        loadUserData();
+    }, []);
+
+    const handleModify = async () => {
         if (modify) {
+            try {
+                await AsyncStorage.setItem('nickname', nickname);
+                await AsyncStorage.setItem('address', address);
+            } catch (error) {
+                console.error('Failed to save user data:', error);
+            }
             setModify(false); // Exit edit mode
         } else {
             setModify(true); // Enter edit mode
@@ -19,7 +48,7 @@ const MyPage = () => {
         <View style={styles.container}>
             <View style={styles.profile}>
                 <Image
-                    source={require('../assets/김세현ㅋㅋ.png')}
+                    source={require('../assets/Vector.png')}
                     style={styles.profileImage}
                     resizeMode="cover" // Adjust this as needed
                 />
@@ -39,7 +68,7 @@ const MyPage = () => {
                         </View>
                         <View style={styles.separator} />
                         <View style={styles.infoRow}>
-                            <Text style={styles.label}>주소    </Text>
+                            <Text style={styles.label}>주소</Text>
                             <TextInput
                                 style={styles.input}
                                 value={address}
@@ -52,12 +81,12 @@ const MyPage = () => {
                     <>
                         <View style={styles.infoRow}>
                             <Text style={styles.label}>이메일</Text>
-                            <Text style={styles.value}>abc123@naver.com</Text>
+                            <Text style={styles.value}>{email}</Text>
                         </View>
                         <View style={styles.separator} />
                         <View style={styles.infoRow}>
                             <Text style={styles.label}>전화번호</Text>
-                            <Text style={styles.value}>010-1234-5678</Text>
+                            <Text style={styles.value}>{phone}</Text>
                         </View>
                         <View style={styles.separator} />
                         <View style={styles.infoRow}>

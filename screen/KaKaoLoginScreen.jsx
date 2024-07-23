@@ -30,7 +30,7 @@ const KaKaoLoginScreen = () => {
                 if (accessToken) {
                     console.log("Access Token:", accessToken);
                     await AsyncStorage.setItem('access_token', accessToken);
-                    navigation.navigate("SignupScreen", { authorize_code, access_token: accessToken });
+                    navigation.navigate("SignupScreen");
                 } else {
                     Alert.alert("Error", "Failed to retrieve access token");
                 }

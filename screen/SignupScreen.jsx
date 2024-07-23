@@ -1,30 +1,81 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Image, StyleSheet, TextInput, Text, TouchableOpacity, Alert } from 'react-native';
-import SpeechBubble from '../components-common/SpeechBubble'; // 경로를 확인하세요
+import SpeechBubble from '../components-common/SpeechBubble';
+import { getInfo, updateInfo } from "../api/authApi";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const SignupScreen = ({ navigation }) => {
-    const [email, setEmail] = useState('');
-    const [nickname, setNickname] = useState('');
-    const [phone, setPhone] = useState('');
-    const [address, setAddress] = useState('');
+    const [customerEmail, setCustomerEmail] = useState('');
+    const [customerNickname, setCustomerNickname] = useState('');
+    const [customerPhone, setCustomerPhone] = useState('');
+    const [customerAddress, setCustomerAddress] = useState('');
+    const [customerLatitude, setCustomerLatitude] = useState(0.0);
+    const [customerLongitude, setCustomerLongitude] = useState(0.0);
 
-    const handleSignup = () => {
+    useEffect(() => {
+        const fetchCustomerInfo = async () => {
+            try {
+                const res = await getInfo();
+                if (res.status === 200) {
+                    const { customerEmail, customerNickname, customerAddress, customerLatitude, customerLongitude, customerId, token } = res.data;
+
+                    if (customerAddress === "") {
+                        setCustomerEmail(customerEmail);
+                        setCustomerNickname(customerNickname);
+                        setCustomerPhone(customerPhone);
+                        setCustomerAddress(customerAddress);
+                        await AsyncStorage.setItem('access_token', token);
+                    } else {
+                        navigation.replace('Main');
+                    }
+
+                    // Save customer data to AsyncStorage
+                    await AsyncStorage.setItem('customerId', JSON.stringify(customerId));
+                    await AsyncStorage.setItem('customerEmail', customerEmail);
+                    await AsyncStorage.setItem('customerNickname', customerNickname);
+                    await AsyncStorage.setItem('customerPhone', customerPhone);
+                    await AsyncStorage.setItem('customerAddress', customerAddress);
+                    await AsyncStorage.setItem('customerLatitude', JSON.stringify(customerLatitude));
+                    await AsyncStorage.setItem('customerLongitude', JSON.stringify(customerLongitude));
+                }
+            } catch (error) {
+                console.log("사용자 정보 불러오는 중 에러", error);
+                Alert.alert("Error", "사용자 정보를 불러오는 중 에러가 발생했습니다.");
+            }
+        };
+
+        fetchCustomerInfo();
+    }, []);
+
+    const handleSignup = async () => {
         const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         const phonePattern = /^\d{11}$/;
-        // if (!emailPattern.test(email)) {
-        //     Alert.alert('유효하지 않은 이메일', '올바른 이메일 형식이 아닙니다!');
-        //     return;
-        // }
-        // if (!email || !nickname || !phone || !address) {
-        //     Alert.alert('빈 칸 오류', '빈 칸 없이 모두 입력해주세요!');
-        //     return;
-        // }
-        // if (!phonePattern.test(phone)) {
-        //     Alert.alert('유효하지 않은 전화번호', '전화번호는 11자리 숫자로 입력해주세요!');
-        //     return;
-        // }
 
-        navigation.replace('Main');
+        if (!emailPattern.test(customerEmail)) {
+            Alert.alert('유효하지 않은 이메일', '올바른 이메일 형식이 아닙니다!');
+            return;
+        }
+        if (!customerEmail || !customerNickname || !customerPhone || !customerAddress) {
+            Alert.alert('빈 칸 오류', '빈 칸 없이 모두 입력해주세요!');
+            return;
+        }
+        if (!phonePattern.test(customerPhone)) {
+            Alert.alert('유효하지 않은 전화번호', '전화번호는 11자리 숫자로 입력해주세요!');
+            return;
+        }
+
+        try {
+            const res = await updateInfo({ customerNickname, customerAddress, customerLatitude, customerLongitude });
+            if (res.status === 200) {
+                Alert.alert('회원가입 성공', '회원가입이 완료되었습니다!');
+                navigation.replace('Main');
+            } else {
+                Alert.alert('회원가입 실패', '회원가입에 실패했습니다. 다시 시도해주세요.');
+            }
+        } catch (error) {
+            console.log("회원가입 중 에러", error);
+            Alert.alert('Error', '회원가입 중 에러가 발생했습니다.');
+        }
     };
 
     return (
@@ -43,32 +94,33 @@ const SignupScreen = ({ navigation }) => {
             <View style={styles.infoBox}>
                 <Text style={styles.infoText}>이메일</Text>
                 <TextInput
-                    style={styles.input}
+                    style={[styles.input, customerEmail && styles.disabledInput]}
                     placeholder="Email"
-                    value={email}
-                    onChangeText={setEmail}
+                    value={customerEmail}
+                    onChangeText={setCustomerEmail}
+                    editable={false}
                 />
                 <Text style={styles.infoText}>닉네임</Text>
                 <TextInput
                     style={styles.input}
                     placeholder="Nickname"
-                    value={nickname}
-                    onChangeText={setNickname}
+                    value={customerNickname}
+                    onChangeText={setCustomerNickname}
                 />
                 <Text style={styles.infoText}>전화번호</Text>
                 <TextInput
                     style={styles.input}
                     placeholder="Phone"
-                    value={phone}
-                    onChangeText={setPhone}
+                    value={customerPhone}
+                    onChangeText={setCustomerPhone}
                     keyboardType="numeric" // 숫자 입력 전용
                 />
                 <Text style={styles.infoText}>배달주소</Text>
                 <TextInput
                     style={styles.input}
                     placeholder="Address"
-                    value={address}
-                    onChangeText={setAddress}
+                    value={customerAddress}
+                    onChangeText={setCustomerAddress}
                 />
                 <TouchableOpacity onPress={handleSignup}>
                     <SpeechBubble
@@ -119,6 +171,9 @@ const styles = StyleSheet.create({
         fontSize: 16, // 텍스트 크기
         backgroundColor: '#FFFFFF', // 배경색
         marginBottom: 20,
+    },
+    disabledInput: {
+        backgroundColor: '#e0e0e0', // 비활성화된 상태에서의 배경색
     },
 });
 

@@ -10,7 +10,7 @@ export const api = async (url, method, body) => {
             data: body,
             headers: {
                 // Authorization: `jwt ${localStorage.getItem("token")}`,
-                Authorization: `Bearer ${AsyncStorage.token}`,
+                Authorization: `Bearer ${await AsyncStorage.getItem("access_token")}`,
             },
         });
         return res;

@@ -31,7 +31,6 @@ export default function App() {
   const BottomView = () => {
     return (
       <View style={{ flex: 1 }}>
-        <View style={styles.container}></View>
         <BottomTab.Navigator
           initialRouteName="Home"
           activeColor="#f0edf6"
