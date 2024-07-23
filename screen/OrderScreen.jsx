@@ -178,7 +178,7 @@ const handleCreateOrder = async () => {
 
       <View style={styles.paymentSection}>
         <Text style={styles.paymentText}>결제금액</Text>
-        <Text style={styles.paymentDetail}>총금액 35678원</Text>
+        <Text style={styles.paymentDetail}>총금액 전달받은 돈 원</Text>
         <Text style={styles.paymentDetail}>할인 금액 -3216원</Text>
         <Text style={styles.paymentDetail}>최종 금액 32424원</Text>
       </View>

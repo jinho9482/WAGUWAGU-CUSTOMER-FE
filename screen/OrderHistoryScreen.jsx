@@ -88,7 +88,7 @@ export default function OrderHistoryScreen() {
             <Text>Order State: {selectedOrder.orderState.join(", ")}</Text>
             <Text>Customer Requests: {selectedOrder.customerRequests}</Text>
             <Text>Rider Requests: {selectedOrder.riderRequests}</Text>
-            {/* 필요한 다른 정보들도 여기에 추가 */}
+
           </View>
         )}
       </View>
