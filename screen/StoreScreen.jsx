@@ -4,7 +4,13 @@ import {
   getMenuCategoryByStore,
   getStoreDetail,
 } from "../config/storeApi";
-import { Dimensions, Image, ScrollView, View } from "react-native";
+import {
+  Dimensions,
+  Image,
+  ScrollView,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { StyleSheet } from "react-native";
 import { Text } from "react-native";
 import SpeechBubble from "../components-common/SpeechBubble";
@@ -97,30 +103,41 @@ export default function StoreScreen({ navigation, route }) {
                   </Text>
                   {menus[category.menuCategoryId] ? (
                     menus[category.menuCategoryId].map((menu) => (
-                      <View key={menu.menuId} style={styles.menuContainer}>
-                        <View>
-                          <Text style={{ fontSize: 20 }}>{menu.menuName}</Text>
-                          <Text
-                            numberOfLines={1}
-                            style={[
-                              styles.textEllipsis,
-                              { marginTop: 5 },
-                              { color: "#757575" },
-                            ]}
-                          >
-                            {menu.menuIntroduction}
-                          </Text>
-                          <Text style={{ marginTop: 10 }}>
-                            가격 {menu.menuPrice}원
-                          </Text>
+                      <TouchableOpacity
+                        key={menu.menuId}
+                        onPress={() =>
+                          navigation.navigate("MenuDetailScreen", {
+                            menuId: menu.menuId,
+                          })
+                        }
+                      >
+                        <View key={menu.menuId} style={styles.menuContainer}>
+                          <View>
+                            <Text style={{ fontSize: 20 }}>
+                              {menu.menuName}
+                            </Text>
+                            <Text
+                              numberOfLines={1}
+                              style={[
+                                styles.textEllipsis,
+                                { marginTop: 5 },
+                                { color: "#757575" },
+                              ]}
+                            >
+                              {menu.menuIntroduction}
+                            </Text>
+                            <Text style={{ marginTop: 10 }}>
+                              가격 {menu.menuPrice}원
+                            </Text>
+                          </View>
+                          <View>
+                            <Image
+                              style={[styles.menuImage]}
+                              source={require("./../assets/tteokbokki.png")}
+                            />
+                          </View>
                         </View>
-                        <View>
-                          <Image
-                            style={[styles.menuImage]}
-                            source={require("./../assets/tteokbokki.png")}
-                          />
-                        </View>
-                      </View>
+                      </TouchableOpacity>
                     ))
                   ) : (
                     <Text>Loading...</Text>
