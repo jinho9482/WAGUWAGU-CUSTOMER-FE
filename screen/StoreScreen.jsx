@@ -7,6 +7,7 @@ import {
 import {
   Dimensions,
   Image,
+  ImageBackground,
   ScrollView,
   TouchableOpacity,
   View,
@@ -14,17 +15,21 @@ import {
 import { StyleSheet } from "react-native";
 import { Text } from "react-native";
 import SpeechBubble from "../components-common/SpeechBubble";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
-export default function StoreScreen({ navigation, route }) {
+export default async function StoreScreen({ navigation, route }) {
   const { storeId } = route.params;
   const [store, setStore] = useState({});
   const [categories, setCategories] = useState([]);
   const [menus, setMenus] = useState([]);
+  const customerLongitude = await AsyncStorage.getItem("customerLongitude");
+  const customerLatitude = await AsyncStorage.getItem("customerLatitude");
   const getStoreDetailApi = async () => {
+    console.log(storeId);
     try {
       const response = await getStoreDetail(storeId, {
-        longitude: 127.00539708137512,
-        latitude: 37.484274664803216,
+        longitude: customerLongitude,
+        latitude: customerLatitude,
       });
       console.log(response);
       setStore(response);
@@ -36,6 +41,7 @@ export default function StoreScreen({ navigation, route }) {
 
   const getMenuCategoryByStoreApi = async () => {
     try {
+      console.log("hi");
       const response = await getMenuCategoryByStore(storeId);
       console.log(response);
       setCategories(response);
@@ -110,12 +116,21 @@ export default function StoreScreen({ navigation, route }) {
                             menuId: menu.menuId,
                           })
                         }
+                        disabled={!menu.menuPossible}
                       >
-                        <View key={menu.menuId} style={styles.menuContainer}>
+                        <View key={menu.menuId} style={[styles.menuContainer]}>
                           <View>
-                            <Text style={{ fontSize: 20 }}>
-                              {menu.menuName}
-                            </Text>
+                            {menu.menuPossible ? (
+                              <Text style={{ fontSize: 20 }}>
+                                {menu.menuName}
+                              </Text>
+                            ) : (
+                              <Text
+                                style={[{ fontSize: 20 }, { color: "red" }]}
+                              >
+                                [품절] {menu.menuName}
+                              </Text>
+                            )}
                             <Text
                               numberOfLines={1}
                               style={[
