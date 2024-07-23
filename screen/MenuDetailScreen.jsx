@@ -16,7 +16,7 @@ import axios from "axios";
 
 const basePrice = 20000;
 
-const MenuDetailScreen = ({ navigation }) => {
+const MenuDetailScreen = ({ navigation, route }) => {
   const [optionList1, setOptionList1] = useState({
     listId: 1,
     listName: "기본 옵션",

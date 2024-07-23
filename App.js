@@ -22,8 +22,6 @@ import OrderScreen from "./screen/OrderScreen";
 import CartScreen from "./screen/CartScreen";
 import MenuDetailScreen from "./screen/MenuDetailScreen";
 import KaKaoLoginScreen from "./screen/KaKaoLoginScreen";
-import StoreScreen from "./screen/StoreScreen";
-
 export default function App() {
   const BottomTab = createMaterialBottomTabNavigator();
   const Stack = createStackNavigator();
