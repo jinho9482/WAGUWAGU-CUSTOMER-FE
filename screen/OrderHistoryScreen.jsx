@@ -9,7 +9,7 @@ export default function OrderHistoryScreen() {
   const [orders, setOrders] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [error, setError] = useState(null);
-  const [selectedOrder, setSelectedOrder] = useState(null);  // 추가된 상태
+  const [selectedOrder, setSelectedOrder] = useState(null);
   const dimensionWidth = Dimensions.get("window").width / 4;
 
   const handledGetHistory = async () => {
@@ -24,7 +24,7 @@ export default function OrderHistoryScreen() {
   };
 
   useEffect(() => {
-    handledGetHistory();  // 컴포넌트 마운트 시 함수 호출
+    handledGetHistory();
   }, []);
 
   const Item = ({ item, onPress, backgroundColor, textColor }) => (
@@ -33,7 +33,7 @@ export default function OrderHistoryScreen() {
         height={80}
         width={dimensionWidth}
         textColor={textColor}
-        content={item.menuName}  // item.title 대신 item.menuName 사용
+        content={item.menuName}
         backgroundColor={backgroundColor}
       />
     </TouchableOpacity>
@@ -46,16 +46,10 @@ export default function OrderHistoryScreen() {
 
   return (
     <View style={styles.container}>
-      <Searchbar
-        style={styles.search}
-        placeholder="Search"
-        onChangeText={setSearchQuery}
-        value={searchQuery}
-      />
       {error && <Text style={styles.errorText}>{error}</Text>}
       <ScrollView contentContainerStyle={styles.scrollViewContainer}>
-        {orders.filter(order => order.menuName && order.menuName.includes(searchQuery)).map((item) => {  // title 대신 menuName 사용
-          const backgroundColor = item.orderId.timestamp === selectedId ? "#94D35C" : "#ffffff";  // id 대신 orderId.timestamp 사용
+        {orders.filter(order => order.menuName && order.menuName.includes(searchQuery)).map((item) => {
+          const backgroundColor = item.orderId.timestamp === selectedId ? "#94D35C" : "#ffffff";
           const color = item.orderId.timestamp === selectedId ? "white" : "black";
           return (
             <Item
@@ -80,7 +74,7 @@ export default function OrderHistoryScreen() {
         </View>
       )}
       </ScrollView>
-      
+
     </View>
   );
 }
