@@ -9,11 +9,17 @@ export default function StoreListScreen({ navigation, route }) {
   const { category } = route.params;
   const [stores, setStores] = useState([]);
 
+
   const getAllStoresNearUserApi = async () => {
+    const customerLatitude = 0.0;
+    const customerLongitude = 0.0;
     try {
+      
       const response = await getAllStoresNearUser({
+
         longitude: parseFloat(await AsyncStorage.getItem("customerLongitude")),
         latitude: parseFloat(await AsyncStorage.getItem("customerLatitude")),
+
         category: category,
       });
       console.log(response);

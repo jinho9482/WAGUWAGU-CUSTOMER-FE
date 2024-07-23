@@ -27,8 +27,10 @@ export default function StoreScreen({ navigation, route }) {
     console.log(storeId);
     try {
       const response = await getStoreDetail(storeId, {
+
         longitude: parseFloat(await AsyncStorage.getItem("customerLongitude")),
         latitude: parseFloat(await AsyncStorage.getItem("customerLatitude")),
+
       });
       console.log(response);
       setStore(response);
