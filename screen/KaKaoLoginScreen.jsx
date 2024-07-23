@@ -1,24 +1,43 @@
 import React from "react";
-import { View, StyleSheet } from "react-native";
+import { View, StyleSheet, Alert } from "react-native";
 import { WebView } from 'react-native-webview';
 import { useNavigation } from '@react-navigation/native';
+import axios from 'axios';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const REST_API_KEY = 'f8609808f0ad80f284bc679eb3d80315';
 const REDIRECT_URI = 'http://192.168.0.15:8081/Home';
 
 const KaKaoLoginScreen = () => {
-    const navigation = useNavigation(); // useNavigation 훅을 사용하여 네비게이션 객체를 가져옵니다.
+    const navigation = useNavigation();
+    const [isCodeProcessed, setIsCodeProcessed] = React.useState(false);
 
-    const handleNavigationChange = (navState) => {
+    const handleNavigationChange = async (navState) => {
         const { url } = navState;
         const exp = "code=";
         const condition = url.indexOf(exp);
 
-        if (condition !== -1) {
+        if (condition !== -1 && !isCodeProcessed) {
+            setIsCodeProcessed(true); // 인증 코드 처리 상태 업데이트
+
             const authorize_code = url.substring(condition + exp.length);
             console.log(authorize_code);
-            // 인증 코드로 SignInScreen으로 이동
-            navigation.navigate("SignupScreen", { authorize_code }); // 인증 코드와 함께 이동합니다.
+
+            try {
+                const response = await axios.get(`http://192.168.0.15:8080/customers/callback?code=${authorize_code}`);
+                const accessToken = response.data;
+
+                if (accessToken) {
+                    console.log("Access Token:", accessToken);
+                    await AsyncStorage.setItem('access_token', accessToken);
+                    navigation.navigate("SignupScreen", { authorize_code, access_token: accessToken });
+                } else {
+                    Alert.alert("Error", "Failed to retrieve access token");
+                }
+            } catch (error) {
+                console.error("Error fetching access token:", error);
+                Alert.alert("Error", "An error occurred while fetching access token");
+            }
         }
     };
 
@@ -36,6 +55,7 @@ const KaKaoLoginScreen = () => {
         </View>
     );
 }
+
 
 const styles = StyleSheet.create({
     container: {
