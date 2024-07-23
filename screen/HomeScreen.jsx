@@ -79,41 +79,41 @@ export default function HomeScreen({ navigation }) {
   };
 
   return (
-    <View>
-      <Image
-        style={[styles.image, { resizeMode: "contain" }]}
-        source={require("./../assets/waguwagu.png")}
-      />
+    <ScrollView>
+      <View>
+        <Image
+          style={[styles.image, { resizeMode: "contain" }]}
+          source={require("./../assets/waguwagu.png")}
+        />
 
-      <Search />
-      <View
-        style={{
-          flexDirection: "row",
-          flexWrap: "wrap",
-          flexShrink: 1,
-        }}
-      >
-        {/* <ScrollView> */}
-        {DATA.map((item) => {
-          const backgroundColor =
-            item.id === selectedId ? "#94D35C" : "#ffffff";
-          const color = item.id === selectedId ? "white" : "black";
-          return (
-            <Item
-              key={item.id}
-              item={item}
-              onPress={() => {
-                setSelectedId(item.id);
-                navigation.navigate("StoreList", { category: item.title });
-              }}
-              backgroundColor={backgroundColor}
-              textColor={color}
-            />
-          );
-        })}
-        {/* </ScrollView> */}
+        <Search />
+        <View
+          style={{
+            flexDirection: "row",
+            flexWrap: "wrap",
+            flexShrink: 1,
+          }}
+        >
+          {DATA.map((item) => {
+            const backgroundColor =
+              item.id === selectedId ? "#94D35C" : "#ffffff";
+            const color = item.id === selectedId ? "white" : "black";
+            return (
+              <Item
+                key={item.id}
+                item={item}
+                onPress={() => {
+                  setSelectedId(item.id);
+                  navigation.navigate("StoreList", { category: item.title });
+                }}
+                backgroundColor={backgroundColor}
+                textColor={color}
+              />
+            );
+          })}
+        </View>
       </View>
-    </View>
+    </ScrollView>
   );
 }
 
