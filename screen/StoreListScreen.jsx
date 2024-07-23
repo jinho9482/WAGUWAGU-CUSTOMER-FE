@@ -52,24 +52,24 @@ export default function StoreListScreen({ navigation, route }) {
                 navigation.navigate("Store", { storeId: store.storeId })
               }
             >
-            <StoreListSpeechBubble
-              key={store.storeId}
-              width={dimensionWidth}
-              title={store.storeName}
-              time={
-                parseInt(store.distanceFromStoreToCustomer * 4 + 10) +
-                "~" +
-                parseInt(store.distanceFromStoreToCustomer * 4 + 25) +
-                "분"
-              }
-              storeMinimumOrderAmount={
-                "최소 주문 금액 " + store.storeMinimumOrderAmount + "원"
-              }
-              fee={"배달팁 " + store.deliveryFee + "원"}
-              onPress={() => {
-                // navigation.navigate("StoreList");
-              }}
-            />
+              <StoreListSpeechBubble
+                key={store.storeId}
+                width={dimensionWidth}
+                title={store.storeName}
+                time={
+                  parseInt(store.distanceFromStoreToCustomer * 4 + 10) +
+                  "~" +
+                  parseInt(store.distanceFromStoreToCustomer * 4 + 25) +
+                  "분"
+                }
+                storeMinimumOrderAmount={
+                  "최소 주문 금액 : " + store.storeMinimumOrderAmount + "원"
+                }
+                fee={"배달팁 : " + store.deliveryFee + "원"}
+                onPress={() => {
+                  // navigation.navigate("StoreList");
+                }}
+              />
             </TouchableOpacity>
           );
         })

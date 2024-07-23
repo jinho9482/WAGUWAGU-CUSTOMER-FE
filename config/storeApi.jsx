@@ -35,16 +35,25 @@ export const getStoreDetail = async (storeId, data) => {
   }
 };
 
+// StoreScreen
 
-// export const getStoresDistanceAndDeliveryFee = async (storeId, data) => {
-//   try {
-//     const res = await storeApi(
-//       `/api/v1/distance-cal/store/${storeId}/accept-order`,
-//       "post",
-//       data
-//     );
-//     return res.data;
-//   } catch (error) {
-//     console.error("Error in getStoresDistanceAndDeliveryFee", error);
-//   }
-// };
+export const getMenuCategoryByStore = async (storeId) => {
+  try {
+    const res = await storeApi(`/api/v1/menu-category/store/${storeId}`, "get");
+    return res.data;
+  } catch (error) {
+    // console.error("Error in getMenuCategoryByStore", error);
+  }
+};
+
+export const getMenuByMenuCategory = async (menuCategoryId) => {
+  try {
+    const res = await storeApi(
+      `/api/v1/menu/menu-category/${menuCategoryId}`,
+      "get"
+    );
+    return res.data;
+  } catch (error) {
+    // console.error("Error in getMenuByMenuCategory", error);
+  }
+};

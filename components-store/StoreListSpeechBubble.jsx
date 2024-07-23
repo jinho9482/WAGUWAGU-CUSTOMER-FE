@@ -25,7 +25,10 @@ export default StoreListSpeechBubble = (props) => {
         />
       </View>
       <View>
-        <Text style={[styles.textTitle, { paddingBottom: 15 }]}>
+        <Text
+          numberOfLines={1}
+          style={[styles.textTitle, { paddingBottom: 15 }]}
+        >
           {props.title}
         </Text>
 
