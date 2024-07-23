@@ -3,6 +3,9 @@ import { View, Image, StyleSheet, TextInput, Text, TouchableOpacity, Alert } fro
 import SpeechBubble from '../components-common/SpeechBubble';
 import { getInfo, updateInfo } from "../api/authApi";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import axios from 'axios';
+
+const KAKAO_API_KEY = 'f8609808f0ad80f284bc679eb3d80315';
 
 const SignupScreen = ({ navigation }) => {
     const [customerEmail, setCustomerEmail] = useState('');
@@ -19,24 +22,19 @@ const SignupScreen = ({ navigation }) => {
                 if (res.status === 200) {
                     const { customerEmail, customerNickname, customerAddress, customerLatitude, customerLongitude, customerId, token } = res.data;
 
-                    if (customerAddress === "") {
+                    if (customerAddress === null) {
                         setCustomerEmail(customerEmail);
                         setCustomerNickname(customerNickname);
-                        setCustomerPhone(customerPhone);
-                        setCustomerAddress(customerAddress);
-                        await AsyncStorage.setItem('access_token', token);
                     } else {
                         navigation.replace('Main');
+                        // Save customer data to AsyncStorage
+                        await AsyncStorage.setItem('customerId', JSON.stringify(customerId));
+                        await AsyncStorage.setItem('customerNickname', customerNickname);
+                        await AsyncStorage.setItem('customerEmail', customerEmail);
+                        await AsyncStorage.setItem('customerAddress', customerAddress);
+                        await AsyncStorage.setItem('customerLatitude', JSON.stringify(customerLatitude));
+                        await AsyncStorage.setItem('customerLongitude', JSON.stringify(customerLongitude));
                     }
-
-                    // Save customer data to AsyncStorage
-                    await AsyncStorage.setItem('customerId', JSON.stringify(customerId));
-                    await AsyncStorage.setItem('customerEmail', customerEmail);
-                    await AsyncStorage.setItem('customerNickname', customerNickname);
-                    await AsyncStorage.setItem('customerPhone', customerPhone);
-                    await AsyncStorage.setItem('customerAddress', customerAddress);
-                    await AsyncStorage.setItem('customerLatitude', JSON.stringify(customerLatitude));
-                    await AsyncStorage.setItem('customerLongitude', JSON.stringify(customerLongitude));
                 }
             } catch (error) {
                 console.log("사용자 정보 불러오는 중 에러", error);
@@ -46,6 +44,37 @@ const SignupScreen = ({ navigation }) => {
 
         fetchCustomerInfo();
     }, []);
+
+    const handleAddressChange = async () => {
+        if (!customerAddress.trim()) {
+            Alert.alert("주소 오류", "주소를 입력해주세요.");
+            return;
+        }
+
+        try {
+            const response = await axios.get(`https://dapi.kakao.com/v2/local/search/address.json`, {
+                params: {
+                    query: customerAddress,
+                },
+                headers: {
+                    Authorization: `KakaoAK ${KAKAO_API_KEY}`, // API 키를 헤더에 포함
+                },
+            });
+
+            const { documents } = response.data;
+            if (documents.length > 0) {
+                const { x, y } = documents[0].address; // 카카오는 x(경도), y(위도)를 반환합니다.
+                setCustomerLatitude(parseFloat(y));
+                setCustomerLongitude(parseFloat(x));
+                Alert.alert("주소 찾기 성공", "주소를 찾았습니다.");
+            } else {
+                Alert.alert("주소 찾기 실패", "주소를 찾을 수 없습니다.");
+            }
+        } catch (error) {
+            console.error("주소를 변환하는 중 오류가 발생했습니다:", error);
+            Alert.alert("Error", "주소를 변환하는 중 오류가 발생했습니다.");
+        }
+    };
 
     const handleSignup = async () => {
         const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -63,7 +92,7 @@ const SignupScreen = ({ navigation }) => {
             Alert.alert('유효하지 않은 전화번호', '전화번호는 11자리 숫자로 입력해주세요!');
             return;
         }
-
+        
         try {
             const res = await updateInfo({ customerNickname, customerAddress, customerLatitude, customerLongitude });
             if (res.status === 200) {
@@ -116,12 +145,23 @@ const SignupScreen = ({ navigation }) => {
                     keyboardType="numeric" // 숫자 입력 전용
                 />
                 <Text style={styles.infoText}>배달주소</Text>
-                <TextInput
-                    style={styles.input}
-                    placeholder="Address"
-                    value={customerAddress}
-                    onChangeText={setCustomerAddress}
-                />
+                <View style={styles.addressContainer}>
+                    <TextInput
+                        style={styles.addressInput}
+                        placeholder="Address"
+                        value={customerAddress}
+                        onChangeText={setCustomerAddress} // 주소가 변경될 때만 상태 업데이트
+                    />
+                    <TouchableOpacity onPress={handleAddressChange} style={styles.addressButton}>
+                        <SpeechBubble
+                            content="주소 확인"
+                            backgroundColor="#94D35C"
+                            textColor="#634F4F"
+                            height={50}
+                            width="100%"
+                        />
+                    </TouchableOpacity>
+                </View>
                 <TouchableOpacity onPress={handleSignup}>
                     <SpeechBubble
                         content="가입 완료"
@@ -160,6 +200,25 @@ const styles = StyleSheet.create({
         fontSize: 20,
         color: '#4C241D',
         marginBottom: 10,
+    },
+    addressContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 20,
+    },
+    addressInput: {
+        flex: 7, // 주소 입력 필드가 7 비율을 차지
+        height: 40,
+        borderColor: '#634F4F',
+        borderWidth: 1,
+        borderRadius: 25,
+        paddingHorizontal: 16,
+        fontSize: 16,
+        backgroundColor: '#FFFFFF',
+    },
+    addressButton: {
+        flex: 3, // 주소 확인 버튼이 3 비율을 차지
+        marginLeft: 10,
     },
     input: {
         width: '100%', // 가로 길이를 화면의 100%로 설정
