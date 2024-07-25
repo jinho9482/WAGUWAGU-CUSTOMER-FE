@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from "react";
-import { Text, View, StyleSheet, Dimensions, TouchableOpacity, ScrollView, TouchableWithoutFeedback } from "react-native";
+import React, { useState, useEffect, useCallback } from "react";
+import { Text, View, StyleSheet, Dimensions, TouchableOpacity, ScrollView, TouchableWithoutFeedback, RefreshControl } from "react-native";
 import SpeechBubble from "../components-common/SpeechBubble";
 import { searchHistory } from '../config/orderApi';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function OrderHistoryScreen() {
   const [selectedId, setSelectedId] = useState(null);
@@ -9,20 +10,33 @@ export default function OrderHistoryScreen() {
   const [error, setError] = useState(null);
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [isDetailsVisible, setIsDetailsVisible] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
   const dimensionWidth = Dimensions.get("window").width / 4;
 
+ 
+
+
   const handledGetHistory = async () => {
-    try {
-      const result = await searchHistory({ consumerId: "1" });
+    try { 
+      const consumerId = await AsyncStorage.getItem("customerId")
+      const result = await searchHistory({ consumerId: consumerId});
+
       console.log('searchHistory successfully:', result);
       setOrders(result);
+      setRefreshing(false);
     } catch (error) {
       console.log('Failed to searchHistory:', error);
       setError('Failed to fetch order history');
+      setRefreshing(false);
     }
   };
 
   useEffect(() => {
+    handledGetHistory();
+  }, []);
+
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
     handledGetHistory();
   }, []);
 
@@ -32,7 +46,7 @@ export default function OrderHistoryScreen() {
         height={100}
         width={dimensionWidth}
         textColor={textColor}
-        content={`${item.storeName}\n${item.menuName}`} // 텍스트를 두 줄로 나눔
+        content={`${item.storeName}\n${item.menuName}`}
         backgroundColor={backgroundColor}
       />
     </TouchableOpacity>
@@ -52,7 +66,10 @@ export default function OrderHistoryScreen() {
     <TouchableWithoutFeedback onPress={handleBackgroundPress}>
       <View style={styles.container}>
         {error && <Text style={styles.errorText}>{error}</Text>}
-        <ScrollView contentContainerStyle={styles.scrollViewContainer}>
+        <ScrollView
+          contentContainerStyle={styles.scrollViewContainer}
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+        >
           {orders.filter(order => order.menuName).map((item) => {
             const backgroundColor = item.orderId.timestamp === selectedId ? "#94D35C" : "#ffffff";
             const color = item.orderId.timestamp === selectedId ? "white" : "black";
@@ -70,6 +87,7 @@ export default function OrderHistoryScreen() {
         {isDetailsVisible && selectedOrder && (
           <View style={styles.detailsContainer}>
             <Text>Menu Name: {selectedOrder.menuName}</Text>
+            <Text>customerAddress: {selectedOrder.customerAddress}</Text>
             <Text>option Name: {selectedOrder.optionTitle}</Text>
             <Text>Order Total Amount: {selectedOrder.orderTotalAmount}</Text>
             <Text>Store Name: {selectedOrder.storeName}</Text>
@@ -77,7 +95,7 @@ export default function OrderHistoryScreen() {
             <Text>Order State: {selectedOrder.orderState.join(", ")}</Text>
             <Text>Customer Requests: {selectedOrder.customerRequests}</Text>
             <Text>Rider Requests: {selectedOrder.riderRequests}</Text>
-            {/* 필요한 다른 정보들도 여기에 추가 */}
+
           </View>
         )}
       </View>

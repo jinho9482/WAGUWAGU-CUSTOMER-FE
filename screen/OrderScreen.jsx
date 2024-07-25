@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Text, View, StyleSheet, TouchableOpacity, ScrollView, Image, TextInput } from "react-native";
-import SpeechBubble from "../components-common/SpeechBubble";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createOrder } from '../config/orderApi';
 
 export default function OrderScreen() {
@@ -11,15 +11,14 @@ export default function OrderScreen() {
   const [storeName, setStoreName] = useState("");
   const [menuName, setMenuName] = useState("");
   const [orderData, setOrderData] = useState({
-    customerId: 1,
     ownerId: 4444,
     changeTime: '2024-07-18T15:00:00',
     orderState: ["CREATED"],
     orderCreatedAt: '2024-07-18T15:00:00',
     storePhone: '010-1234-5678',
-    storeName: storeName,
+    storeName: "",
     storeAddressString: '서울 서초구 효령로 289 장곡빌딩',
-    menuName: menuName,
+    menuName: "",
     menuIntroduction: 'Delicious Pizza',
     menuPrice: 10000,
     optionTitle: 'Extra Cheese',
@@ -86,21 +85,27 @@ export default function OrderScreen() {
             }
         ]
     }
-});
+  });
 
-const handleCreateOrder = async () => {
-  try {
-    const updatedOrderData = {
-      ...orderData,
-      storeName: storeName,
-      menuName: menuName,
-    };
-    const result = await createOrder(updatedOrderData);
-    console.log('Order created successfully:', result);
-  } catch (error) {
-    console.error('Failed to create order:', error);
-  }
-};
+  const handleCreateOrder = async () => {
+    try {
+      const id = await AsyncStorage.getItem("customerId");
+      const customerAddress = await AsyncStorage.getItem("customerAddress");
+      const updatedOrderData = {
+        ...orderData,
+        customerId: id, 
+        storeName: storeName,
+        menuName: menuName,
+        customerAddress: customerAddress,
+        customerRequests: consumerRequest,
+        riderRequests: riderRequest,
+      };
+      const result = await createOrder(updatedOrderData);
+      console.log('Order created successfully:', result);
+    } catch (error) {
+      console.error('Failed to create order:', error);
+    }
+  };
 
   return (
     <ScrollView style={styles.container}>
@@ -178,7 +183,7 @@ const handleCreateOrder = async () => {
 
       <View style={styles.paymentSection}>
         <Text style={styles.paymentText}>결제금액</Text>
-        <Text style={styles.paymentDetail}>총금액 35678원</Text>
+        <Text style={styles.paymentDetail}>총금액 전달받은 돈 원</Text>
         <Text style={styles.paymentDetail}>할인 금액 -3216원</Text>
         <Text style={styles.paymentDetail}>최종 금액 32424원</Text>
       </View>

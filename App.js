@@ -15,6 +15,7 @@ import MypageScreen from "./screen/MypageScreen";
 import HomeScreen from "./screen/HomeScreen";
 import LoginScreen from "./screen/LoginScreen";
 import SignupScreen from "./screen/SignupScreen";
+import StoreScreen from "./screen/StoreScreen";
 
 import StoreListScreen from "./screen/StoreListScreen";
 import StoreScreen from "./screen/StoreScreen";
@@ -22,6 +23,7 @@ import OrderScreen from "./screen/OrderScreen";
 import CartScreen from "./screen/CartScreen";
 import MenuDetailScreen from "./screen/MenuDetailScreen";
 import KaKaoLoginScreen from "./screen/KaKaoLoginScreen";
+
 export default function App() {
   const BottomTab = createMaterialBottomTabNavigator();
   const Stack = createStackNavigator();
@@ -29,7 +31,6 @@ export default function App() {
   const BottomView = () => {
     return (
       <View style={{ flex: 1 }}>
-        {/* <View style={styles.container}></View> */}
         <BottomTab.Navigator
           initialRouteName="Home"
           activeColor="#f0edf6"

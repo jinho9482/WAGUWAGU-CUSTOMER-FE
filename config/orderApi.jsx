@@ -3,6 +3,7 @@ import { orderApi } from '../config/orderNetwork';
 export const createOrder = async (data) => {
     const userRequestDto = {
         customerId: data.customerId,
+        customerAddress: data.customerAddress,
         ownerId: data.ownerId,
         changeTime: data.changeTime,
         orderState: data.orderState,
@@ -31,7 +32,7 @@ export const createOrder = async (data) => {
     };
 
     try {
-        const res = await orderApi('api/v1/Order/history', 'post', userRequestDto);
+        const res = await orderApi('api/v1/order/history', 'post', userRequestDto);
         return res.data;
     } catch (error) {
         console.error('Error creating order:', error);
@@ -41,7 +42,7 @@ export const createOrder = async (data) => {
 
 export const searchHistory = async ({ consumerId }) => {
     try {
-        const res = await orderApi(`api/v1/Order/consumer/${consumerId}/history`, 'get');
+        const res = await orderApi(`api/v1/order/consumer/${consumerId}/history`, 'get');
         console.log(res.data)
         return res.data;
     } catch (error) {
