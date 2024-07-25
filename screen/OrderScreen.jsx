@@ -31,6 +31,8 @@ export default function OrderScreen() {
     orderTotalAmount: 22000,
     storeDeliveryFee: 2000,
     deliveryFee: 1818,
+    customerRequests: "",
+    riderRequests: "",
     distanceFromStoreToCustomer: 2.0,
     storeLongitude: 127.015916,
     storeLatitude: 37.485119,
@@ -119,7 +121,10 @@ export default function OrderScreen() {
         />
         <Text style={styles.deliveryText}>15분~30분</Text>
       </View>
-     
+      <View>
+        <Text style={styles.deliveryText}>고객 주소</Text>
+
+      </View>
       <View style={styles.section}>
         <TextInput
           style={styles.input}
@@ -266,4 +271,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     textAlign: "center",
   },
+  userAdress: {
+    
+  }
 });

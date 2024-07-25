@@ -50,3 +50,12 @@ export const searchHistory = async ({ consumerId }) => {
         throw error;
     }
 };
+
+export const updateState = async (orderId, status) => {
+    try {
+      const res = await axios.post(`api/v1/order/update/${orderId}`, { status });
+      return res.data;
+    } catch (error) {
+      console.error("Error in updateState", error);
+    }
+  };
