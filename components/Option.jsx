@@ -1,16 +1,18 @@
-// Option.js
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
 import { CheckBox } from "react-native-elements";
+import { COLORS } from "../assets/constants/theme"; // Ensure the path is correct
 
 const Option = ({ option, onToggle }) => {
   return (
     <View style={styles.optionContainer}>
       <Text style={styles.optionTitle}>{option.optionTitle}</Text>
-      <Text style={styles.optionPrice}>${option.optionPrice}</Text>
+      <Text style={styles.optionPrice}>{option.optionPrice}원</Text>
       <CheckBox
         checked={option.isChecked}
         onPress={() => onToggle(option.optionId)}
+        containerStyle={styles.checkboxContainer}
+        checkedColor={COLORS.darkgray} // Adjust according to your theme
       />
     </View>
   );
@@ -33,6 +35,10 @@ const styles = StyleSheet.create({
     width: 50,
     textAlign: "right",
     fontSize: 16,
+  },
+  checkboxContainer: {
+    padding: 0,
+    margin: 0,
   },
 });
 

@@ -37,7 +37,7 @@ export default function StoreScreen({ navigation, route }) {
   const getMenuCategoryByStoreApi = async () => {
     try {
       const response = await getMenuCategoryByStore(storeId);
-      console.log(response);
+      console.log({ response });
       setCategories(response);
       response.forEach((category) => {
         getMenuByMenuCategoryApi(category.menuCategoryId);
@@ -50,6 +50,7 @@ export default function StoreScreen({ navigation, route }) {
   const getMenuByMenuCategoryApi = async (menuCategoryId) => {
     try {
       const response = await getMenuByMenuCategory(menuCategoryId);
+      console.log({ response });
       setMenus((prevMenus) => ({ ...prevMenus, [menuCategoryId]: response }));
     } catch {
       console.log("error in getMenuByMenuCategoryApi");
@@ -59,7 +60,7 @@ export default function StoreScreen({ navigation, route }) {
   useEffect(() => {
     getStoreDetailApi();
     getMenuCategoryByStoreApi();
-    console.log(menus);
+    console.log({ menus });
   }, []);
 
   const dimensionWidth = Dimensions.get("window").width / 1.2;
@@ -105,11 +106,11 @@ export default function StoreScreen({ navigation, route }) {
                     menus[category.menuCategoryId].map((menu) => (
                       <TouchableOpacity
                         key={menu.menuId}
-                        onPress={() =>
+                        onPress={() => {
                           navigation.navigate("MenuDetailScreen", {
                             menuId: menu.menuId,
-                          })
-                        }
+                          });
+                        }}
                       >
                         <View key={menu.menuId} style={styles.menuContainer}>
                           <View>

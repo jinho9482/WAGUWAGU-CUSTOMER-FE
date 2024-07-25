@@ -193,7 +193,11 @@ export default function App() {
             // options={{ headerShown: false }}
           />
           <Stack.Screen name="CartScreen" component={CartScreen} />
-          <Stack.Screen name="MenuDetailScreen" component={MenuDetailScreen} />
+          <Stack.Screen
+            name="MenuDetailScreen"
+            component={MenuDetailScreen}
+            options={{ headerShown: false }}
+          />
         </Stack.Navigator>
       </NavigationContainer>
     </RecoilRoot>
