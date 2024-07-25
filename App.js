@@ -18,6 +18,7 @@ import SignupScreen from "./screen/SignupScreen";
 import StoreScreen from "./screen/StoreScreen";
 
 import StoreListScreen from "./screen/StoreListScreen";
+import StoreScreen from "./screen/StoreScreen";
 import OrderScreen from "./screen/OrderScreen";
 import CartScreen from "./screen/CartScreen";
 import MenuDetailScreen from "./screen/MenuDetailScreen";
@@ -193,7 +194,11 @@ export default function App() {
             // options={{ headerShown: false }}
           />
           <Stack.Screen name="CartScreen" component={CartScreen} />
-          <Stack.Screen name="MenuDetailScreen" component={MenuDetailScreen} />
+          <Stack.Screen
+            name="MenuDetailScreen"
+            component={MenuDetailScreen}
+            options={{ headerShown: false }}
+          />
         </Stack.Navigator>
       </NavigationContainer>
     </RecoilRoot>

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Image,
   StyleSheet,
@@ -6,266 +6,181 @@ import {
   View,
   Text,
   FlatList,
+  ActivityIndicator,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { SIZES, COLORS, FONTS } from "../assets/constants/theme";
-import OptionList from "../components/OptionList.jsx";
-import { useRecoilState } from "recoil";
-import { cartState } from "../state/CartState.js";
 import axios from "axios";
+import { COLORS, SIZES, FONTS } from "../assets/constants/theme";
+import OptionList from "../components/OptionList.jsx";
 
-const basePrice = 20000;
+const MenuDetailScreen = ({ navigation, route }) => {
+  const { menuId } = route.params;
+  const [selectedOptions, setSelectedOptions] = useState({});
+  const [menuDetails, setMenuDetails] = useState(null);
+  const [optionLists, setOptionLists] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-const MenuDetailScreen = ({ navigation }) => {
-  const [optionList1, setOptionList1] = useState({
-    listId: 1,
-    listName: "기본 옵션",
-    options: [
-      {
-        optionId: 1,
-        optionTitle: "치즈 추가",
-        optionPrice: 1000,
-        isChecked: false,
-      },
-      {
-        optionId: 2,
-        optionTitle: "핫소스 추가",
-        optionPrice: 500,
-        isChecked: false,
-      },
-      {
-        optionId: 3,
-        optionTitle: "베이컨 추가",
-        optionPrice: 300,
-        isChecked: false,
-      },
-    ],
-  });
-
-  const [optionList2, setOptionList2] = useState({
-    listId: 2,
-    listName: "리뷰 서비스 선택",
-    options: [
-      {
-        optionId: 1,
-        optionTitle: "콜라 제공",
-        optionPrice: 0,
-        isChecked: false,
-      },
-      {
-        optionId: 2,
-        optionTitle: "올리브 추가",
-        optionPrice: 0,
-        isChecked: false,
-      },
-      {
-        optionId: 3,
-        optionTitle: "스파게티",
-        optionPrice: 0,
-        isChecked: false,
-      },
-    ],
-  });
-
-  const [totalPrice, setTotalPrice] = useState(basePrice);
-  const [cart, setCart] = useRecoilState(cartState);
-
-  useEffect(() => {
-    const calculateTotalPrice = () => {
-      const optionsTotalPrice = [...optionList1.options, ...optionList2.options]
-        .filter((option) => option.isChecked)
-        .reduce((sum, option) => sum + option.optionPrice, 0);
-      setTotalPrice(basePrice + optionsTotalPrice);
-    };
-
-    calculateTotalPrice();
-  }, [optionList1, optionList2]);
-
-  const handleOptionChange = (updatedOptions, listId) => {
-    if (listId === 1) {
-      setOptionList1((prevState) => ({
-        ...prevState,
-        options: updatedOptions,
-      }));
-    } else if (listId === 2) {
-      setOptionList2((prevState) => ({
-        ...prevState,
-        options: updatedOptions,
-      }));
+  const fetchMenuDetails = async () => {
+    try {
+      const response = await axios.get(
+        `http://192.168.0.17:8080/api/v1/menu/${menuId}`,
+        {
+          timeout: 20000,
+        }
+      );
+      setMenuDetails(response.data);
+    } catch (error) {
+      console.error("Error fetching menu details:", error.message);
     }
   };
 
-  const handleAddToCart = async () => {
-    const selectedOptions = [
-      ...optionList1.options,
-      ...optionList2.options,
-    ].filter((option) => option.isChecked);
+  const fetchOptionList = async () => {
+    try {
+      const response = await axios.get(
+        `http://192.168.0.17:8080/api/v1/option-lists/menu/${menuId}`
+      );
+      setOptionLists(response.data);
+    } catch (error) {
+      console.error("Error fetching option lists:", error.message);
+    }
+  };
 
-    const cartItem = {
-      cartId: 1,
-      userId: 5, // Example user ID
-      store: {
-        storeId: 1, // Example store ID
-        storeName: "피자가게",
-      },
-      totalPrice: totalPrice,
-      optionList: {
-        listId: 1,
-        listName: "기본 옵션",
-        options: selectedOptions,
-      },
+  useEffect(() => {
+    const fetchData = async () => {
+      await fetchMenuDetails();
+      await fetchOptionList();
+      setLoading(false);
     };
 
-    // Update Recoil state
-    setCart((prevCart) => [...prevCart, cartItem]);
-    console.log("Navigating to CartScreen with userId:", userId);
-    // Save to server
-    try {
-      await axios.post("http://192.168.0.26:8080/api/v1/cart/save", cartItem);
-      console.log("Cart item added to server:", cartItem);
-    } catch (err) {
-      console.error("Error saving cart item:", err);
-    }
-    navigation.navigate("CartScreen", { userId: userId });
+    fetchData();
+  }, [menuId]);
+
+  const handleOptionChange = (updatedOptions, listId) => {
+    setSelectedOptions((prevOptions) => ({
+      ...prevOptions,
+      [listId]: updatedOptions,
+    }));
   };
 
   const renderFoodInfo = () => (
     <View>
-      <View>
-        <Text style={{ marginVertical: 10, textAlign: "center", ...FONTS.h2 }}>
-          피자가게
-        </Text>
-      </View>
-      <View style={{ height: SIZES.height * 0.3 }}>
-        <Image
-          source={require("../assets/images/pizza.jpg")}
-          resizeMode="cover"
-          style={{
-            width: SIZES.width,
-            height: "100%",
-          }}
-        />
-      </View>
-      <View
-        style={{
-          width: SIZES.width,
-          alignItems: "center",
-          marginTop: 15,
-          paddingHorizontal: SIZES.padding * 2,
-        }}
-      >
-        <Text style={{ marginVertical: 10, textAlign: "center", ...FONTS.h2 }}>
-          피자피자피자피자
-        </Text>
-        <Text style={{ ...FONTS.body3 }}>20,000원</Text>
-      </View>
+      {menuDetails ? (
+        <>
+          <View>
+            <Text style={styles.menuName}>{menuDetails.menuName}</Text>
+          </View>
+          <View style={styles.imageContainer}>
+            <Image
+              source={require("../assets/images/베스트개발자.png")}
+              resizeMode="cover"
+              style={styles.image}
+            />
+          </View>
+          <View style={styles.detailsContainer}>
+            <Text style={styles.menuIntroduction}>
+              메뉴 설명: {menuDetails.menuIntroduction}
+            </Text>
+            <Text style={styles.menuPrice}>{menuDetails.menuPrice}원</Text>
+          </View>
+        </>
+      ) : (
+        <Text>Loading...</Text>
+      )}
     </View>
   );
 
-  const renderTotalPrice = () => (
-    <View
-      style={{
-        alignItems: "center",
-        marginTop: 15,
-        paddingHorizontal: SIZES.padding * 2,
-      }}
-    >
-      <Text style={{ ...FONTS.h2 }}>Total Price</Text>
-      <Text style={{ ...FONTS.body3 }}>{totalPrice}원</Text>
+  const calculateTotalPrice = () => {
+    let optionTotalPrice = 0;
+
+    optionLists.forEach((list) => {
+      const selectedOptionIds = selectedOptions[list.listId] || [];
+      list.options.forEach((option) => {
+        if (selectedOptionIds.includes(option.optionId)) {
+          optionTotalPrice += option.optionPrice || 0;
+        }
+      });
+    });
+
+    return (menuDetails?.menuPrice || 0) + optionTotalPrice;
+  };
+
+  const renderOptionLists = () => (
+    <View>
+      {optionLists.length > 0 ? (
+        optionLists.map((list) => (
+          <OptionList
+            key={list.listId}
+            optionList={list}
+            selectedOptions={selectedOptions[list.listId]}
+            onOptionChange={(updatedOptions) =>
+              handleOptionChange(updatedOptions, list.listId)
+            }
+          />
+        ))
+      ) : (
+        <Text>No option lists available</Text>
+      )}
     </View>
   );
 
   const renderHeader = () => (
-    <View style={{ flexDirection: "row" }}>
+    <View style={styles.header}>
       <TouchableOpacity
-        style={{
-          width: 50,
-          paddingLeft: SIZES.padding * 2,
-          justifyContent: "center",
-        }}
-        // onPress={() => navigation.goBack()}
+        style={styles.backButton}
+        onPress={() => navigation.goBack()}
       >
         <Image
           source={require("../assets/icons/back.png")}
           resizeMode="contain"
-          style={{
-            width: 30,
-            height: 30,
-          }}
+          style={styles.backIcon}
         />
       </TouchableOpacity>
-      <View
-        style={{
-          flex: 1,
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-      >
-        <View
-          style={{
-            height: 50,
-            alignItems: "center",
-            justifyContent: "center",
-            paddingHorizontal: SIZES.padding * 3,
-            borderRadius: SIZES.radius,
-            // backgroundColor: COLORS.lightGray3
-          }}
-        ></View>
+      <View style={styles.headerTitleContainer}>
+        <Text style={styles.headerTitle}>Menu Details</Text>
       </View>
-
       <TouchableOpacity
-        style={{
-          width: 50,
-          paddingRight: SIZES.padding * 2,
-          justifyContent: "center",
-        }}
+        style={styles.cartButton}
         onPress={() => navigation.navigate("Mycart")}
       >
         <Image
           source={require("../assets/icons/shopping-basket.png")}
           resizeMode="contain"
-          style={{
-            width: 30,
-            height: 30,
-          }}
+          style={styles.cartIcon}
         />
       </TouchableOpacity>
     </View>
   );
 
+  if (loading) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <ActivityIndicator size="large" color={COLORS.primary} />
+      </SafeAreaView>
+    );
+  }
+
   return (
     <SafeAreaView style={styles.container}>
+      {renderHeader()}
       <FlatList
-        data={[]}
-        ListHeaderComponent={
+        ListHeaderComponent={() => (
           <>
-            {renderHeader()}
             {renderFoodInfo()}
-            <OptionList
-              optionList={optionList1}
-              onOptionChange={(updatedOptions) =>
-                handleOptionChange(updatedOptions, 1)
-              }
-            />
-            <OptionList
-              optionList={optionList2}
-              onOptionChange={(updatedOptions) =>
-                handleOptionChange(updatedOptions, 2)
-              }
-            />
-            {renderTotalPrice()}
+            {renderOptionLists()}
+            <View style={styles.totalPriceContainer}>
+              <Text style={styles.totalPriceText}>
+                총 가격: {calculateTotalPrice()}원
+              </Text>
+            </View>
           </>
-        }
-        ListFooterComponent={
-          <TouchableOpacity
-            style={styles.addToCartButton}
-            onPress={handleAddToCart}
-          >
-            <Text style={styles.addToCartButtonText}>장바구니에 추가</Text>
-          </TouchableOpacity>
-        }
-        contentContainerStyle={styles.scrollViewContent}
+        )}
       />
+      <TouchableOpacity
+        style={styles.addToCartButton}
+        // onPress={handleAddToCart}
+      >
+        <Text style={styles.addToCartButtonText}>장바구니에 담기</Text>
+      </TouchableOpacity>
     </SafeAreaView>
   );
 };
@@ -275,21 +190,75 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: COLORS.lightGray2,
   },
-  scrollViewContent: {
-    paddingBottom: 80,
+  header: {
+    flexDirection: "row",
+    paddingHorizontal: SIZES.padding * 2,
+    paddingVertical: SIZES.padding,
+    alignItems: "center",
+    backgroundColor: COLORS.white,
+  },
+  backButton: {
+    width: 50,
+    justifyContent: "center",
+  },
+  backIcon: {
+    width: 30,
+    height: 30,
+  },
+  headerTitleContainer: {
+    flex: 1,
+    alignItems: "center",
+  },
+  headerTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+  },
+  cartButton: {
+    width: 50,
+    justifyContent: "center",
+  },
+  cartIcon: {
+    width: 30,
+    height: 30,
+  },
+  menuName: {
+    marginVertical: 10,
+    textAlign: "center",
+    fontSize: 24,
+    fontWeight: "bold",
+  },
+  imageContainer: {
+    height: 200,
+  },
+  image: {
+    width: "100%",
+    height: "100%",
+  },
+  detailsContainer: {
+    width: "100%",
+    alignItems: "center",
+    marginTop: 15,
+    paddingHorizontal: 16,
+  },
+  menuIntroduction: {
+    marginVertical: 10,
+    textAlign: "center",
+    fontSize: 18,
+  },
+  menuPrice: {
+    fontSize: 16,
   },
   addToCartButton: {
-    backgroundColor: "#94D35C",
-    padding: SIZES.padding * 2,
+    backgroundColor: COLORS.primary,
+    padding: 15,
     alignItems: "center",
     justifyContent: "center",
-    borderWidth: 2,
-    borderColor: COLORS.white,
     borderRadius: SIZES.radius,
+    margin: SIZES.padding,
   },
   addToCartButtonText: {
-    ...FONTS.h2,
     color: COLORS.white,
+    fontSize: 18,
   },
 });
 

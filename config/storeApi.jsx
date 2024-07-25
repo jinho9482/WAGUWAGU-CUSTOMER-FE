@@ -39,10 +39,12 @@ export const getStoreDetail = async (storeId, data) => {
 
 export const getMenuCategoryByStore = async (storeId) => {
   try {
+    console.log({ storeId });
     const res = await storeApi(`/api/v1/menu-category/store/${storeId}`, "get");
+
     return res.data;
   } catch (error) {
-    // console.error("Error in getMenuCategoryByStore", error);
+    console.error("Error in getMenuCategoryByStore", error);
   }
 };
 
