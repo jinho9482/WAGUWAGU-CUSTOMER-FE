@@ -18,7 +18,7 @@ import SignupScreen from "./screen/SignupScreen";
 import StoreScreen from "./screen/StoreScreen";
 
 import StoreListScreen from "./screen/StoreListScreen";
-import StoreScreen from "./screen/StoreScreen";
+
 import OrderScreen from "./screen/OrderScreen";
 import CartScreen from "./screen/CartScreen";
 import MenuDetailScreen from "./screen/MenuDetailScreen";
