@@ -13,7 +13,6 @@ export default function OrderScreen() {
   const [orderData, setOrderData] = useState({
     ownerId: 4444,
     changeTime: '2024-07-18T15:00:00',
-    orderState: ["CREATED"],
     orderCreatedAt: '2024-07-18T15:00:00',
     storePhone: '010-1234-5678',
     storeName: "",
