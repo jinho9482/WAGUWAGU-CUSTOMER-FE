@@ -15,7 +15,8 @@ import OptionList from "../components/OptionList.jsx";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const MenuDetailScreen = ({ navigation, route }) => {
-  const { menuId } = route.params;
+  const { menuId, storeId, storeName } = route.params;
+
   const [selectedOptions, setSelectedOptions] = useState([]);
   const [menuDetails, setMenuDetails] = useState(null);
   const [optionLists, setOptionLists] = useState([]);
@@ -32,6 +33,7 @@ const MenuDetailScreen = ({ navigation, route }) => {
       );
       console.log("menuid :", menuId);
       setMenuDetails(response.data);
+      setTotalPrice(response.data.menuPrice);
     } catch (error) {
       console.error("Error fetching menu details:", error.message);
     }
@@ -42,14 +44,9 @@ const MenuDetailScreen = ({ navigation, route }) => {
       const response = await axios.get(
         `http://192.168.0.17:8080/api/v1/option-lists/menu/${menuId}`
       );
-      console.log("-------------------------");
-      console.log("optionList:", response.data);
+
       setOptionLists(response.data);
       setSelectedOptions(response.data);
-
-      console.log("optionListdd", optionLists);
-
-      console.log("eeeeee");
     } catch (error) {
       console.error("Error fetching option lists:", error.message);
     }
@@ -87,27 +84,55 @@ const MenuDetailScreen = ({ navigation, route }) => {
     calculateTotalPrice(newselectedOptions);
   };
   console.log(JSON.stringify(selectedOptions));
+  const fetchCartItems = async () => {
+    const userId = await AsyncStorage.getItem("customerId");
+    try {
+      const response = await axios.get(
+        `http://192.168.0.26:8080/api/v1/cart/${userId}`
+      );
+      console.log("fgfggf", response.data);
+      if (response.data.menuItems) return response.data.menuItems;
+      return null;
+    } catch (error) {
+      console.error("Error fetching cart items:", error);
+    }
+  };
 
   const handleAddToCart = async () => {
     const userId = await AsyncStorage.getItem("customerId");
-
+    const data = await fetchCartItems();
+    const menuItems = data
+      ? [
+          ...data,
+          {
+            menuId: menuDetails.menuId,
+            menuName: menuDetails.menuName,
+            totalPrice: totalPrice,
+            selectedOptions: selectedOptions.map((list) => ({
+              listId: list.listId,
+              listName: list.listName,
+              options: list.options.filter((op) => op.isChecked),
+            })),
+          },
+        ]
+      : [
+          {
+            menuId: menuDetails.menuId,
+            menuName: menuDetails.menuName,
+            totalPrice: totalPrice,
+            selectedOptions: selectedOptions.map((list) => ({
+              listId: list.listId,
+              listName: list.listName,
+              options: list.options.filter((op) => op.isChecked),
+            })),
+          },
+        ];
     const cartItem = {
-      menuId: menuDetails.menuId,
-
+      storeName: storeName,
+      storeId: storeId,
       userId,
-      menuName: menuDetails.menuName,
       totalPrice,
-      selectedOptions: selectedOptions.map((list) => ({
-        listId: list.listId,
-        listName: list.listName,
-        options: list.options.filter((op) => op.isChecked),
-        // .map((op) => ({
-        //   optionId: op.optionId,
-        //   optionTitle: op.optionTitle,
-        //   optionPrice: op.optionPrice,
-        //   isChecked: op.isChecked,
-        // })),
-      })),
+      menuItems,
     };
 
     try {
@@ -121,15 +146,15 @@ const MenuDetailScreen = ({ navigation, route }) => {
         }
       );
 
-      navigation.navigate("MyCart", {
+      navigation.navigate("CartScreen", {
         menuId: menuDetails.menuId,
         menuName: menuDetails.menuName,
+        storeName: storeName,
+        storeId: storeId,
       });
     } catch (error) {
       console.error("Error adding to cart:", error.message);
     }
-    // const sd = await AsyncStorage.getItem("cart");
-    // console.log(sd);
   };
 
   const renderFoodInfo = () => (
@@ -212,9 +237,10 @@ const MenuDetailScreen = ({ navigation, route }) => {
       <TouchableOpacity
         style={styles.cartButton}
         onPress={() =>
-          navigation.navigate("Mycart", {
+          navigation.navigate("CartScreen", {
             menuId: menuDetails.menuId,
             menuName: menuDetails.menuName,
+            storeName: storeName,
           })
         }
       >
