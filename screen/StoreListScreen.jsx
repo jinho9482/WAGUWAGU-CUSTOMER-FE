@@ -11,10 +11,8 @@ export default function StoreListScreen({ navigation, route }) {
 
 
   const getAllStoresNearUserApi = async () => {
-    const customerLatitude = 0.0;
-    const customerLongitude = 0.0;
     try {
-      
+
       const response = await getAllStoresNearUser({
 
         longitude: parseFloat(await AsyncStorage.getItem("customerLongitude")),
