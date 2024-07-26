@@ -1,135 +1,222 @@
 import React, { useEffect, useState } from "react";
 import {
-  StyleSheet,
   View,
   Text,
   FlatList,
-  TouchableOpacity,
+  StyleSheet,
+  ActivityIndicator,
   Pressable,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
-import { useRecoilState } from "recoil";
-import { cartState } from "../state/CartState.js";
-import { SIZES, COLORS, FONTS } from "../assets/constants/theme";
 
-const CartScreen = ({ route }) => {
-  const userId = route.params?.userId; // Extract userId from route params
-  const [cart, setCart] = useRecoilState(cartState);
+const CartScreen = ({ route, navigation }) => {
+  const { storeName } = route.params;
+  const [cart, setCart] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  // Fetch cart items from the server using the userId
+  const fetchCartItems = async () => {
+    const userId = await AsyncStorage.getItem("customerId");
+    try {
+      const response = await axios.get(
+        `http://192.168.0.26:8080/api/v1/cart/${userId}`
+      );
+      console.log("Cart data:", JSON.stringify(response.data));
+      setCart(response.data);
+    } catch (error) {
+      console.error("Error fetching cart items:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchCartItems = async () => {
-      try {
-        const response = await axios.get(
-          `http://192.168.0.26:8080/api/v1/cart/userId?userId=${userId}`
-        );
-        setCart(response.data);
-      } catch (error) {
-        console.error("Error fetching cart items:", error);
-      }
-    };
-
     fetchCartItems();
-  }, [userId]);
+  }, []);
 
-  // Render cart items
-  const renderCartItem = ({ item }) => (
-    <View style={styles.cartItemContainer}>
-      <Text style={styles.cartItemStore}>{item.store.storeName}</Text>
-      <Text style={styles.cartItemPrice}>{item.totalPrice}원</Text>
-      <Text style={styles.cartItemOptions}>
-        {item.optionList.options.map((option) => (
-          <Text key={option.optionId} style={styles.cartItemOption}>
-            {option.optionTitle} (+{option.optionPrice}원)
-          </Text>
-        ))}
-      </Text>
-      <Pressable style={styles.removeButtonContainer}>
-        <Text style={styles.removeButton}>삭제</Text>
-      </Pressable>
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#007AFF" />
+      </View>
+    );
+  }
+
+  if (!cart) {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.text}>No items in the cart</Text>
+      </View>
+    );
+  }
+
+  const renderOptionItem = ({ item }) => (
+    <View style={styles.itemContainer}>
+      <Text style={styles.itemTitle}>{item.optionTitle}</Text>
+      <Text style={styles.itemPrice}>Price: {item.optionPrice}원</Text>
     </View>
   );
 
-  return (
-    <SafeAreaView style={styles.container}>
-      <FlatList
-        data={cart}
-        renderItem={renderCartItem}
-        keyExtractor={(item) => item.cartId.toString()}
-        contentContainerStyle={styles.flatListContent}
-      />
-      <TouchableOpacity
-        style={styles.checkoutButton}
-        onPress={() => {
-          // Handle checkout process
-          console.log("Proceeding to checkout...");
-        }}
+  const renderMenuItem = ({ item }) => (
+    <View style={styles.cartDetailsContainer}>
+      <Text style={styles.menuName}>{item.menuName}</Text>
+      {item.selectedOptions && item.selectedOptions.length > 0 ? (
+        item.selectedOptions
+          .filter((list) => list.options && list.options.length > 0)
+          .map((list) => (
+            <View key={list.listId} style={styles.listContainer}>
+              <Text style={styles.listName}>{list.listName}</Text>
+              <FlatList
+                data={list.options}
+                renderItem={renderOptionItem}
+                keyExtractor={(option) => option.optionId.toString()}
+                ItemSeparatorComponent={() => <View style={styles.separator} />}
+              />
+            </View>
+          ))
+      ) : (
+        <Text style={styles.noOptionsText}>No options selected</Text>
+      )}
+    </View>
+  );
+
+  const renderHeader = () => (
+    <View>
+      <Pressable
+        style={styles.storeContainer}
+        onPress={() => navigation.navigate("Store")}
       >
-        <Text style={styles.checkoutButtonText}>결제하기</Text>
-      </TouchableOpacity>
-    </SafeAreaView>
+        <Text style={styles.storeName}>{storeName}</Text>
+      </Pressable>
+      <Text style={styles.totalPrice}>총 가격: {cart.totalPrice}원</Text>
+    </View>
+  );
+
+  const renderFooter = () => (
+    <Pressable style={styles.button} onPress={() => alert("Button Pressed")}>
+      <Text style={styles.buttonText}>Checkout</Text>
+    </Pressable>
+  );
+
+  return (
+    <FlatList
+      style={styles.container}
+      data={cart.menuItems}
+      renderItem={renderMenuItem}
+      keyExtractor={(item) => item.menuId.toString()}
+      ListHeaderComponent={renderHeader}
+      ListFooterComponent={renderFooter}
+    />
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.lightGray2,
+    backgroundColor: "#E8F5E9",
   },
-  cartItemContainer: {
-    flexDirection: "row",
-    padding: SIZES.padding,
-    borderBottomWidth: 1,
-    borderBottomColor: COLORS.gray,
-    alignItems: "center",
-  },
-  cartItemStore: {
-    ...FONTS.h2,
-    color: COLORS.black,
-  },
-  cartItemPrice: {
-    ...FONTS.body3,
-    color: COLORS.primary,
-  },
-  cartItemOptions: {
-    ...FONTS.body4,
-    color: COLORS.darkGray,
-  },
-  cartItemOption: {
-    marginVertical: 2,
-  },
-  flatListContent: {
-    paddingBottom: 80,
-  },
-  checkoutButton: {
-    backgroundColor: "#94D35C",
-    padding: SIZES.padding * 2,
-    alignItems: "center",
+  loadingContainer: {
+    flex: 1,
     justifyContent: "center",
-    borderWidth: 2,
-    borderColor: COLORS.white,
-    borderRadius: SIZES.radius,
-    position: "absolute",
-    bottom: 0,
-    width: "100%",
+    alignItems: "center",
   },
-  checkoutButtonText: {
-    ...FONTS.h2,
-    color: COLORS.white,
+  text: {
+    fontSize: 18,
+    textAlign: "center",
+    marginVertical: 10,
+    color: "#333",
   },
-  removeButtonContainer: {
-    marginLeft: SIZES.padding * 5,
-    paddingLeft: "30",
-    backgroundColor: "#94D35C",
+  cartDetailsContainer: {
+    backgroundColor: "#FFF",
+    borderRadius: 10,
+    padding: 20,
+    marginBottom: 20,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 5,
   },
-  removeButton: {
-    ...FONTS.body4,
-    color: COLORS.black,
-    backgroundColor: COLORS.red,
-    paddingVertical: 5,
-    paddingHorizontal: 10,
-    borderRadius: SIZES.radius,
+  menuName: {
+    fontSize: 22,
+    fontWeight: "bold",
+    marginBottom: 10,
+    color: "#388E3C",
+    textAlign: "center",
+  },
+  totalPrice: {
+    fontSize: 24,
+    fontWeight: "bold",
+    marginBottom: 20,
+    textAlign: "center",
+    color: "#2E7D32",
+  },
+  listContainer: {
+    marginBottom: 20,
+  },
+  listName: {
+    fontSize: 20,
+    fontWeight: "600",
+    marginBottom: 10,
+    color: "#388E3C",
+  },
+  itemContainer: {
+    marginBottom: 10,
+    padding: 16,
+    backgroundColor: "#FFF",
+    borderRadius: 10,
+    borderColor: "#E0E0E0",
+    borderWidth: 1,
+  },
+  itemTitle: {
+    fontSize: 18,
+    fontWeight: "500",
+    color: "#333",
+  },
+  itemPrice: {
+    fontSize: 16,
+    color: "#FF9500",
+    marginVertical: 5,
+  },
+  storeContainer: {
+    backgroundColor: "#FFF",
+    borderRadius: 10,
+    padding: 20,
+    marginBottom: 20,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 5,
+  },
+  storeName: {
+    fontSize: 20,
+    fontWeight: "bold",
+    textAlign: "center",
+    color: "#2E7D32",
+  },
+  separator: {
+    height: 1,
+    backgroundColor: "#E0E0E0",
+    marginVertical: 10,
+  },
+  noOptionsText: {
+    fontSize: 16,
+    color: "#888",
+    textAlign: "center",
+  },
+  button: {
+    backgroundColor: "#4CAF50",
+    borderRadius: 10,
+    paddingVertical: 15,
+    paddingHorizontal: 20,
+    marginVertical: 20,
+    alignItems: "center",
+  },
+  buttonText: {
+    fontSize: 18,
+    color: "#FFF",
+    fontWeight: "bold",
   },
 });
 
