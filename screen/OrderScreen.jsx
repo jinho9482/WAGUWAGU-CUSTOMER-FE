@@ -10,11 +10,11 @@ export default function OrderScreen() {
   const [showInput1, setShowInput1] = useState(false);
   const [storeName, setStoreName] = useState("");
   const [menuName, setMenuName] = useState("");
+  const [customerAddress, setCustomerAddress] = useState("");
   const [orderData, setOrderData] = useState({
-    ownerId: 4444,
+    ownerId: 1111,
     changeTime: '2024-07-18T15:00:00',
     orderState: ["CREATED"],
-    orderCreatedAt: '2024-07-18T15:00:00',
     storePhone: '010-1234-5678',
     storeName: "",
     storeAddressString: '서울 서초구 효령로 289 장곡빌딩',
@@ -89,16 +89,31 @@ export default function OrderScreen() {
     }
   });
 
+  useEffect(() => {
+    const fetchCustomerAddress = async () => {
+      try {
+        const address = await AsyncStorage.getItem("customerAddress");
+        if (address) {
+          setCustomerAddress(address);
+        }
+      } catch (error) {
+        console.error("Failed to fetch customer address:", error);
+      }
+    };
+
+    fetchCustomerAddress();
+  }, []);
+
   const handleCreateOrder = async () => {
     try {
       const id = await AsyncStorage.getItem("customerId");
-      const customerAddress = await AsyncStorage.getItem("customerAddress");
+      const address = customerAddress; 
       const updatedOrderData = {
         ...orderData,
         customerId: id, 
         storeName: storeName,
         menuName: menuName,
-        customerAddress: customerAddress,
+        customerAddress: address,
         customerRequests: consumerRequest,
         riderRequests: riderRequest,
       };
@@ -122,8 +137,7 @@ export default function OrderScreen() {
         <Text style={styles.deliveryText}>15분~30분</Text>
       </View>
       <View>
-        <Text style={styles.deliveryText}>고객 주소</Text>
-
+        <Text style={styles.deliveryText}>{customerAddress}</Text>
       </View>
       <View style={styles.section}>
         <TextInput
