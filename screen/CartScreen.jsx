@@ -6,13 +6,17 @@ import {
   StyleSheet,
   ActivityIndicator,
   Pressable,
+  SafeAreaView,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
+import { ScrollView } from "react-native-gesture-handler";
+import { Image } from "react-native-elements";
 
 const CartScreen = ({ route, navigation }) => {
-  const { storeName } = route.params;
+  const { menuName, storeName, totalPrice } = route.params;
   const [cart, setCart] = useState(null);
+  const [cartTotal, setCartTotal] = useState(0);
   const [loading, setLoading] = useState(true);
 
   const fetchCartItems = async () => {
@@ -21,8 +25,18 @@ const CartScreen = ({ route, navigation }) => {
       const response = await axios.get(
         `http://192.168.0.26:8080/api/v1/cart/${userId}`
       );
-      console.log("Cart data:", JSON.stringify(response.data));
+      console.log("fgfggf", JSON.stringify(response.data));
       setCart(response.data);
+      const total = response.data.menuItems.reduce((acc, menu) => {
+        const menuTotal = menu.selectedOptions.reduce((optAcc, list) => {
+          const listTotal = list.options.reduce((optionAcc, option) => {
+            return optionAcc + option.optionPrice;
+          }, 0);
+          return optAcc + listTotal;
+        }, 0);
+        return acc + menuTotal;
+      }, 0);
+      setCartTotal(total);
     } catch (error) {
       console.error("Error fetching cart items:", error);
     } finally {
@@ -50,70 +64,82 @@ const CartScreen = ({ route, navigation }) => {
     );
   }
 
-  const renderOptionItem = ({ item }) => (
-    <View style={styles.itemContainer}>
-      <Text style={styles.itemTitle}>{item.optionTitle}</Text>
-      <Text style={styles.itemPrice}>Price: {item.optionPrice}원</Text>
-    </View>
-  );
+  const renderItem = ({ item }) =>
+    item.map((it) => (
+      <View style={styles.itemContainer}>
+        <Text style={styles.itemTitle}>{it.optionTitle}</Text>
+        <Text style={styles.itemPrice}>Price: {it.optionPrice}원</Text>
+      </View>
+    ));
 
-  const renderMenuItem = ({ item }) => (
-    <View style={styles.cartDetailsContainer}>
-      <Text style={styles.menuName}>{item.menuName}</Text>
-      {item.selectedOptions && item.selectedOptions.length > 0 ? (
-        item.selectedOptions
-          .filter((list) => list.options && list.options.length > 0)
-          .map((list) => (
-            <View key={list.listId} style={styles.listContainer}>
-              <Text style={styles.listName}>{list.listName}</Text>
-              <FlatList
-                data={list.options}
-                renderItem={renderOptionItem}
-                keyExtractor={(option) => option.optionId.toString()}
-                ItemSeparatorComponent={() => <View style={styles.separator} />}
-              />
-            </View>
-          ))
-      ) : (
-        <Text style={styles.noOptionsText}>No options selected</Text>
-      )}
-    </View>
-  );
-
-  const renderHeader = () => (
-    <View>
-      <Pressable
-        style={styles.storeContainer}
-        onPress={() => navigation.navigate("Store")}
-      >
-        <Text style={styles.storeName}>{storeName}</Text>
-      </Pressable>
-      <Text style={styles.totalPrice}>총 가격: {cart.totalPrice}원</Text>
-    </View>
-  );
-
-  const renderFooter = () => (
-    <Pressable style={styles.button} onPress={() => alert("Button Pressed")}>
-      <Text style={styles.buttonText}>Checkout</Text>
-    </Pressable>
-  );
-
+  console.log(JSON.stringify(cart));
+  if (!cart)
+    return (
+      <View style={styles.container}>
+        <Text>텅! </Text>
+      </View>
+    );
   return (
-    <FlatList
-      style={styles.container}
-      data={cart.menuItems}
-      renderItem={renderMenuItem}
-      keyExtractor={(item) => item.menuId.toString()}
-      ListHeaderComponent={renderHeader}
-      ListFooterComponent={renderFooter}
-    />
+    <View style={styles.container}>
+      <SafeAreaView style={styles.scrollViewCon}>
+        <ScrollView>
+          <Pressable
+            style={styles.storeContainer}
+            onPress={() => navigation.navigate("Store")}
+          >
+            <Text style={styles.storeName}>{storeName}</Text>
+          </Pressable>
+          <Text style={styles.totalPrice}>총 가격: {cartTotal}원</Text>
+          {cart.menuItems.map((menu, i) => (
+            <View
+              style={styles.cartDetailsContainer}
+              key={menu.menuId + " " + i}
+            >
+              <View
+                style={{
+                  flexDirection: "row",
+                }}
+              >
+                <Text style={styles.menuName}>
+                  {menu.menuName} ={menu.totalPrice}
+                </Text>
+
+                <Pressable>
+                  <Image
+                    source={require("../assets/icons/trash-can.png")}
+                    resizeMode="contain"
+                    style={styles.trash}
+                  />
+                </Pressable>
+              </View>
+              {menu.selectedOptions && menu.selectedOptions.length > 0 ? (
+                menu.selectedOptions
+                  .filter((list) => list.options && list.options.length > 0)
+                  .map((list) => (
+                    <View key={list.listId} style={styles.listContainer}>
+                      <Text style={styles.listName}>{list.listName}</Text>
+                      {renderItem({ item: list.options })}
+                    </View>
+                  ))
+              ) : (
+                <Text style={styles.text}>No options selected</Text>
+              )}
+            </View>
+          ))}
+        </ScrollView>
+      </SafeAreaView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
+  scrollViewCon: {
+    flex: 1,
+  },
   container: {
     flex: 1,
-    backgroundColor: "#E8F5E9",
+    padding: 16,
+    backgroundColor: "#F7F7F7",
   },
   loadingContainer: {
     flex: 1,
@@ -128,7 +154,7 @@ const styles = StyleSheet.create({
   },
   cartDetailsContainer: {
     backgroundColor: "#FFF",
-    borderRadius: 10,
+    borderRadius: 20, // Increased border radius
     padding: 20,
     marginBottom: 20,
     shadowColor: "#000",
@@ -141,7 +167,7 @@ const styles = StyleSheet.create({
     fontSize: 22,
     fontWeight: "bold",
     marginBottom: 10,
-    color: "#388E3C",
+    color: "#black",
     textAlign: "center",
   },
   totalPrice: {
@@ -149,7 +175,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginBottom: 20,
     textAlign: "center",
-    color: "#2E7D32",
+    color: "#FF3B30",
   },
   listContainer: {
     marginBottom: 20,
@@ -158,12 +184,12 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: "600",
     marginBottom: 10,
-    color: "#388E3C",
+    color: "#black",
   },
   itemContainer: {
     marginBottom: 10,
     padding: 16,
-    backgroundColor: "#FFF",
+    backgroundColor: "#E2EBDE",
     borderRadius: 10,
     borderColor: "#E0E0E0",
     borderWidth: 1,
@@ -177,6 +203,10 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#FF9500",
     marginVertical: 5,
+  },
+  itemChecked: {
+    fontSize: 16,
+    color: "#4CD964",
   },
   storeContainer: {
     backgroundColor: "#FFF",
@@ -193,7 +223,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: "bold",
     textAlign: "center",
-    color: "#2E7D32",
+    color: "black",
   },
   separator: {
     height: 1,
@@ -205,18 +235,11 @@ const styles = StyleSheet.create({
     color: "#888",
     textAlign: "center",
   },
-  button: {
-    backgroundColor: "#4CAF50",
-    borderRadius: 10,
-    paddingVertical: 15,
-    paddingHorizontal: 20,
-    marginVertical: 20,
-    alignItems: "center",
-  },
-  buttonText: {
-    fontSize: 18,
-    color: "#FFF",
-    fontWeight: "bold",
+
+  trash: {
+    width: 24,
+    height: 24,
+    tintColor: "#94D35C", // Adjust color as needed
   },
 });
 

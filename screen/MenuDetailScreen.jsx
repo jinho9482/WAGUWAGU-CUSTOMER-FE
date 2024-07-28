@@ -26,7 +26,7 @@ const MenuDetailScreen = ({ navigation, route }) => {
   const fetchMenuDetails = async () => {
     try {
       const response = await axios.get(
-        `http://192.168.0.17:8080/api/v1/menu/${menuId}`,
+        `http://34.27.247.61:8080/api/v1/menu/${menuId}`,
         {
           timeout: 20000,
         }
@@ -42,7 +42,7 @@ const MenuDetailScreen = ({ navigation, route }) => {
   const fetchOptionList = async () => {
     try {
       const response = await axios.get(
-        `http://192.168.0.17:8080/api/v1/option-lists/menu/${menuId}`
+        `http://34.27.247.61:8080/api/v1/option-lists/menu/${menuId}`
       );
 
       setOptionLists(response.data);
@@ -101,6 +101,7 @@ const MenuDetailScreen = ({ navigation, route }) => {
   const handleAddToCart = async () => {
     const userId = await AsyncStorage.getItem("customerId");
     const data = await fetchCartItems();
+
     const menuItems = data
       ? [
           ...data,
@@ -131,7 +132,7 @@ const MenuDetailScreen = ({ navigation, route }) => {
       storeName: storeName,
       storeId: storeId,
       userId,
-      totalPrice,
+      totalPrice: totalPrice,
       menuItems,
     };
 
@@ -151,6 +152,7 @@ const MenuDetailScreen = ({ navigation, route }) => {
         menuName: menuDetails.menuName,
         storeName: storeName,
         storeId: storeId,
+        totalPrice: totalPrice,
       });
     } catch (error) {
       console.error("Error adding to cart:", error.message);
