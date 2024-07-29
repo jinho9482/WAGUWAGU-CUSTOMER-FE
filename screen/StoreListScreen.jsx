@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Dimensions, StyleSheet, Text, View } from "react-native";
-import { getAllStoresNearUser } from "../config/storeApi";
+import { getAllStores, getAllStoresNearUser } from "../config/storeApi";
 import StoreListSpeechBubble from "../components-store/StoreListSpeechBubble";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -9,21 +9,25 @@ export default function StoreListScreen({ navigation, route }) {
   const { category } = route.params;
   const [stores, setStores] = useState([]);
 
-
   const getAllStoresNearUserApi = async () => {
+    const customerLatitude = 0.0;
+    const customerLongitude = 0.0;
+
     try {
-
       const response = await getAllStoresNearUser({
-
         longitude: parseFloat(await AsyncStorage.getItem("customerLongitude")),
         latitude: parseFloat(await AsyncStorage.getItem("customerLatitude")),
 
         category: category,
       });
-      console.log(response);
+      // const response = await getAllStoresNearUser({
+      //   longitude: 127.027619,
+      //   latitude: 37.497952,
+      //   category: category,
+      // });
       setStores(response);
     } catch {
-      console.log("error in getAllStoresNearUserApi");
+      console.log("error in getAllStoresNearUserApi hi");
       setStores([]);
     }
   };

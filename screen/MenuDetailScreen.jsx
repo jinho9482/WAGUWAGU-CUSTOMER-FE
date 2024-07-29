@@ -84,13 +84,15 @@ const MenuDetailScreen = ({ navigation, route }) => {
     calculateTotalPrice(newselectedOptions);
   };
   console.log(JSON.stringify(selectedOptions));
+
   const fetchCartItems = async () => {
     const userId = await AsyncStorage.getItem("customerId");
+
     try {
       const response = await axios.get(
         `http://192.168.0.26:8080/api/v1/cart/${userId}`
       );
-      console.log("fgfggf", response.data);
+      console.log("xxxxxxxxxxxxxxxxxxxxxxxfgfggf", response.data);
       if (response.data.menuItems) return response.data.menuItems;
       return null;
     } catch (error) {
@@ -100,7 +102,9 @@ const MenuDetailScreen = ({ navigation, route }) => {
 
   const handleAddToCart = async () => {
     const userId = await AsyncStorage.getItem("customerId");
+
     const data = await fetchCartItems();
+
     const menuItems = data
       ? [
           ...data,
@@ -131,7 +135,7 @@ const MenuDetailScreen = ({ navigation, route }) => {
       storeName: storeName,
       storeId: storeId,
       userId,
-      totalPrice,
+      totalPrice: totalPrice,
       menuItems,
     };
 
@@ -151,6 +155,7 @@ const MenuDetailScreen = ({ navigation, route }) => {
         menuName: menuDetails.menuName,
         storeName: storeName,
         storeId: storeId,
+        totalPrice: totalPrice,
       });
     } catch (error) {
       console.error("Error adding to cart:", error.message);

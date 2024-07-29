@@ -2,27 +2,31 @@ import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
-  FlatList,
   StyleSheet,
   ActivityIndicator,
   Pressable,
+  SafeAreaView,
+  ScrollView,
 } from "react-native";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
+import { Image } from "react-native-elements";
 
 const CartScreen = ({ route, navigation }) => {
   const { storeName } = route.params;
   const [cart, setCart] = useState(null);
+  const [cartTotal, setCartTotal] = useState(0);
   const [loading, setLoading] = useState(true);
 
+  // Fetch cart items from the server
   const fetchCartItems = async () => {
     const userId = await AsyncStorage.getItem("customerId");
     try {
       const response = await axios.get(
         `http://192.168.0.26:8080/api/v1/cart/${userId}`
       );
-      console.log("Cart data:", JSON.stringify(response.data));
-      setCart(response.data);
+      const fetchedCart = response.data;
+      setCart(fetchedCart);
+      calculateCartTotal(fetchedCart.menuItems); // Update cart total after fetching data
     } catch (error) {
       console.error("Error fetching cart items:", error);
     } finally {
@@ -30,9 +34,54 @@ const CartScreen = ({ route, navigation }) => {
     }
   };
 
+  // Calculate cart total based on menu items and their options
+  const calculateCartTotal = (menuItems) => {
+    // Sum the totalPrice of each menu item
+    const total = menuItems.reduce((acc, menu) => {
+      // Add the menu item's total price
+      return acc + menu.totalPrice;
+    }, 0);
+
+    // Update the cartTotal state
+    setCartTotal(total);
+  };
+
   useEffect(() => {
     fetchCartItems();
   }, []);
+
+  // Delete a menu item and update the cart
+  const deleteMenuItem = async (index) => {
+    const updatedMenuItems = cart.menuItems.filter((_, i) => i !== index);
+    const updatedCart = { ...cart, menuItems: updatedMenuItems };
+
+    // Optimistically update the cart state
+    setCart(updatedCart);
+
+    try {
+      // Send the updated cart to the server
+      await axios.post(
+        "http://192.168.0.26:8080/api/v1/cart/save",
+        updatedCart,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      console.log("Cart updated successfully");
+    } catch (error) {
+      console.error("Error updating cart:", error);
+      // Revert the cart state if the server request fails
+      setCart((prevCart) => ({
+        ...prevCart,
+        menuItems: cart.menuItems,
+      }));
+    }
+
+    // Recalculate the total price after deletion
+    calculateCartTotal(updatedMenuItems);
+  };
 
   if (loading) {
     return (
@@ -50,70 +99,71 @@ const CartScreen = ({ route, navigation }) => {
     );
   }
 
-  const renderOptionItem = ({ item }) => (
-    <View style={styles.itemContainer}>
-      <Text style={styles.itemTitle}>{item.optionTitle}</Text>
-      <Text style={styles.itemPrice}>Price: {item.optionPrice}원</Text>
-    </View>
-  );
-
-  const renderMenuItem = ({ item }) => (
-    <View style={styles.cartDetailsContainer}>
-      <Text style={styles.menuName}>{item.menuName}</Text>
-      {item.selectedOptions && item.selectedOptions.length > 0 ? (
-        item.selectedOptions
-          .filter((list) => list.options && list.options.length > 0)
-          .map((list) => (
-            <View key={list.listId} style={styles.listContainer}>
-              <Text style={styles.listName}>{list.listName}</Text>
-              <FlatList
-                data={list.options}
-                renderItem={renderOptionItem}
-                keyExtractor={(option) => option.optionId.toString()}
-                ItemSeparatorComponent={() => <View style={styles.separator} />}
-              />
-            </View>
-          ))
-      ) : (
-        <Text style={styles.noOptionsText}>No options selected</Text>
-      )}
-    </View>
-  );
-
-  const renderHeader = () => (
-    <View>
-      <Pressable
-        style={styles.storeContainer}
-        onPress={() => navigation.navigate("Store")}
-      >
-        <Text style={styles.storeName}>{storeName}</Text>
-      </Pressable>
-      <Text style={styles.totalPrice}>총 가격: {cart.totalPrice}원</Text>
-    </View>
-  );
-
-  const renderFooter = () => (
-    <Pressable style={styles.button} onPress={() => alert("Button Pressed")}>
-      <Text style={styles.buttonText}>Checkout</Text>
-    </Pressable>
-  );
+  const renderItem = ({ item }) =>
+    item.map((it) => (
+      <View style={styles.itemContainer} key={it.optionId}>
+        <Text style={styles.itemTitle}>{it.optionTitle}</Text>
+        <Text style={styles.itemPrice}>Price: {it.optionPrice}원</Text>
+      </View>
+    ));
 
   return (
-    <FlatList
-      style={styles.container}
-      data={cart.menuItems}
-      renderItem={renderMenuItem}
-      keyExtractor={(item) => item.menuId.toString()}
-      ListHeaderComponent={renderHeader}
-      ListFooterComponent={renderFooter}
-    />
+    <View style={styles.container}>
+      <SafeAreaView style={styles.scrollViewCon}>
+        <ScrollView>
+          <Pressable
+            style={styles.storeContainer}
+            onPress={() => navigation.navigate("Store")}
+          >
+            <Text style={styles.storeName}>{storeName}</Text>
+          </Pressable>
+          <Text style={styles.totalPrice}>총 가격: {cartTotal}원</Text>
+          {cart.menuItems.map((menu, index) => (
+            <View
+              style={styles.cartDetailsContainer}
+              key={`${menu.menuId}-${index}`}
+            >
+              <View style={{ flexDirection: "row" }}>
+                <Text style={styles.menuName}>
+                  {menu.menuName} = {menu.totalPrice}원, 메뉴아이디{" "}
+                  {menu.menuId}
+                </Text>
+                <Pressable onPress={() => deleteMenuItem(index)}>
+                  <Image
+                    source={require("../assets/icons/trash-can.png")}
+                    resizeMode="contain"
+                    style={styles.trash}
+                  />
+                </Pressable>
+              </View>
+              {menu.selectedOptions && menu.selectedOptions.length > 0 ? (
+                menu.selectedOptions
+                  .filter((list) => list.options && list.options.length > 0)
+                  .map((list) => (
+                    <View key={list.listId} style={styles.listContainer}>
+                      <Text style={styles.listName}>{list.listName}</Text>
+                      {renderItem({ item: list.options })}
+                    </View>
+                  ))
+              ) : (
+                <Text style={styles.text}>No options selected</Text>
+              )}
+            </View>
+          ))}
+        </ScrollView>
+      </SafeAreaView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
+  scrollViewCon: {
+    flex: 1,
+  },
   container: {
     flex: 1,
-    backgroundColor: "#E8F5E9",
+    padding: 16,
+    backgroundColor: "#F7F7F7",
   },
   loadingContainer: {
     flex: 1,
@@ -128,7 +178,7 @@ const styles = StyleSheet.create({
   },
   cartDetailsContainer: {
     backgroundColor: "#FFF",
-    borderRadius: 10,
+    borderRadius: 20,
     padding: 20,
     marginBottom: 20,
     shadowColor: "#000",
@@ -141,7 +191,7 @@ const styles = StyleSheet.create({
     fontSize: 22,
     fontWeight: "bold",
     marginBottom: 10,
-    color: "#388E3C",
+    color: "#000",
     textAlign: "center",
   },
   totalPrice: {
@@ -149,7 +199,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginBottom: 20,
     textAlign: "center",
-    color: "#2E7D32",
+    color: "#FF3B30",
   },
   listContainer: {
     marginBottom: 20,
@@ -158,12 +208,12 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: "600",
     marginBottom: 10,
-    color: "#388E3C",
+    color: "#000",
   },
   itemContainer: {
     marginBottom: 10,
     padding: 16,
-    backgroundColor: "#FFF",
+    backgroundColor: "#E2EBDE",
     borderRadius: 10,
     borderColor: "#E0E0E0",
     borderWidth: 1,
@@ -193,30 +243,12 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: "bold",
     textAlign: "center",
-    color: "#2E7D32",
+    color: "#000",
   },
-  separator: {
-    height: 1,
-    backgroundColor: "#E0E0E0",
-    marginVertical: 10,
-  },
-  noOptionsText: {
-    fontSize: 16,
-    color: "#888",
-    textAlign: "center",
-  },
-  button: {
-    backgroundColor: "#4CAF50",
-    borderRadius: 10,
-    paddingVertical: 15,
-    paddingHorizontal: 20,
-    marginVertical: 20,
-    alignItems: "center",
-  },
-  buttonText: {
-    fontSize: 18,
-    color: "#FFF",
-    fontWeight: "bold",
+  trash: {
+    width: 24,
+    height: 24,
+    tintColor: "#94D35C",
   },
 });
 
