@@ -17,8 +17,10 @@ export default function OrderScreen({ route }) {
   const [consumerRequest, setConsumerRequest] = useState("");
   const [showInput, setShowInput] = useState(false);
   const [showInput1, setShowInput1] = useState(false);
-  const [storeName, setStoreName] = useState("");
   const [menuName, setMenuName] = useState("");
+  const [customerAddress, setCustomerAddress] = useState("");
+  const [storeId, setStoreId] = useState("");
+  const [customerId, setCustomerId] = useState("");
   const [orderData, setOrderData] = useState({
     ownerId: 4444,
     changeTime: "2024-07-18T15:00:00",
@@ -43,6 +45,13 @@ export default function OrderScreen({ route }) {
     distanceFromStoreToCustomer: 2.0,
     storeLongitude: 127.015916,
     storeLatitude: 37.485119,
+    due: "2024-07-18T15:00:00",
+    deliveryFee: 4000,
+    customerRequests: "",
+    riderRequests: "",
+    distanceFromStoreToCustomer: 3,
+    storeLongitude: 127.0189002,
+    storeLatitude: 37.5166298,
     due: "2024-07-18T15:00:00",
     menuNameList: {
       Level1Key: [
@@ -139,10 +148,11 @@ export default function OrderScreen({ route }) {
       <View style={styles.section}>
         <TextInput
           style={styles.input}
-          placeholder="가게 이름을 입력하세요"
-          value={storeName}
-          onChangeText={setStoreName}
+          placeholder="가게 ID를 입력하세요"
+          value={storeId}
+          onChangeText={setStoreId}
         />
+
         <TextInput
           style={styles.input}
           placeholder="메뉴 이름을 입력하세요"

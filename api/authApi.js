@@ -1,5 +1,6 @@
 import {api} from "../config/AuthNetwork";
 
+//  fds
 export const getInfo = async (data) => {
   const res = await api("/api/v1/customers", "get",data);
   return res;
