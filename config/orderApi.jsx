@@ -5,6 +5,7 @@ export const createOrder = async (data) => {
     const userRequestDto = {
         customerId: data.customerId,
         customerAddress: data.customerAddress,
+        storeId: data.storeId,
         ownerId: data.ownerId,
         changeTime: data.changeTime,
         orderState: data.orderState,
@@ -41,9 +42,10 @@ export const createOrder = async (data) => {
     }
 };
 
-export const searchHistory = async ({ consumerId }) => {
+export const searchOrder = async ({ consumerId }) => {
     try {
-        const res = await orderApi(`api/v1/order/consumer/${consumerId}`, 'get');
+      console.log(consumerId);
+        const res = await orderApi(`api/v1/order/consumer/${consumerId}/all`, 'get');
         console.log(res.data)
         return res.data;
     } catch (error) {
