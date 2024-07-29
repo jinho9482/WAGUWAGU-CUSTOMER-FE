@@ -10,17 +10,21 @@ export default function StoreListScreen({ navigation, route }) {
   const [stores, setStores] = useState([]);
 
   const getAllStoresNearUserApi = async () => {
-    try {
-      // console.log("--------------------------------");
-      // console.log(category);
-      // const response = await getAllStoresNearUser({
-      //   longitude: parseFloat(await AsyncStorage.getItem("customerLongitude")),
-      //   latitude: parseFloat(await AsyncStorage.getItem("customerLatitude")),
+    const customerLatitude = 0.0;
+    const customerLongitude = 0.0;
 
+    try {
+      const response = await getAllStoresNearUser({
+        longitude: parseFloat(await AsyncStorage.getItem("customerLongitude")),
+        latitude: parseFloat(await AsyncStorage.getItem("customerLatitude")),
+
+        category: category,
+      });
+      // const response = await getAllStoresNearUser({
+      //   longitude: 127.027619,
+      //   latitude: 37.497952,
       //   category: category,
       // });
-      const response = await getAllStores();
-
       setStores(response);
     } catch {
       console.log("error in getAllStoresNearUserApi hi");

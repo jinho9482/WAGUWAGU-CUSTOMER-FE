@@ -2,41 +2,31 @@ import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
-  FlatList,
   StyleSheet,
   ActivityIndicator,
   Pressable,
   SafeAreaView,
+  ScrollView,
 } from "react-native";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
-import { ScrollView } from "react-native-gesture-handler";
 import { Image } from "react-native-elements";
 
 const CartScreen = ({ route, navigation }) => {
-  const { menuName, storeName, totalPrice } = route.params;
+  const { storeName } = route.params;
   const [cart, setCart] = useState(null);
   const [cartTotal, setCartTotal] = useState(0);
   const [loading, setLoading] = useState(true);
 
+  // Fetch cart items from the server
   const fetchCartItems = async () => {
     const userId = await AsyncStorage.getItem("customerId");
     try {
       const response = await axios.get(
         `http://192.168.0.26:8080/api/v1/cart/${userId}`
       );
-      console.log("fgfggf", JSON.stringify(response.data));
-      setCart(response.data);
-      const total = response.data.menuItems.reduce((acc, menu) => {
-        const menuTotal = menu.selectedOptions.reduce((optAcc, list) => {
-          const listTotal = list.options.reduce((optionAcc, option) => {
-            return optionAcc + option.optionPrice;
-          }, 0);
-          return optAcc + listTotal;
-        }, 0);
-        return acc + menuTotal;
-      }, 0);
-      setCartTotal(total);
+      const fetchedCart = response.data;
+      setCart(fetchedCart);
+      calculateCartTotal(fetchedCart.menuItems); // Update cart total after fetching data
     } catch (error) {
       console.error("Error fetching cart items:", error);
     } finally {
@@ -44,9 +34,54 @@ const CartScreen = ({ route, navigation }) => {
     }
   };
 
+  // Calculate cart total based on menu items and their options
+  const calculateCartTotal = (menuItems) => {
+    // Sum the totalPrice of each menu item
+    const total = menuItems.reduce((acc, menu) => {
+      // Add the menu item's total price
+      return acc + menu.totalPrice;
+    }, 0);
+
+    // Update the cartTotal state
+    setCartTotal(total);
+  };
+
   useEffect(() => {
     fetchCartItems();
   }, []);
+
+  // Delete a menu item and update the cart
+  const deleteMenuItem = async (index) => {
+    const updatedMenuItems = cart.menuItems.filter((_, i) => i !== index);
+    const updatedCart = { ...cart, menuItems: updatedMenuItems };
+
+    // Optimistically update the cart state
+    setCart(updatedCart);
+
+    try {
+      // Send the updated cart to the server
+      await axios.post(
+        "http://192.168.0.26:8080/api/v1/cart/save",
+        updatedCart,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      console.log("Cart updated successfully");
+    } catch (error) {
+      console.error("Error updating cart:", error);
+      // Revert the cart state if the server request fails
+      setCart((prevCart) => ({
+        ...prevCart,
+        menuItems: cart.menuItems,
+      }));
+    }
+
+    // Recalculate the total price after deletion
+    calculateCartTotal(updatedMenuItems);
+  };
 
   if (loading) {
     return (
@@ -66,19 +101,12 @@ const CartScreen = ({ route, navigation }) => {
 
   const renderItem = ({ item }) =>
     item.map((it) => (
-      <View style={styles.itemContainer}>
+      <View style={styles.itemContainer} key={it.optionId}>
         <Text style={styles.itemTitle}>{it.optionTitle}</Text>
         <Text style={styles.itemPrice}>Price: {it.optionPrice}원</Text>
       </View>
     ));
 
-  console.log(JSON.stringify(cart));
-  if (!cart)
-    return (
-      <View style={styles.container}>
-        <Text>텅! </Text>
-      </View>
-    );
   return (
     <View style={styles.container}>
       <SafeAreaView style={styles.scrollViewCon}>
@@ -90,21 +118,17 @@ const CartScreen = ({ route, navigation }) => {
             <Text style={styles.storeName}>{storeName}</Text>
           </Pressable>
           <Text style={styles.totalPrice}>총 가격: {cartTotal}원</Text>
-          {cart.menuItems.map((menu, i) => (
+          {cart.menuItems.map((menu, index) => (
             <View
               style={styles.cartDetailsContainer}
-              key={menu.menuId + " " + i}
+              key={`${menu.menuId}-${index}`}
             >
-              <View
-                style={{
-                  flexDirection: "row",
-                }}
-              >
+              <View style={{ flexDirection: "row" }}>
                 <Text style={styles.menuName}>
-                  {menu.menuName} ={menu.totalPrice}
+                  {menu.menuName} = {menu.totalPrice}원, 메뉴아이디{" "}
+                  {menu.menuId}
                 </Text>
-
-                <Pressable>
+                <Pressable onPress={() => deleteMenuItem(index)}>
                   <Image
                     source={require("../assets/icons/trash-can.png")}
                     resizeMode="contain"
@@ -154,7 +178,7 @@ const styles = StyleSheet.create({
   },
   cartDetailsContainer: {
     backgroundColor: "#FFF",
-    borderRadius: 20, // Increased border radius
+    borderRadius: 20,
     padding: 20,
     marginBottom: 20,
     shadowColor: "#000",
@@ -167,7 +191,7 @@ const styles = StyleSheet.create({
     fontSize: 22,
     fontWeight: "bold",
     marginBottom: 10,
-    color: "#black",
+    color: "#000",
     textAlign: "center",
   },
   totalPrice: {
@@ -184,7 +208,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: "600",
     marginBottom: 10,
-    color: "#black",
+    color: "#000",
   },
   itemContainer: {
     marginBottom: 10,
@@ -204,10 +228,6 @@ const styles = StyleSheet.create({
     color: "#FF9500",
     marginVertical: 5,
   },
-  itemChecked: {
-    fontSize: 16,
-    color: "#4CD964",
-  },
   storeContainer: {
     backgroundColor: "#FFF",
     borderRadius: 10,
@@ -223,23 +243,12 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: "bold",
     textAlign: "center",
-    color: "black",
+    color: "#000",
   },
-  separator: {
-    height: 1,
-    backgroundColor: "#E0E0E0",
-    marginVertical: 10,
-  },
-  noOptionsText: {
-    fontSize: 16,
-    color: "#888",
-    textAlign: "center",
-  },
-
   trash: {
     width: 24,
     height: 24,
-    tintColor: "#94D35C", // Adjust color as needed
+    tintColor: "#94D35C",
   },
 });
 
