@@ -10,10 +10,10 @@ export default function OrderScreen() {
   const [showInput1, setShowInput1] = useState(false);
   const [menuName, setMenuName] = useState("");
   const [customerAddress, setCustomerAddress] = useState("");
-  const [storeId, setStoreId] = useState("1");
+  const [storeId, setStoreId] = useState("");
   const [customerId, setCustomerId] = useState("");
   const [orderData, setOrderData] = useState({
-    ownerId: 1111,
+
     changeTime: '2024-07-18T15:00:00',
     storePhone: '010-1234-5678',
     storeName: "",
@@ -103,6 +103,7 @@ export default function OrderScreen() {
         if (data && data.storeName) {
           setOrderData(prevState => ({
             ...prevState,
+            ownerId: data.ownerId,
             storeName: data.storeName,
             storeAddress: data.storeAddress,
             storeLongitude: data.storeLongitude,
@@ -123,8 +124,6 @@ export default function OrderScreen() {
     const fetchCustomerData = async () => {
       try {
         const address = await AsyncStorage.getItem("customerAddress");
-        // const longitude = parseFloat(await AsyncStorage.getItem("customerLongitude"))
-        // const latitude =  parseFloat(await AsyncStorage.getItem("customerLatitude"))
         
         if (address) {
           setCustomerAddress(address);
@@ -149,6 +148,7 @@ export default function OrderScreen() {
       const address = customerAddress; 
       const updatedOrderData = {
         ...orderData,
+        storeId: storeId,
         customerId: id, 
         customerAddress: address,
         customerRequests: consumerRequest,
@@ -170,16 +170,15 @@ export default function OrderScreen() {
         <Text style={styles.deliveryText}>15분~30분</Text>
       </View>
       <View>
-        <Text style={styles.deliveryText}>{customerAddress}</Text>
+        <Text style={styles.deliveryText}>customerAddress: {customerAddress}</Text>
       </View>
       <View>
         <Text style={styles.deliveryText}>customerId: {customerId}</Text>
       </View>
       <View>
-        <Text style={styles.deliveryText}>{orderData.storeName}</Text>
-      </View>
-      <View>
-        <Text style={styles.deliveryText}>{orderData.storeIntroduction}</Text>
+        <Text style={styles.deliveryText}>storeName: {orderData.storeName}</Text>
+        <Text style={styles.deliveryText}>ownerId: {orderData.ownerId}</Text>
+        <Text style={styles.deliveryText}>storeIntroduction: {orderData.storeIntroduction}</Text>
       </View>
       <View style={styles.section}>
         <TextInput
