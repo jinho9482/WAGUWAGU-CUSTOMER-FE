@@ -113,6 +113,8 @@ export default function StoreScreen({ navigation, route }) {
                         onPress={() =>
                           navigation.navigate("MenuDetailScreen", {
                             menuId: menu.menuId,
+                            storeId: storeId,
+                            storeName: store.storeName,
                           })
                         }
                         disabled={!menu.menuPossible}
