@@ -1,4 +1,5 @@
 import { orderApi } from '../config/orderNetwork';
+import { storeApi } from './storeNetwork';
 
 export const createOrder = async (data) => {
     const userRequestDto = {
@@ -10,7 +11,7 @@ export const createOrder = async (data) => {
         orderCreatedAt: data.orderCreatedAt,
         storePhone: data.storePhone,
         storeName: data.storeName,
-        storeAddressString: data.storeAddressString,
+        storeAddress: data.storeAddress,
         menuName: data.menuName,
         menuIntroduction: data.menuIntroduction,
         menuPrice: data.menuPrice,
@@ -32,7 +33,7 @@ export const createOrder = async (data) => {
     };
 
     try {
-        const res = await orderApi('api/v1/order/history', 'post', userRequestDto);
+        const res = await orderApi('api/v1/order/', 'post', userRequestDto);
         return res.data;
     } catch (error) {
         console.error('Error creating order:', error);
@@ -42,7 +43,7 @@ export const createOrder = async (data) => {
 
 export const searchHistory = async ({ consumerId }) => {
     try {
-        const res = await orderApi(`api/v1/order/consumer/${consumerId}/history`, 'get');
+        const res = await orderApi(`api/v1/order/consumer/${consumerId}`, 'get');
         console.log(res.data)
         return res.data;
     } catch (error) {
@@ -51,9 +52,25 @@ export const searchHistory = async ({ consumerId }) => {
     }
 };
 
+export const getStoreInfoDetailByStoreId = async (storeId,data) => {
+    console.log(storeId);
+    try {
+      const res = await storeApi(
+        `api/v1/distance-cal/store/${storeId}`,
+        "post",
+        data
+      );
+      console.log('API response:', res.data);
+      return res.data;
+    } catch (error) {
+      console.error("InfoDetailError in getStoreInfoDetailByStoreId", error);
+      throw error;
+    }
+  };
+
 export const updateState = async (orderId, status) => {
     try {
-      const res = await axios.post(`api/v1/order/update/${orderId}`, { status });
+      const res = await axios.post(`api/v1/order/request/${orderId}`, { status });
       return res.data;
     } catch (error) {
       console.error("Error in updateState", error);

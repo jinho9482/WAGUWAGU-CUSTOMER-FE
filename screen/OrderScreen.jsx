@@ -1,23 +1,23 @@
 import React, { useState, useEffect } from "react";
-import { Text, View, StyleSheet, TouchableOpacity, ScrollView, Image, TextInput } from "react-native";
+import { Text, View, StyleSheet, TouchableOpacity, ScrollView, TextInput } from "react-native";
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { createOrder } from '../config/orderApi';
+import { createOrder, getStoreInfoDetailByStoreId } from '../config/orderApi';
 
 export default function OrderScreen() {
   const [riderRequest, setRiderRequest] = useState("");
   const [consumerRequest, setConsumerRequest] = useState("");
   const [showInput, setShowInput] = useState(false);
   const [showInput1, setShowInput1] = useState(false);
-  const [storeName, setStoreName] = useState("");
   const [menuName, setMenuName] = useState("");
   const [customerAddress, setCustomerAddress] = useState("");
+  const [storeId, setStoreId] = useState("1");
+  const [customerId, setCustomerId] = useState("");
   const [orderData, setOrderData] = useState({
     ownerId: 1111,
     changeTime: '2024-07-18T15:00:00',
-    orderState: ["CREATED"],
     storePhone: '010-1234-5678',
     storeName: "",
-    storeAddressString: '서울 서초구 효령로 289 장곡빌딩',
+    storeAddress: '서울 서초구 강남대로 615 1층',
     menuName: "",
     menuIntroduction: 'Delicious Pizza',
     menuPrice: 10000,
@@ -30,12 +30,12 @@ export default function OrderScreen() {
     order: '자장면, Pasta',
     orderTotalAmount: 22000,
     storeDeliveryFee: 2000,
-    deliveryFee: 1818,
+    deliveryFee: 4000,
     customerRequests: "",
     riderRequests: "",
-    distanceFromStoreToCustomer: 2.0,
-    storeLongitude: 127.015916,
-    storeLatitude: 37.485119,
+    distanceFromStoreToCustomer: 3,
+    storeLongitude: 127.0189002,
+    storeLatitude: 37.5166298,
     due: '2024-07-18T15:00:00',
     menuNameList: {
         "Level1Key": [
@@ -90,29 +90,66 @@ export default function OrderScreen() {
   });
 
   useEffect(() => {
-    const fetchCustomerAddress = async () => {
+    const fetchStoreData = async () => {
       try {
-        const address = await AsyncStorage.getItem("customerAddress");
-        if (address) {
-          setCustomerAddress(address);
+        const data = await getStoreInfoDetailByStoreId(storeId,{
+          longitude:parseFloat(await AsyncStorage.getItem("customerLongitude")),
+          latitude:parseFloat(await AsyncStorage.getItem("customerLatitude"))
+  
+        });
+
+        console.log('API response:', data); 
+
+        if (data && data.storeName) {
+          setOrderData(prevState => ({
+            ...prevState,
+            storeName: data.storeName,
+            storeAddress: data.storeAddress,
+            storeLongitude: data.storeLongitude,
+            storeLatitude: data.storeLatitude,
+            storeMinimumOrderAmount: data.storeMinimumOrderAmount,
+            storeIntroduction: data.storeIntroduction,
+            storePhone: data.storePhone,
+            deliveryFee: data.deliveryFee,
+          }));
+        } else {
+          console.error('Store data is not in the expected format:', data);
         }
       } catch (error) {
-        console.error("Failed to fetch customer address:", error);
+        console.error("Failed to fetch store data:", error);
       }
     };
 
-    fetchCustomerAddress();
-  }, []);
+    const fetchCustomerData = async () => {
+      try {
+        const address = await AsyncStorage.getItem("customerAddress");
+        // const longitude = parseFloat(await AsyncStorage.getItem("customerLongitude"))
+        // const latitude =  parseFloat(await AsyncStorage.getItem("customerLatitude"))
+        
+        if (address) {
+          setCustomerAddress(address);
+        }
+
+        const id = await AsyncStorage.getItem("customerId");
+        if (id) {
+          setCustomerId(id);
+        }
+      } catch (error) {
+        console.error("Failed to fetch customer data:", error);
+      }
+    };
+
+    fetchStoreData();
+    fetchCustomerData();
+  }, [storeId]);
 
   const handleCreateOrder = async () => {
     try {
-      const id = await AsyncStorage.getItem("customerId");
+      const id = customerId;
       const address = customerAddress; 
       const updatedOrderData = {
         ...orderData,
         customerId: id, 
-        storeName: storeName,
-        menuName: menuName,
         customerAddress: address,
         customerRequests: consumerRequest,
         riderRequests: riderRequest,
@@ -130,22 +167,28 @@ export default function OrderScreen() {
      
       <View style={styles.deliveryInfo}>
         <Text style={styles.deliveryText}>한집 배달</Text>
-        <Image
-          source={require('../assets/ugoolee.png')}
-          style={styles.image}
-        />
         <Text style={styles.deliveryText}>15분~30분</Text>
       </View>
       <View>
         <Text style={styles.deliveryText}>{customerAddress}</Text>
       </View>
+      <View>
+        <Text style={styles.deliveryText}>customerId: {customerId}</Text>
+      </View>
+      <View>
+        <Text style={styles.deliveryText}>{orderData.storeName}</Text>
+      </View>
+      <View>
+        <Text style={styles.deliveryText}>{orderData.storeIntroduction}</Text>
+      </View>
       <View style={styles.section}>
         <TextInput
           style={styles.input}
-          placeholder="가게 이름을 입력하세요"
-          value={storeName}
-          onChangeText={setStoreName}
+          placeholder="가게 ID를 입력하세요"
+          value={storeId}
+          onChangeText={setStoreId}
         />
+        
         <TextInput
           style={styles.input}
           placeholder="메뉴 이름을 입력하세요"
@@ -234,13 +277,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 20,
   },
-  image: {
-    width: 99,
-    height: 99,
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: '#ccc',
-  },
   deliveryText: {
     fontSize: 16,
     backgroundColor: "#E0F7EF",
@@ -285,7 +321,4 @@ const styles = StyleSheet.create({
     fontSize: 16,
     textAlign: "center",
   },
-  userAdress: {
-    
-  }
 });
