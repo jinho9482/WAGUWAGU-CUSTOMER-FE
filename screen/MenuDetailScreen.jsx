@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Image,
   StyleSheet,
@@ -6,266 +6,289 @@ import {
   View,
   Text,
   FlatList,
+  ActivityIndicator,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { SIZES, COLORS, FONTS } from "../assets/constants/theme";
-import OptionList from "../components/OptionList.jsx";
-import { useRecoilState } from "recoil";
-import { cartState } from "../state/CartState.js";
 import axios from "axios";
+import { COLORS, SIZES, FONTS } from "../assets/constants/theme";
+import OptionList from "../components/OptionList.jsx";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
-const basePrice = 20000;
+const MenuDetailScreen = ({ navigation, route }) => {
+  const { menuId, storeId, storeName } = route.params;
 
-const MenuDetailScreen = ({ navigation }) => {
-  const [optionList1, setOptionList1] = useState({
-    listId: 1,
-    listName: "기본 옵션",
-    options: [
-      {
-        optionId: 1,
-        optionTitle: "치즈 추가",
-        optionPrice: 1000,
-        isChecked: false,
-      },
-      {
-        optionId: 2,
-        optionTitle: "핫소스 추가",
-        optionPrice: 500,
-        isChecked: false,
-      },
-      {
-        optionId: 3,
-        optionTitle: "베이컨 추가",
-        optionPrice: 300,
-        isChecked: false,
-      },
-    ],
-  });
+  const [selectedOptions, setSelectedOptions] = useState([]);
+  const [menuDetails, setMenuDetails] = useState(null);
+  const [optionLists, setOptionLists] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [totalPrice, setTotalPrice] = useState(0);
 
-  const [optionList2, setOptionList2] = useState({
-    listId: 2,
-    listName: "리뷰 서비스 선택",
-    options: [
-      {
-        optionId: 1,
-        optionTitle: "콜라 제공",
-        optionPrice: 0,
-        isChecked: false,
-      },
-      {
-        optionId: 2,
-        optionTitle: "올리브 추가",
-        optionPrice: 0,
-        isChecked: false,
-      },
-      {
-        optionId: 3,
-        optionTitle: "스파게티",
-        optionPrice: 0,
-        isChecked: false,
-      },
-    ],
-  });
+  const fetchMenuDetails = async () => {
+    try {
+      const response = await axios.get(
+        `http://192.168.0.17:8080/api/v1/menu/${menuId}`,
+        {
+          timeout: 20000,
+        }
+      );
+      console.log("menuid :", menuId);
+      setMenuDetails(response.data);
+      setTotalPrice(response.data.menuPrice);
+    } catch (error) {
+      console.error("Error fetching menu details:", error.message);
+    }
+  };
 
-  const [totalPrice, setTotalPrice] = useState(basePrice);
-  const [cart, setCart] = useRecoilState(cartState);
+  const fetchOptionList = async () => {
+    try {
+      const response = await axios.get(
+        `http://192.168.0.17:8080/api/v1/option-lists/menu/${menuId}`
+      );
+
+      setOptionLists(response.data);
+      setSelectedOptions(response.data);
+    } catch (error) {
+      console.error("Error fetching option lists:", error.message);
+    }
+  };
 
   useEffect(() => {
-    const calculateTotalPrice = () => {
-      const optionsTotalPrice = [...optionList1.options, ...optionList2.options]
-        .filter((option) => option.isChecked)
-        .reduce((sum, option) => sum + option.optionPrice, 0);
-      setTotalPrice(basePrice + optionsTotalPrice);
+    const fetchData = async () => {
+      await fetchMenuDetails();
+      await fetchOptionList();
+
+      setLoading(false);
     };
 
-    calculateTotalPrice();
-  }, [optionList1, optionList2]);
+    fetchData();
+  }, [menuId]);
 
-  const handleOptionChange = (updatedOptions, listId) => {
-    if (listId === 1) {
-      setOptionList1((prevState) => ({
-        ...prevState,
-        options: updatedOptions,
-      }));
-    } else if (listId === 2) {
-      setOptionList2((prevState) => ({
-        ...prevState,
-        options: updatedOptions,
-      }));
+  const defaultSelectedOptions = () => {
+    return selectedOptions || optionLists;
+  };
+
+  const handleOptionChange = (list, checkedOption) => {
+    const newselectedOptions = defaultSelectedOptions().map((l) =>
+      l.listId === list.listId
+        ? {
+            ...l,
+            options: l.options.map((o) =>
+              o.optionId === checkedOption.optionId
+                ? { ...o, isChecked: !o.isChecked }
+                : o
+            ),
+          }
+        : l
+    );
+    setSelectedOptions(newselectedOptions);
+    calculateTotalPrice(newselectedOptions);
+  };
+  console.log(JSON.stringify(selectedOptions));
+
+  const fetchCartItems = async () => {
+    const userId = await AsyncStorage.getItem("customerId");
+
+    try {
+      const response = await axios.get(
+        `http://192.168.0.26:8080/api/v1/cart/${userId}`
+      );
+      console.log("xxxxxxxxxxxxxxxxxxxxxxxfgfggf", response.data);
+      if (response.data.menuItems) return response.data.menuItems;
+      return null;
+    } catch (error) {
+      console.error("Error fetching cart items:", error);
     }
   };
 
   const handleAddToCart = async () => {
-    const selectedOptions = [
-      ...optionList1.options,
-      ...optionList2.options,
-    ].filter((option) => option.isChecked);
+    const userId = await AsyncStorage.getItem("customerId");
 
+    const data = await fetchCartItems();
+
+    const menuItems = data
+      ? [
+          ...data,
+          {
+            menuId: menuDetails.menuId,
+            menuName: menuDetails.menuName,
+            totalPrice: totalPrice,
+            selectedOptions: selectedOptions.map((list) => ({
+              listId: list.listId,
+              listName: list.listName,
+              options: list.options.filter((op) => op.isChecked),
+            })),
+          },
+        ]
+      : [
+          {
+            menuId: menuDetails.menuId,
+            menuName: menuDetails.menuName,
+            totalPrice: totalPrice,
+            selectedOptions: selectedOptions.map((list) => ({
+              listId: list.listId,
+              listName: list.listName,
+              options: list.options.filter((op) => op.isChecked),
+            })),
+          },
+        ];
     const cartItem = {
-      cartId: 1,
-      userId: 5, // Example user ID
-      store: {
-        storeId: 1, // Example store ID
-        storeName: "피자가게",
-      },
+      storeName: storeName,
+      storeId: storeId,
+      userId,
       totalPrice: totalPrice,
-      optionList: {
-        listId: 1,
-        listName: "기본 옵션",
-        options: selectedOptions,
-      },
+      menuItems,
     };
 
-    // Update Recoil state
-    setCart((prevCart) => [...prevCart, cartItem]);
-    console.log("Navigating to CartScreen with userId:", userId);
-    // Save to server
     try {
-      await axios.post("http://192.168.0.26:8080/api/v1/cart/save", cartItem);
-      console.log("Cart item added to server:", cartItem);
-    } catch (err) {
-      console.error("Error saving cart item:", err);
+      const request = await axios.post(
+        "http://192.168.0.26:8080/api/v1/cart/save",
+        cartItem,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      navigation.navigate("CartScreen", {
+        menuId: menuDetails.menuId,
+        menuName: menuDetails.menuName,
+        storeName: storeName,
+        storeId: storeId,
+        totalPrice: totalPrice,
+      });
+    } catch (error) {
+      console.error("Error adding to cart:", error.message);
     }
-    navigation.navigate("CartScreen", { userId: userId });
   };
 
   const renderFoodInfo = () => (
     <View>
-      <View>
-        <Text style={{ marginVertical: 10, textAlign: "center", ...FONTS.h2 }}>
-          피자가게
-        </Text>
-      </View>
-      <View style={{ height: SIZES.height * 0.3 }}>
-        <Image
-          source={require("../assets/images/pizza.jpg")}
-          resizeMode="cover"
-          style={{
-            width: SIZES.width,
-            height: "100%",
-          }}
-        />
-      </View>
-      <View
-        style={{
-          width: SIZES.width,
-          alignItems: "center",
-          marginTop: 15,
-          paddingHorizontal: SIZES.padding * 2,
-        }}
-      >
-        <Text style={{ marginVertical: 10, textAlign: "center", ...FONTS.h2 }}>
-          피자피자피자피자
-        </Text>
-        <Text style={{ ...FONTS.body3 }}>20,000원</Text>
-      </View>
+      {menuDetails ? (
+        <>
+          <View>
+            <Text style={styles.menuName}>{menuDetails.menuName}</Text>
+          </View>
+          <View style={styles.imageContainer}>
+            <Image
+              source={require("../assets/images/베스트개발자.png")}
+              resizeMode="cover"
+              style={styles.image}
+            />
+          </View>
+          <View style={styles.detailsContainer}>
+            <Text style={styles.menuIntroduction}>
+              {menuDetails.menuIntroduction}
+            </Text>
+            <Text style={styles.menuPrice}>{menuDetails.menuPrice}원</Text>
+          </View>
+        </>
+      ) : (
+        <Text>Loading...</Text>
+      )}
     </View>
   );
 
-  const renderTotalPrice = () => (
-    <View
-      style={{
-        alignItems: "center",
-        marginTop: 15,
-        paddingHorizontal: SIZES.padding * 2,
-      }}
-    >
-      <Text style={{ ...FONTS.h2 }}>Total Price</Text>
-      <Text style={{ ...FONTS.body3 }}>{totalPrice}원</Text>
+  const calculateTotalPrice = (selectedOptions = selectedOptions) => {
+    const totalPrice = selectedOptions.reduce(
+      (sum, list) =>
+        sum +
+        list.options.reduce(
+          (t, op) => t + (op.isChecked ? op.optionPrice : 0),
+          0
+        ),
+      menuDetails.menuPrice
+    );
+    setTotalPrice(totalPrice);
+    console.log({ totalPrice });
+    return totalPrice;
+  };
+
+  const renderOptionLists = () => (
+    <View>
+      {selectedOptions.length > 0 ? (
+        selectedOptions.map((list) => (
+          <OptionList
+            key={list.listId}
+            optionList={list}
+            selectedOptions={selectedOptions}
+            // onOptionChange={(updatedOptions) =>
+            //   handleOptionChange(updatedOptions, list.listId)
+            // }
+            onOptionChange={handleOptionChange}
+          />
+        ))
+      ) : (
+        <Text>No option lists available</Text>
+      )}
     </View>
   );
 
   const renderHeader = () => (
-    <View style={{ flexDirection: "row" }}>
+    <View style={styles.header}>
       <TouchableOpacity
-        style={{
-          width: 50,
-          paddingLeft: SIZES.padding * 2,
-          justifyContent: "center",
-        }}
-        // onPress={() => navigation.goBack()}
+        style={styles.backButton}
+        onPress={() => navigation.goBack()}
       >
         <Image
           source={require("../assets/icons/back.png")}
           resizeMode="contain"
-          style={{
-            width: 30,
-            height: 30,
-          }}
+          style={styles.backIcon}
         />
       </TouchableOpacity>
-      <View
-        style={{
-          flex: 1,
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-      >
-        <View
-          style={{
-            height: 50,
-            alignItems: "center",
-            justifyContent: "center",
-            paddingHorizontal: SIZES.padding * 3,
-            borderRadius: SIZES.radius,
-            // backgroundColor: COLORS.lightGray3
-          }}
-        ></View>
+      <View style={styles.headerTitleContainer}>
+        <Text style={styles.headerTitle}>Menu Details</Text>
       </View>
-
       <TouchableOpacity
-        style={{
-          width: 50,
-          paddingRight: SIZES.padding * 2,
-          justifyContent: "center",
-        }}
-        onPress={() => navigation.navigate("Mycart")}
+        style={styles.cartButton}
+        onPress={() =>
+          navigation.navigate("CartScreen", {
+            menuId: menuDetails.menuId,
+            menuName: menuDetails.menuName,
+            storeName: storeName,
+          })
+        }
       >
         <Image
           source={require("../assets/icons/shopping-basket.png")}
           resizeMode="contain"
-          style={{
-            width: 30,
-            height: 30,
-          }}
+          style={styles.cartIcon}
         />
       </TouchableOpacity>
     </View>
   );
 
+  if (loading) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <ActivityIndicator size="large" color={COLORS.primary} />
+      </SafeAreaView>
+    );
+  }
+
   return (
     <SafeAreaView style={styles.container}>
+      {renderHeader()}
       <FlatList
-        data={[]}
-        ListHeaderComponent={
+        ListHeaderComponent={() => (
           <>
-            {renderHeader()}
             {renderFoodInfo()}
-            <OptionList
-              optionList={optionList1}
-              onOptionChange={(updatedOptions) =>
-                handleOptionChange(updatedOptions, 1)
-              }
-            />
-            <OptionList
-              optionList={optionList2}
-              onOptionChange={(updatedOptions) =>
-                handleOptionChange(updatedOptions, 2)
-              }
-            />
-            {renderTotalPrice()}
+            {renderOptionLists()}
+            <View style={styles.totalPriceContainer}>
+              <Text style={styles.totalPriceText}></Text>
+            </View>
           </>
-        }
-        ListFooterComponent={
-          <TouchableOpacity
-            style={styles.addToCartButton}
-            onPress={handleAddToCart}
-          >
-            <Text style={styles.addToCartButtonText}>장바구니에 추가</Text>
-          </TouchableOpacity>
-        }
-        contentContainerStyle={styles.scrollViewContent}
+        )}
       />
+      <TouchableOpacity
+        style={styles.addToCartButton}
+        onPress={handleAddToCart}
+      >
+        <Text style={styles.addToCartButtonText}>
+          {" "}
+          {totalPrice}원 장바구니에 담기
+        </Text>
+      </TouchableOpacity>
     </SafeAreaView>
   );
 };
@@ -275,21 +298,119 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: COLORS.lightGray2,
   },
-  scrollViewContent: {
-    paddingBottom: 80,
+  header: {
+    flexDirection: "row",
+    paddingHorizontal: SIZES.padding * 2,
+    paddingVertical: SIZES.padding,
+    alignItems: "center",
+    backgroundColor: COLORS.white,
+  },
+  backButton: {
+    width: 50,
+    justifyContent: "center",
+  },
+  backIcon: {
+    width: 30,
+    height: 30,
+  },
+  headerTitleContainer: {
+    flex: 1,
+    alignItems: "center",
+  },
+  headerTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+  },
+  cartButton: {
+    width: 50,
+    justifyContent: "center",
+  },
+  cartIcon: {
+    width: 30,
+    height: 30,
+  },
+  menuName: {
+    marginVertical: 10,
+    textAlign: "center",
+    fontSize: 24,
+    fontWeight: "bold",
+  },
+  imageContainer: {
+    height: 200,
+  },
+  image: {
+    width: "100%",
+    height: "100%",
+  },
+  detailsContainer: {
+    width: "100%",
+    alignItems: "center",
+    marginTop: 15,
+    paddingHorizontal: 16,
+  },
+  menuIntroduction: {
+    marginVertical: 10,
+    textAlign: "center",
+    fontSize: 18,
+  },
+  menuPrice: {
+    fontSize: 16,
   },
   addToCartButton: {
-    backgroundColor: "#94D35C",
-    padding: SIZES.padding * 2,
+    backgroundColor: COLORS.primary,
+    padding: 15,
     alignItems: "center",
     justifyContent: "center",
-    borderWidth: 2,
-    borderColor: COLORS.white,
     borderRadius: SIZES.radius,
+    margin: SIZES.padding,
   },
   addToCartButtonText: {
-    ...FONTS.h2,
     color: COLORS.white,
+    fontSize: 18,
+  },
+
+  menuName: {
+    ...FONTS.h1,
+    fontWeight: "bold",
+    color: COLORS.primary,
+    textAlign: "center",
+    marginVertical: SIZES.padding,
+  },
+  imageContainer: {
+    borderRadius: SIZES.radius,
+    overflow: "hidden",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 4,
+    marginBottom: SIZES.padding,
+  },
+  image: {
+    width: "100%",
+    height: 200,
+  },
+  detailsContainer: {
+    paddingHorizontal: SIZES.padding,
+    alignItems: "center",
+  },
+  menuIntroduction: {
+    ...FONTS.body2,
+    color: COLORS.darkGray,
+    textAlign: "center",
+    marginBottom: SIZES.padding,
+  },
+  menuPrice: {
+    ...FONTS.h2,
+    color: COLORS.primary,
+    fontWeight: "bold",
+    textAlign: "center",
+  },
+  loadingText: {
+    ...FONTS.body1,
+    color: COLORS.darkGray,
+    textAlign: "center",
+    marginTop: SIZES.padding,
   },
 });
 

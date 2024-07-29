@@ -1,116 +1,254 @@
 import React, { useEffect, useState } from "react";
 import {
-  StyleSheet,
   View,
   Text,
-  FlatList,
-  TouchableOpacity,
+  StyleSheet,
+  ActivityIndicator,
+  Pressable,
+  SafeAreaView,
+  ScrollView,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import axios from "axios";
-import { useRecoilState } from "recoil";
-import { cartState } from "../state/CartState.js";
-import { SIZES, COLORS, FONTS } from "../assets/constants/theme";
+import { Image } from "react-native-elements";
 
-const CartScreen = ({ route }) => {
-  const userId = route.params?.userId; // Extract userId from route params
-  const [cart, setCart] = useRecoilState(cartState);
+const CartScreen = ({ route, navigation }) => {
+  const { storeName } = route.params;
+  const [cart, setCart] = useState(null);
+  const [cartTotal, setCartTotal] = useState(0);
+  const [loading, setLoading] = useState(true);
 
-  // Fetch cart items from the server using the userId
+  // Fetch cart items from the server
+  const fetchCartItems = async () => {
+    const userId = await AsyncStorage.getItem("customerId");
+    try {
+      const response = await axios.get(
+        `http://192.168.0.26:8080/api/v1/cart/${userId}`
+      );
+      const fetchedCart = response.data;
+      setCart(fetchedCart);
+      calculateCartTotal(fetchedCart.menuItems); // Update cart total after fetching data
+    } catch (error) {
+      console.error("Error fetching cart items:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Calculate cart total based on menu items and their options
+  const calculateCartTotal = (menuItems) => {
+    // Sum the totalPrice of each menu item
+    const total = menuItems.reduce((acc, menu) => {
+      // Add the menu item's total price
+      return acc + menu.totalPrice;
+    }, 0);
+
+    // Update the cartTotal state
+    setCartTotal(total);
+  };
+
   useEffect(() => {
-    const fetchCartItems = async () => {
-      try {
-        const response = await axios.get(
-          `http://192.168.0.26:8080/api/v1/cart/userId?userId=${userId}`
-        );
-        setCart(response.data);
-      } catch (error) {
-        console.error("Error fetching cart items:", error);
-      }
-    };
-
     fetchCartItems();
-  }, [userId]);
+  }, []);
 
-  // Render cart items
-  const renderCartItem = ({ item }) => (
-    <View style={styles.cartItemContainer}>
-      <Text style={styles.cartItemStore}>{item.store.storeName}</Text>
-      <Text style={styles.cartItemPrice}>{item.totalPrice}원</Text>
-      <Text style={styles.cartItemOptions}>
-        {item.optionList.options.map((option) => (
-          <Text key={option.optionId} style={styles.cartItemOption}>
-            {option.optionTitle} (+{option.optionPrice}원)
-          </Text>
-        ))}
-      </Text>
-    </View>
-  );
+  // Delete a menu item and update the cart
+  const deleteMenuItem = async (index) => {
+    const updatedMenuItems = cart.menuItems.filter((_, i) => i !== index);
+    const updatedCart = { ...cart, menuItems: updatedMenuItems };
+
+    // Optimistically update the cart state
+    setCart(updatedCart);
+
+    try {
+      // Send the updated cart to the server
+      await axios.post(
+        "http://192.168.0.26:8080/api/v1/cart/save",
+        updatedCart,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      console.log("Cart updated successfully");
+    } catch (error) {
+      console.error("Error updating cart:", error);
+      // Revert the cart state if the server request fails
+      setCart((prevCart) => ({
+        ...prevCart,
+        menuItems: cart.menuItems,
+      }));
+    }
+
+    // Recalculate the total price after deletion
+    calculateCartTotal(updatedMenuItems);
+  };
+
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#007AFF" />
+      </View>
+    );
+  }
+
+  if (!cart) {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.text}>No items in the cart</Text>
+      </View>
+    );
+  }
+
+  const renderItem = ({ item }) =>
+    item.map((it) => (
+      <View style={styles.itemContainer} key={it.optionId}>
+        <Text style={styles.itemTitle}>{it.optionTitle}</Text>
+        <Text style={styles.itemPrice}>Price: {it.optionPrice}원</Text>
+      </View>
+    ));
 
   return (
-    <SafeAreaView style={styles.container}>
-      <FlatList
-        data={cart}
-        renderItem={renderCartItem}
-        keyExtractor={(item) => item.cartId.toString()}
-        contentContainerStyle={styles.flatListContent}
-      />
-      <TouchableOpacity
-        style={styles.checkoutButton}
-        onPress={() => {
-          // Handle checkout process
-          console.log("Proceeding to checkout...");
-        }}
-      >
-        <Text style={styles.checkoutButtonText}>결제하기</Text>
-      </TouchableOpacity>
-    </SafeAreaView>
+    <View style={styles.container}>
+      <SafeAreaView style={styles.scrollViewCon}>
+        <ScrollView>
+          <Pressable
+            style={styles.storeContainer}
+            onPress={() => navigation.navigate("Store")}
+          >
+            <Text style={styles.storeName}>{storeName}</Text>
+          </Pressable>
+          <Text style={styles.totalPrice}>총 가격: {cartTotal}원</Text>
+          {cart.menuItems.map((menu, index) => (
+            <View
+              style={styles.cartDetailsContainer}
+              key={`${menu.menuId}-${index}`}
+            >
+              <View style={{ flexDirection: "row" }}>
+                <Text style={styles.menuName}>
+                  {menu.menuName} = {menu.totalPrice}원, 메뉴아이디{" "}
+                  {menu.menuId}
+                </Text>
+                <Pressable onPress={() => deleteMenuItem(index)}>
+                  <Image
+                    source={require("../assets/icons/trash-can.png")}
+                    resizeMode="contain"
+                    style={styles.trash}
+                  />
+                </Pressable>
+              </View>
+              {menu.selectedOptions && menu.selectedOptions.length > 0 ? (
+                menu.selectedOptions
+                  .filter((list) => list.options && list.options.length > 0)
+                  .map((list) => (
+                    <View key={list.listId} style={styles.listContainer}>
+                      <Text style={styles.listName}>{list.listName}</Text>
+                      {renderItem({ item: list.options })}
+                    </View>
+                  ))
+              ) : (
+                <Text style={styles.text}>No options selected</Text>
+              )}
+            </View>
+          ))}
+        </ScrollView>
+      </SafeAreaView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
+  scrollViewCon: {
+    flex: 1,
+  },
   container: {
     flex: 1,
-    backgroundColor: COLORS.lightGray2,
+    padding: 16,
+    backgroundColor: "#F7F7F7",
   },
-  cartItemContainer: {
-    padding: SIZES.padding,
-    borderBottomWidth: 1,
-    borderBottomColor: COLORS.gray,
-  },
-  cartItemStore: {
-    ...FONTS.h2,
-    color: COLORS.black,
-  },
-  cartItemPrice: {
-    ...FONTS.body3,
-    color: COLORS.primary,
-  },
-  cartItemOptions: {
-    ...FONTS.body4,
-    color: COLORS.darkGray,
-  },
-  cartItemOption: {
-    marginVertical: 2,
-  },
-  flatListContent: {
-    paddingBottom: 80,
-  },
-  checkoutButton: {
-    backgroundColor: "#94D35C",
-    padding: SIZES.padding * 2,
-    alignItems: "center",
+  loadingContainer: {
+    flex: 1,
     justifyContent: "center",
-    borderWidth: 2,
-    borderColor: COLORS.white,
-    borderRadius: SIZES.radius,
-    position: "absolute",
-    bottom: 0,
-    width: "100%",
+    alignItems: "center",
   },
-  checkoutButtonText: {
-    ...FONTS.h2,
-    color: COLORS.white,
+  text: {
+    fontSize: 18,
+    textAlign: "center",
+    marginVertical: 10,
+    color: "#333",
+  },
+  cartDetailsContainer: {
+    backgroundColor: "#FFF",
+    borderRadius: 20,
+    padding: 20,
+    marginBottom: 20,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 5,
+  },
+  menuName: {
+    fontSize: 22,
+    fontWeight: "bold",
+    marginBottom: 10,
+    color: "#000",
+    textAlign: "center",
+  },
+  totalPrice: {
+    fontSize: 24,
+    fontWeight: "bold",
+    marginBottom: 20,
+    textAlign: "center",
+    color: "#FF3B30",
+  },
+  listContainer: {
+    marginBottom: 20,
+  },
+  listName: {
+    fontSize: 20,
+    fontWeight: "600",
+    marginBottom: 10,
+    color: "#000",
+  },
+  itemContainer: {
+    marginBottom: 10,
+    padding: 16,
+    backgroundColor: "#E2EBDE",
+    borderRadius: 10,
+    borderColor: "#E0E0E0",
+    borderWidth: 1,
+  },
+  itemTitle: {
+    fontSize: 18,
+    fontWeight: "500",
+    color: "#333",
+  },
+  itemPrice: {
+    fontSize: 16,
+    color: "#FF9500",
+    marginVertical: 5,
+  },
+  storeContainer: {
+    backgroundColor: "#FFF",
+    borderRadius: 10,
+    padding: 20,
+    marginBottom: 20,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 5,
+  },
+  storeName: {
+    fontSize: 20,
+    fontWeight: "bold",
+    textAlign: "center",
+    color: "#000",
+  },
+  trash: {
+    width: 24,
+    height: 24,
+    tintColor: "#94D35C",
   },
 });
 
