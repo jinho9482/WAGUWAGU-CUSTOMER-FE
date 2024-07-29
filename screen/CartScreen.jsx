@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import axios from "axios";
 import { Image } from "react-native-elements";
-
+import AsyncStorage from "@react-native-async-storage/async-storage";
 const CartScreen = ({ route, navigation }) => {
   const { storeName } = route.params;
   const [cart, setCart] = useState(null);
@@ -98,6 +98,13 @@ const CartScreen = ({ route, navigation }) => {
       </View>
     );
   }
+  const handleCheckout = () => {
+    navigation.navigate("OrderScreen", {
+      cartTotal,
+      cart: cart,
+    });
+    console.log("checkout button log", JSON.stringify(cart));
+  };
 
   const renderItem = ({ item }) =>
     item.map((it) => (
@@ -152,6 +159,9 @@ const CartScreen = ({ route, navigation }) => {
           ))}
         </ScrollView>
       </SafeAreaView>
+      <Pressable style={styles.checkoutButton} onPress={handleCheckout}>
+        <Text style={styles.checkoutButtonText}>주문하기</Text>
+      </Pressable>
     </View>
   );
 };
@@ -249,6 +259,20 @@ const styles = StyleSheet.create({
     width: 24,
     height: 24,
     tintColor: "#94D35C",
+  },
+  checkoutButton: {
+    backgroundColor: "#FF3B30",
+    borderRadius: 25,
+    paddingVertical: 15,
+    paddingHorizontal: 20,
+    margin: 16,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  checkoutButtonText: {
+    fontSize: 18,
+    color: "#FFF",
+    fontWeight: "bold",
   },
 });
 

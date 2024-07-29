@@ -132,6 +132,11 @@ export default function App() {
             component={LoginScreen}
             options={{ headerShown: false }}
           />
+          <Stack.Screen
+            name="OrderScreen"
+            component={OrderScreen}
+            options={{ headerShown: false }}
+          />
 
           <Stack.Screen
             name="HomeScreen"
