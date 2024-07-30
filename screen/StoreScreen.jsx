@@ -30,6 +30,7 @@ export default function StoreScreen({ navigation, route }) {
         longitude: parseFloat(await AsyncStorage.getItem("customerLongitude")),
         latitude: parseFloat(await AsyncStorage.getItem("customerLatitude")),
         // longitude: 127.027619,
+        // latitude: 37.497952,
         // longitude: 37.497952,
       });
       console.log(response);
