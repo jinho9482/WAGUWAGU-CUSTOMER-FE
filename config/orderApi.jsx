@@ -24,7 +24,6 @@ export const searchOrder = async ({ consumerId }) => {
 };
 
 export const getStoreInfoDetailByStoreId = async (storeId,data) => {
-    console.log(storeId);
     try {
       const res = await storeApi(
         `api/v1/distance-cal/store/${storeId}`,
