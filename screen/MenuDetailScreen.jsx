@@ -171,7 +171,7 @@ const MenuDetailScreen = ({ navigation, route }) => {
           </View>
           <View style={styles.imageContainer}>
             <Image
-              source={require("../assets/images/베스트개발자.png")}
+              source={require("../assets/삼겹김치덮밥.png")}
               resizeMode="cover"
               style={styles.image}
             />
@@ -261,7 +261,7 @@ const MenuDetailScreen = ({ navigation, route }) => {
   if (loading) {
     return (
       <SafeAreaView style={styles.container}>
-        <ActivityIndicator size="large" color={COLORS.primary} />
+        <ActivityIndicator size="large" color={COLORS.red} />
       </SafeAreaView>
     );
   }
@@ -357,7 +357,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   addToCartButton: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: "#FF3B30",
     padding: 15,
     alignItems: "center",
     justifyContent: "center",
@@ -372,7 +372,7 @@ const styles = StyleSheet.create({
   menuName: {
     ...FONTS.h1,
     fontWeight: "bold",
-    color: COLORS.primary,
+    color: "black",
     textAlign: "center",
     marginVertical: SIZES.padding,
   },
@@ -402,7 +402,7 @@ const styles = StyleSheet.create({
   },
   menuPrice: {
     ...FONTS.h2,
-    color: COLORS.primary,
+    color: "#FF3B30",
     fontWeight: "bold",
     textAlign: "center",
   },

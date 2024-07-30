@@ -16,7 +16,7 @@ const OptionList = ({ optionList, selectedOptions = [], onOptionChange }) => {
             <CheckBox
               checked={option.isChecked}
               onPress={() => onOptionChange(optionList, option)}
-              checkedColor={COLORS.primary}
+              checkedColor={COLORS.red}
               containerStyle={styles.checkBoxContainer}
             />
           </View>
@@ -38,7 +38,7 @@ const styles = StyleSheet.create({
   listName: {
     ...FONTS.h2, // Font styling
     marginBottom: SIZES.padding, // Space below the list name
-    color: COLORS.primary, // Color to match the theme
+    color: COLORS.red, // Color to match the theme
     fontWeight: "bold", // Bold text
   },
   itemContainer: {
