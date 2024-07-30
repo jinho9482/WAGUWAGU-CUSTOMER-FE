@@ -21,93 +21,52 @@ export default function OrderScreen({ route }) {
   const [customerAddress, setCustomerAddress] = useState("");
   const [storeId, setStoreId] = useState("");
   const [customerId, setCustomerId] = useState("");
-  const [orderData, setOrderData] = useState({
-    ownerId: 4444,
-    changeTime: "2024-07-18T15:00:00",
-    orderState: ["CREATED"],
-    orderCreatedAt: "2024-07-18T15:00:00",
-    storePhone: "010-1234-5678",
-    storeName: "",
-    storeAddressString: "서울 서초구 효령로 289 장곡빌딩",
-    menuName: "",
-    menuIntroduction: "Delicious Pizza",
-    menuPrice: 10000,
-    optionTitle: "Extra Cheese",
-    optionPrice: 2000,
-    listName: "Menu List",
-    options: "Extra cheese",
-    customerRequests: "Extra cheese",
-    riderRequests: "Handle with care",
-    order: "자장면, Pasta",
-    orderTotalAmount: 22000,
-    storeDeliveryFee: 2000,
-    deliveryFee: 1818,
-    distanceFromStoreToCustomer: 2.0,
-    storeLongitude: 127.015916,
-    storeLatitude: 37.485119,
-    due: "2024-07-18T15:00:00",
-    deliveryFee: 4000,
-    customerRequests: "",
-    riderRequests: "",
-    distanceFromStoreToCustomer: 3,
-    storeLongitude: 127.0189002,
-    storeLatitude: 37.5166298,
-    due: "2024-07-18T15:00:00",
-    menuNameList: {
-      Level1Key: [
-        {
-          Level2Key1: [
-            {
-              Level3Key1: [
-                {
-                  Level4Key1: ["Item1", "Item2"],
-                },
-              ],
-            },
-            {
-              Level3Key2: [
-                {
-                  Level4Key2: ["Item3", "Item4"],
-                },
-              ],
-            },
-          ],
-          Level2Key2: [
-            {
-              Level3Key3: [
-                {
-                  Level4Key3: ["Item5", "Item6"],
-                },
-              ],
-            },
-            {
-              Level3Key4: [
-                {
-                  Level4Key4: ["Item7", "Item8"],
-                },
-              ],
-            },
-          ],
-        },
-      ],
-    },
-  });
 
   const handleCreateOrder = async () => {
     try {
-      console.log("fdfdfdfddf", cart);
+      console.log("Cart details:", cart);
       const id = await AsyncStorage.getItem("customerId");
       const customerAddress = await AsyncStorage.getItem("customerAddress");
-      const updatedOrderData = {
-        ...orderData,
+
+
+      const userRequest = {
         customerId: id,
-        storeName: storeName,
-        menuName: menuName,
-        customerAddress: customerAddress,
+        storeId: cart.storeId,
+        ownerId: cart.ownerId,
+        storePhone: cart.storePhone,
+        storeName: cart.storeName,
+        storeAddress: cart.storeAddress,
         customerRequests: consumerRequest,
         riderRequests: riderRequest,
+        storeDeliveryFee: cart.storeDeliveryFee,
+        deliveryFee: cart.deliveryFee,
+        distanceFromStoreToCustomer: cart.distanceFromStoreToCustomer,
+        storeLongitude: cart.storeLongitude,
+        storeLatitude: cart.storeLatitude,
+        storeMinimumOrderAmount: cart.storeMinimumOrderAmount,
+        customerAddress: customerAddress,
+        menuItems: cart.menuItems.map(item => ({
+          menuName: item.menuName,
+          totalPrice: item.totalPrice,
+          selectedOptions: item.selectedOptions.map(optionList => ({
+            listName: optionList.listName,
+            options: optionList.options.map(option => ({
+              optionTitle: option.optionTitle,
+              optionPrice: option.optionPrice,
+            }))
+          }))
+        })),
+       
+        optionTitle: cart.optionTitle || "",
+        optionPrice: cart.optionPrice || 0,
+        listName: cart.listName || "",
+        options: cart.options || [],
+        menuName: menuName,
+        totalPrice: cartTotal,
+        selectedOptions: cart.selectedOptions || []
       };
-      const result = await createOrder(updatedOrderData);
+
+      const result = await createOrder(userRequest);
       console.log("Order created successfully:", result);
     } catch (error) {
       console.error("Failed to create order:", error);
