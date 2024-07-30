@@ -11,6 +11,7 @@ import {
 import axios from "axios";
 import { Image } from "react-native-elements";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+
 const CartScreen = ({ route, navigation }) => {
   const { storeName } = route.params;
   const [cart, setCart] = useState(null);
@@ -26,9 +27,16 @@ const CartScreen = ({ route, navigation }) => {
       );
       const fetchedCart = response.data;
       setCart(fetchedCart);
-      calculateCartTotal(fetchedCart.menuItems); // Update cart total after fetching data
+
+      // Ensure menuItems is defined and is an array
+      if (fetchedCart.menuItems && Array.isArray(fetchedCart.menuItems)) {
+        calculateCartTotal(fetchedCart.menuItems); // Update cart total after fetching data
+      } else {
+        setCartTotal(0); // Set total to 0 if menuItems is not available
+      }
     } catch (error) {
       console.error("Error fetching cart items:", error);
+      // Handle error and provide feedback to the user if needed
     } finally {
       setLoading(false);
     }
@@ -36,10 +44,14 @@ const CartScreen = ({ route, navigation }) => {
 
   // Calculate cart total based on menu items and their options
   const calculateCartTotal = (menuItems) => {
+    if (!menuItems || menuItems.length === 0) {
+      setCartTotal(0);
+      return;
+    }
+
     // Sum the totalPrice of each menu item
     const total = menuItems.reduce((acc, menu) => {
-      // Add the menu item's total price
-      return acc + menu.totalPrice;
+      return acc + (menu.totalPrice || 0); // Use 0 as fallback if totalPrice is undefined
     }, 0);
 
     // Update the cartTotal state
@@ -52,6 +64,8 @@ const CartScreen = ({ route, navigation }) => {
 
   // Delete a menu item and update the cart
   const deleteMenuItem = async (index) => {
+    if (!cart || !cart.menuItems) return; // Safeguard for empty cart
+
     const updatedMenuItems = cart.menuItems.filter((_, i) => i !== index);
     const updatedCart = { ...cart, menuItems: updatedMenuItems };
 
@@ -91,13 +105,14 @@ const CartScreen = ({ route, navigation }) => {
     );
   }
 
-  if (!cart) {
+  if (!cart || !cart.menuItems || cart.menuItems.length === 0) {
     return (
       <View style={styles.container}>
         <Text style={styles.text}>No items in the cart</Text>
       </View>
     );
   }
+
   const handleCheckout = () => {
     navigation.navigate("OrderScreen", {
       cartTotal,
