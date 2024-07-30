@@ -12,13 +12,16 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import axios from "axios";
 import { COLORS, SIZES, FONTS } from "../assets/constants/theme";
 import OptionList from "../components/OptionList.jsx";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const MenuDetailScreen = ({ navigation, route }) => {
-  const { menuId } = route.params;
-  const [selectedOptions, setSelectedOptions] = useState({});
+  const { menuId, storeId, storeName } = route.params;
+
+  const [selectedOptions, setSelectedOptions] = useState([]);
   const [menuDetails, setMenuDetails] = useState(null);
   const [optionLists, setOptionLists] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [totalPrice, setTotalPrice] = useState(0);
 
   const fetchMenuDetails = async () => {
     try {
@@ -28,7 +31,9 @@ const MenuDetailScreen = ({ navigation, route }) => {
           timeout: 20000,
         }
       );
+      console.log("menuid :", menuId);
       setMenuDetails(response.data);
+      setTotalPrice(response.data.menuPrice);
     } catch (error) {
       console.error("Error fetching menu details:", error.message);
     }
@@ -39,7 +44,9 @@ const MenuDetailScreen = ({ navigation, route }) => {
       const response = await axios.get(
         `http://192.168.0.17:8080/api/v1/option-lists/menu/${menuId}`
       );
+
       setOptionLists(response.data);
+      setSelectedOptions(response.data);
     } catch (error) {
       console.error("Error fetching option lists:", error.message);
     }
@@ -49,17 +56,110 @@ const MenuDetailScreen = ({ navigation, route }) => {
     const fetchData = async () => {
       await fetchMenuDetails();
       await fetchOptionList();
+
       setLoading(false);
     };
 
     fetchData();
   }, [menuId]);
 
-  const handleOptionChange = (updatedOptions, listId) => {
-    setSelectedOptions((prevOptions) => ({
-      ...prevOptions,
-      [listId]: updatedOptions,
-    }));
+  const defaultSelectedOptions = () => {
+    return selectedOptions || optionLists;
+  };
+
+  const handleOptionChange = (list, checkedOption) => {
+    const newselectedOptions = defaultSelectedOptions().map((l) =>
+      l.listId === list.listId
+        ? {
+            ...l,
+            options: l.options.map((o) =>
+              o.optionId === checkedOption.optionId
+                ? { ...o, isChecked: !o.isChecked }
+                : o
+            ),
+          }
+        : l
+    );
+    setSelectedOptions(newselectedOptions);
+    calculateTotalPrice(newselectedOptions);
+  };
+  console.log(JSON.stringify(selectedOptions));
+
+  const fetchCartItems = async () => {
+    const userId = await AsyncStorage.getItem("customerId");
+
+    try {
+      const response = await axios.get(
+        `http://192.168.0.26:8080/api/v1/cart/${userId}`
+      );
+      console.log("xxxxxxxxxxxxxxxxxxxxxxxfgfggf", response.data);
+      if (response.data.menuItems) return response.data.menuItems;
+      return null;
+    } catch (error) {
+      console.error("Error fetching cart items:", error);
+    }
+  };
+
+  const handleAddToCart = async () => {
+    const userId = await AsyncStorage.getItem("customerId");
+
+    const data = await fetchCartItems();
+
+    const menuItems = data
+      ? [
+          ...data,
+          {
+            menuId: menuDetails.menuId,
+            menuName: menuDetails.menuName,
+            totalPrice: totalPrice,
+            selectedOptions: selectedOptions.map((list) => ({
+              listId: list.listId,
+              listName: list.listName,
+              options: list.options.filter((op) => op.isChecked),
+            })),
+          },
+        ]
+      : [
+          {
+            menuId: menuDetails.menuId,
+            menuName: menuDetails.menuName,
+            totalPrice: totalPrice,
+            selectedOptions: selectedOptions.map((list) => ({
+              listId: list.listId,
+              listName: list.listName,
+              options: list.options.filter((op) => op.isChecked),
+            })),
+          },
+        ];
+    const cartItem = {
+      storeName: storeName,
+      storeId: storeId,
+      userId,
+      totalPrice: totalPrice,
+      menuItems,
+    };
+
+    try {
+      const request = await axios.post(
+        "http://192.168.0.26:8080/api/v1/cart/save",
+        cartItem,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      navigation.navigate("CartScreen", {
+        menuId: menuDetails.menuId,
+        menuName: menuDetails.menuName,
+        storeName: storeName,
+        storeId: storeId,
+        totalPrice: totalPrice,
+      });
+    } catch (error) {
+      console.error("Error adding to cart:", error.message);
+    }
   };
 
   const renderFoodInfo = () => (
@@ -78,7 +178,7 @@ const MenuDetailScreen = ({ navigation, route }) => {
           </View>
           <View style={styles.detailsContainer}>
             <Text style={styles.menuIntroduction}>
-              메뉴 설명: {menuDetails.menuIntroduction}
+              {menuDetails.menuIntroduction}
             </Text>
             <Text style={styles.menuPrice}>{menuDetails.menuPrice}원</Text>
           </View>
@@ -89,32 +189,33 @@ const MenuDetailScreen = ({ navigation, route }) => {
     </View>
   );
 
-  const calculateTotalPrice = () => {
-    let optionTotalPrice = 0;
-
-    optionLists.forEach((list) => {
-      const selectedOptionIds = selectedOptions[list.listId] || [];
-      list.options.forEach((option) => {
-        if (selectedOptionIds.includes(option.optionId)) {
-          optionTotalPrice += option.optionPrice || 0;
-        }
-      });
-    });
-
-    return (menuDetails?.menuPrice || 0) + optionTotalPrice;
+  const calculateTotalPrice = (selectedOptions = selectedOptions) => {
+    const totalPrice = selectedOptions.reduce(
+      (sum, list) =>
+        sum +
+        list.options.reduce(
+          (t, op) => t + (op.isChecked ? op.optionPrice : 0),
+          0
+        ),
+      menuDetails.menuPrice
+    );
+    setTotalPrice(totalPrice);
+    console.log({ totalPrice });
+    return totalPrice;
   };
 
   const renderOptionLists = () => (
     <View>
-      {optionLists.length > 0 ? (
-        optionLists.map((list) => (
+      {selectedOptions.length > 0 ? (
+        selectedOptions.map((list) => (
           <OptionList
             key={list.listId}
             optionList={list}
-            selectedOptions={selectedOptions[list.listId]}
-            onOptionChange={(updatedOptions) =>
-              handleOptionChange(updatedOptions, list.listId)
-            }
+            selectedOptions={selectedOptions}
+            // onOptionChange={(updatedOptions) =>
+            //   handleOptionChange(updatedOptions, list.listId)
+            // }
+            onOptionChange={handleOptionChange}
           />
         ))
       ) : (
@@ -140,7 +241,13 @@ const MenuDetailScreen = ({ navigation, route }) => {
       </View>
       <TouchableOpacity
         style={styles.cartButton}
-        onPress={() => navigation.navigate("Mycart")}
+        onPress={() =>
+          navigation.navigate("CartScreen", {
+            menuId: menuDetails.menuId,
+            menuName: menuDetails.menuName,
+            storeName: storeName,
+          })
+        }
       >
         <Image
           source={require("../assets/icons/shopping-basket.png")}
@@ -168,18 +275,19 @@ const MenuDetailScreen = ({ navigation, route }) => {
             {renderFoodInfo()}
             {renderOptionLists()}
             <View style={styles.totalPriceContainer}>
-              <Text style={styles.totalPriceText}>
-                총 가격: {calculateTotalPrice()}원
-              </Text>
+              <Text style={styles.totalPriceText}></Text>
             </View>
           </>
         )}
       />
       <TouchableOpacity
         style={styles.addToCartButton}
-        // onPress={handleAddToCart}
+        onPress={handleAddToCart}
       >
-        <Text style={styles.addToCartButtonText}>장바구니에 담기</Text>
+        <Text style={styles.addToCartButtonText}>
+          {" "}
+          {totalPrice}원 장바구니에 담기
+        </Text>
       </TouchableOpacity>
     </SafeAreaView>
   );
@@ -259,6 +367,50 @@ const styles = StyleSheet.create({
   addToCartButtonText: {
     color: COLORS.white,
     fontSize: 18,
+  },
+
+  menuName: {
+    ...FONTS.h1,
+    fontWeight: "bold",
+    color: COLORS.primary,
+    textAlign: "center",
+    marginVertical: SIZES.padding,
+  },
+  imageContainer: {
+    borderRadius: SIZES.radius,
+    overflow: "hidden",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 4,
+    marginBottom: SIZES.padding,
+  },
+  image: {
+    width: "100%",
+    height: 200,
+  },
+  detailsContainer: {
+    paddingHorizontal: SIZES.padding,
+    alignItems: "center",
+  },
+  menuIntroduction: {
+    ...FONTS.body2,
+    color: COLORS.darkGray,
+    textAlign: "center",
+    marginBottom: SIZES.padding,
+  },
+  menuPrice: {
+    ...FONTS.h2,
+    color: COLORS.primary,
+    fontWeight: "bold",
+    textAlign: "center",
+  },
+  loadingText: {
+    ...FONTS.body1,
+    color: COLORS.darkGray,
+    textAlign: "center",
+    marginTop: SIZES.padding,
   },
 });
 

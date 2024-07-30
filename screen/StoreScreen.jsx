@@ -29,6 +29,9 @@ export default function StoreScreen({ navigation, route }) {
       const response = await getStoreDetail(storeId, {
         longitude: parseFloat(await AsyncStorage.getItem("customerLongitude")),
         latitude: parseFloat(await AsyncStorage.getItem("customerLatitude")),
+        // longitude: 127.027619,
+        // latitude: 37.497952,
+        // longitude: 37.497952,
       });
       console.log(response);
       setStore(response);
@@ -113,6 +116,8 @@ export default function StoreScreen({ navigation, route }) {
                         onPress={() =>
                           navigation.navigate("MenuDetailScreen", {
                             menuId: menu.menuId,
+                            storeId: storeId,
+                            storeName: store.storeName,
                           })
                         }
                         disabled={!menu.menuPossible}

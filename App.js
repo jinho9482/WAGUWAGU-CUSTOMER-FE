@@ -100,20 +100,7 @@ export default function App() {
               ),
             }}
           />
-          <BottomTab.Screen
-            name="장바구니"
-            component={CartScreen}
-            options={{
-              tabBarLabel: "장바구니",
-              tabBarIcon: ({ color, size }) => (
-                <MaterialCommunityIcons
-                  name="account-circle"
-                  color={color}
-                  size={20}
-                />
-              ),
-            }}
-          />
+
           <BottomTab.Screen
             name="메뉴"
             component={MenuDetailScreen}
@@ -141,6 +128,11 @@ export default function App() {
           <Stack.Screen
             name="Login"
             component={LoginScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="OrderScreen"
+            component={OrderScreen}
             options={{ headerShown: false }}
           />
 
@@ -171,11 +163,7 @@ export default function App() {
             component={MypageScreen}
             options={{ headerShown: false }}
           />
-          <Stack.Screen
-            name="Mycart"
-            component={CartScreen}
-            options={{ headerShown: false }}
-          />
+
           <Stack.Screen
             name="KaKaoLoginScreen" // 여기에서 KaKaoLoginScreen을 추가합니다.
             component={KaKaoLoginScreen}
