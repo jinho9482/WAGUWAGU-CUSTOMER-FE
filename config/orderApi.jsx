@@ -57,21 +57,21 @@ export const searchOrder = async ({ consumerId }) => {
   }
 };
 
-// export const getStoreInfoDetailByStoreId = async (storeId,data) => {
-//     console.log(storeId);
-//     try {
-//       const res = await storeApi(
-//         `api/v1/distance-cal/store/${storeId}`,
-//         "post",
-//         data
-//       );
-//       console.log('API response:', res.data);
-//       return res.data;
-//     } catch (error) {
-//       console.error("InfoDetailError in getStoreInfoDetailByStoreId", error);
-//       throw error;
-//     }
-//   };
+export const getStoreInfoDetailByStoreId = async (storeId, data) => {
+  console.log(storeId);
+  try {
+    const res = await storeApi(
+      `api/v1/distance-cal/store/${storeId}`,
+      "post",
+      data
+    );
+    console.log("API response:", res.data);
+    return res.data;
+  } catch (error) {
+    console.error("InfoDetailError in getStoreInfoDetailByStoreId", error);
+    throw error;
+  }
+};
 
 export const updateState = async (orderId, status) => {
   try {
