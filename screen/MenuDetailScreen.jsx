@@ -53,7 +53,7 @@ const MenuDetailScreen = ({ navigation, route }) => {
   const fetchOptionList = async () => {
     try {
       const response = await axios.get(
-        `http://192.168.0.17:8080/api/v1/option-lists/menu/${menuId}`
+        `http://34.69.39.99/api/v1/option-lists/menu/${menuId}`
       );
 
       setOptionLists(response.data);
@@ -101,7 +101,7 @@ const MenuDetailScreen = ({ navigation, route }) => {
 
     try {
       const response = await axios.get(
-        `http://192.168.0.26:8080/api/v1/cart/${userId}`
+        `http://34.30.133.165/api/v1/cart/${userId}`
       );
       console.log("xxxxxxxxxxxxxxxxxxxxxxxfgfggf", response.data);
       if (response.data.menuItems) return response.data.menuItems;
@@ -152,7 +152,7 @@ const MenuDetailScreen = ({ navigation, route }) => {
 
     try {
       const request = await axios.post(
-        "http://192.168.0.26:8080/api/v1/cart/save",
+        "http://34.30.133.165/api/v1/cart/save",
         cartItem,
         {
           headers: {
@@ -182,7 +182,7 @@ const MenuDetailScreen = ({ navigation, route }) => {
           </View>
           <View style={styles.imageContainer}>
             <Image
-              source={require("../assets/images/베스트개발자.png")}
+              source={require("../assets/삼겹김치덮밥.png")}
               resizeMode="cover"
               style={styles.image}
             />
@@ -272,7 +272,7 @@ const MenuDetailScreen = ({ navigation, route }) => {
   if (loading) {
     return (
       <SafeAreaView style={styles.container}>
-        <ActivityIndicator size="large" color={COLORS.primary} />
+        <ActivityIndicator size="large" color={COLORS.red} />
       </SafeAreaView>
     );
   }
@@ -368,7 +368,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   addToCartButton: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: "#FF3B30",
     padding: 15,
     alignItems: "center",
     justifyContent: "center",
@@ -383,7 +383,7 @@ const styles = StyleSheet.create({
   menuName: {
     ...FONTS.h1,
     fontWeight: "bold",
-    color: COLORS.primary,
+    color: "black",
     textAlign: "center",
     marginVertical: SIZES.padding,
   },
@@ -413,7 +413,7 @@ const styles = StyleSheet.create({
   },
   menuPrice: {
     ...FONTS.h2,
-    color: COLORS.primary,
+    color: "#FF3B30",
     fontWeight: "bold",
     textAlign: "center",
   },
