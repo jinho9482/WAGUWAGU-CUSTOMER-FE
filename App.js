@@ -21,10 +21,18 @@ import OrderScreen from "./screen/OrderScreen";
 import CartScreen from "./screen/CartScreen";
 import MenuDetailScreen from "./screen/MenuDetailScreen";
 import KaKaoLoginScreen from "./screen/KaKaoLoginScreen";
+import { ApolloClient, ApolloProvider, InMemoryCache } from "@apollo/client";
+import TestScreen from "./screen/ReviewScreen";
+import ReviewScreen from "./screen/ReviewScreen";
 
 export default function App() {
   const BottomTab = createMaterialBottomTabNavigator();
   const Stack = createStackNavigator();
+  const client = new ApolloClient({
+    uri: "http://192.168.0.26:8080/graphql",
+
+    cache: new InMemoryCache(),
+  });
 
   const BottomView = () => {
     return (
@@ -100,7 +108,20 @@ export default function App() {
               ),
             }}
           />
-
+          <BottomTab.Screen
+            name="리뷰"
+            component={ReviewScreen}
+            options={{
+              tabBarLabel: "review",
+              tabBarIcon: ({ color, size }) => (
+                <MaterialCommunityIcons
+                  name="account-circle"
+                  color={color}
+                  size={20}
+                />
+              ),
+            }}
+          />
           <BottomTab.Screen
             name="메뉴"
             component={MenuDetailScreen}
@@ -121,73 +142,75 @@ export default function App() {
   };
 
   return (
-    <RecoilRoot>
-      <NavigationContainer>
-        <View style={styles.container}></View>
-        <Stack.Navigator initialRouteName="Login">
-          <Stack.Screen
-            name="Login"
-            component={LoginScreen}
-            options={{ headerShown: false }}
-          />
-          <Stack.Screen
-            name="OrderScreen"
-            component={OrderScreen}
-            options={{ headerShown: false }}
-          />
+    <ApolloProvider client={client}>
+      <RecoilRoot>
+        <NavigationContainer>
+          <View style={styles.container}></View>
+          <Stack.Navigator initialRouteName="Login">
+            <Stack.Screen
+              name="Login"
+              component={LoginScreen}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="OrderScreen"
+              component={OrderScreen}
+              options={{ headerShown: false }}
+            />
 
-          <Stack.Screen
-            name="HomeScreen"
-            component={HomeScreen}
-            options={{ headerShown: false }}
-          />
-          <Stack.Screen name="MypageScreen" component={MypageScreen} />
-          <Stack.Screen
-            name="OrderHistoryScreen"
-            component={OrderHistoryScreen}
-          />
-          <Stack.Screen name="SearchScreen" component={SearchScreen} />
-          <Stack.Screen name="StoreList" component={StoreListScreen} />
-          <Stack.Screen
-            name="Main"
-            component={BottomView}
-            options={{ headerShown: false }}
-          />
-          <Stack.Screen
-            name="SignUp"
-            component={SignupScreen}
-            options={{ headerShown: false }}
-          />
-          <Stack.Screen
-            name="Mypage"
-            component={MypageScreen}
-            options={{ headerShown: false }}
-          />
+            <Stack.Screen
+              name="HomeScreen"
+              component={HomeScreen}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen name="MypageScreen" component={MypageScreen} />
+            <Stack.Screen
+              name="OrderHistoryScreen"
+              component={OrderHistoryScreen}
+            />
+            <Stack.Screen name="SearchScreen" component={SearchScreen} />
+            <Stack.Screen name="StoreList" component={StoreListScreen} />
+            <Stack.Screen
+              name="Main"
+              component={BottomView}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="SignUp"
+              component={SignupScreen}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="Mypage"
+              component={MypageScreen}
+              options={{ headerShown: false }}
+            />
 
-          <Stack.Screen
-            name="KaKaoLoginScreen" // 여기에서 KaKaoLoginScreen을 추가합니다.
-            component={KaKaoLoginScreen}
-            options={{ headerShown: false }}
-          />
-          <Stack.Screen
-            name="SignupScreen"
-            component={SignupScreen}
-            options={{ headerShown: false }}
-          />
-          <Stack.Screen
-            name="Store"
-            component={StoreScreen}
-            // options={{ headerShown: false }}
-          />
-          <Stack.Screen name="CartScreen" component={CartScreen} />
-          <Stack.Screen
-            name="MenuDetailScreen"
-            component={MenuDetailScreen}
-            options={{ headerShown: false }}
-          />
-        </Stack.Navigator>
-      </NavigationContainer>
-    </RecoilRoot>
+            <Stack.Screen
+              name="KaKaoLoginScreen" // 여기에서 KaKaoLoginScreen을 추가합니다.
+              component={KaKaoLoginScreen}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="SignupScreen"
+              component={SignupScreen}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="Store"
+              component={StoreScreen}
+              // options={{ headerShown: false }}
+            />
+            <Stack.Screen name="CartScreen" component={CartScreen} />
+            <Stack.Screen
+              name="MenuDetailScreen"
+              component={MenuDetailScreen}
+              options={{ headerShown: false }}
+            />
+          </Stack.Navigator>
+        </NavigationContainer>
+      </RecoilRoot>
+    </ApolloProvider>
   );
 }
 
