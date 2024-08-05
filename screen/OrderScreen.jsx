@@ -5,14 +5,12 @@ import {
   StyleSheet,
   TouchableOpacity,
   ScrollView,
-  Image,
   TextInput,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { createOrder } from "../config/orderApi";
+import { createOrder, getStoreInfoDetailByStoreId } from "../config/orderApi";
 
 export default function OrderScreen({ route }) {
-  const { cartTotal, cart } = route.params;
   const [riderRequest, setRiderRequest] = useState("");
   const [consumerRequest, setConsumerRequest] = useState("");
   const [showInput, setShowInput] = useState(false);
@@ -21,13 +19,36 @@ export default function OrderScreen({ route }) {
   const [customerAddress, setCustomerAddress] = useState("");
   const [storeId, setStoreId] = useState("");
   const [customerId, setCustomerId] = useState("");
+  const [cartTotal, setCartTotal] = useState(0);
+  const [cart, setCart] = useState({});
+  const [error, setError] = useState(false);
+
+  useEffect(() => {
+    if (route.params) {
+      setCartTotal(route.params.cartTotal || 0);
+      setCart(route.params.cart || {});
+      setStoreId(route.params.cart ? route.params.cart.storeId : "");
+    } else {
+      setError(true);
+    }
+  }, [route.params]);
 
   const handleCreateOrder = async () => {
     try {
       console.log("Cart details:", cart);
       const id = await AsyncStorage.getItem("customerId");
       const customerAddress = await AsyncStorage.getItem("customerAddress");
+      const customerLongitude = parseFloat(await AsyncStorage.getItem("customerLongitude"));
+      const customerLatitude = parseFloat(await AsyncStorage.getItem("customerLatitude"));
 
+      const storeInfo = await getStoreInfoDetailByStoreId(cart.storeId, {
+        longitude: customerLongitude,
+        latitude: customerLatitude,
+      });
+      console.log("Store Info:", storeInfo);
+
+      const dueDate = new Date();
+      dueDate.setMinutes(dueDate.getMinutes() + 30);
 
       const userRequest = {
         customerId: id,
@@ -35,14 +56,13 @@ export default function OrderScreen({ route }) {
         ownerId: cart.ownerId,
         storePhone: cart.storePhone,
         storeName: cart.storeName,
-        storeAddress: cart.storeAddress,
+        storeAddress: storeInfo.storeAddress,
         customerRequests: consumerRequest,
         riderRequests: riderRequest,
-        storeDeliveryFee: cart.storeDeliveryFee,
-        deliveryFee: cart.deliveryFee,
-        distanceFromStoreToCustomer: cart.distanceFromStoreToCustomer,
-        storeLongitude: cart.storeLongitude,
-        storeLatitude: cart.storeLatitude,
+        deliveryFee: storeInfo.deliveryFee,
+        distanceFromStoreToCustomer: storeInfo.distanceFromStoreToCustomer,
+        storeLongitude: storeInfo.storeLongitude,
+        storeLatitude: storeInfo.storeLatitude,
         storeMinimumOrderAmount: cart.storeMinimumOrderAmount,
         customerAddress: customerAddress,
         menuItems: cart.menuItems.map(item => ({
@@ -56,29 +76,45 @@ export default function OrderScreen({ route }) {
             }))
           }))
         })),
-       
         optionTitle: cart.optionTitle || "",
         optionPrice: cart.optionPrice || 0,
         listName: cart.listName || "",
         options: cart.options || [],
         menuName: menuName,
         totalPrice: cartTotal,
-        selectedOptions: cart.selectedOptions || []
+        selectedOptions: cart.selectedOptions || [],
+        customerLongitude: customerLongitude,
+        customerLatitude: customerLatitude,
+        due: dueDate.toISOString(),
       };
 
       const result = await createOrder(userRequest);
       console.log("Order created successfully:", result);
     } catch (error) {
       console.error("Failed to create order:", error);
+      setError(true); // Set the error state to true
     }
   };
 
+  if (error) {
+    return (
+      <View style={styles.errorContainer}>
+        <Text style={styles.errorText}>텅~</Text>
+      </View>
+    );
+  }
+
   return (
-    <ScrollView style={styles.container}>
-      <Text style={styles.title}>주문하기 {cartTotal}</Text>
+    <ScrollView style={styles.scrollContainer} contentContainerStyle={styles.container}>
+      <View style={styles.deliveryInfo}>
+        <Text style={styles.deliveryText}>한집 배달</Text>
+        <Text style={styles.deliveryText}>15분~30분</Text>
+      </View>
+
+      <Text style={styles.title}>주문하기</Text>
       <Text style={styles.cartDetail}>가게 이름: {cart.storeName}</Text>
-      <Text style={styles.cartDetail}>총 가격: {cartTotal}원</Text>
-      {cart.menuItems.map((item, index) => (
+
+      {cart.menuItems && cart.menuItems.map((item, index) => (
         <View key={index} style={styles.menuItem}>
           <Text style={styles.menuItemText}>메뉴 이름: {item.menuName}</Text>
           <Text style={styles.menuItemText}>가격: {item.totalPrice}원</Text>
@@ -98,27 +134,8 @@ export default function OrderScreen({ route }) {
             ))}
         </View>
       ))}
-      <View style={styles.deliveryInfo}>
-        <Text style={styles.deliveryText}>한집 배달</Text>
-        <Image source={require("../assets/ugoolee.png")} style={styles.image} />
-        <Text style={styles.deliveryText}>15분~30분</Text>
-      </View>
 
       <View style={styles.section}>
-        <TextInput
-          style={styles.input}
-          placeholder="가게 ID를 입력하세요"
-          value={storeId}
-          onChangeText={setStoreId}
-        />
-
-        <TextInput
-          style={styles.input}
-          placeholder="메뉴 이름을 입력하세요"
-          value={menuName}
-          onChangeText={setMenuName}
-        />
-
         <TouchableOpacity
           style={styles.button}
           onPress={() => setShowInput1(!showInput1)}
@@ -168,9 +185,7 @@ export default function OrderScreen({ route }) {
 
       <View style={styles.paymentSection}>
         <Text style={styles.paymentText}>결제금액</Text>
-        <Text style={styles.paymentDetail}>총금액 전달받은 돈 원</Text>
-        <Text style={styles.paymentDetail}>할인 금액 -3216원</Text>
-        <Text style={styles.paymentDetail}>최종 금액 32424원</Text>
+        <Text style={styles.cartDetail}>총 가격: {cartTotal}원</Text>
       </View>
 
       <View style={styles.container}>
@@ -183,9 +198,19 @@ export default function OrderScreen({ route }) {
 }
 
 const styles = StyleSheet.create({
-  container: {
+  scrollContainer: {
     flex: 1,
     padding: 20,
+    backgroundColor: "#fff",
+  },
+  container: {
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
     backgroundColor: "#fff",
   },
   title: {
@@ -199,13 +224,6 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     marginBottom: 20,
-  },
-  image: {
-    width: 99,
-    height: 99,
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: "#ccc",
   },
   deliveryText: {
     fontSize: 16,
@@ -247,8 +265,9 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginBottom: 10,
   },
-  paymentDetail: {
-    fontSize: 16,
+  errorText: {
+    fontSize: 24,
+    color: "#ff0000",
     textAlign: "center",
   },
 });

@@ -23,7 +23,7 @@ const CartScreen = ({ route, navigation }) => {
     const userId = await AsyncStorage.getItem("customerId");
     try {
       const response = await axios.get(
-        `http://192.168.0.26:8080/api/v1/cart/${userId}`
+        `http://34.30.133.165/api/v1/cart/${userId}`
       );
       const fetchedCart = response.data;
       setCart(fetchedCart);
@@ -75,7 +75,7 @@ const CartScreen = ({ route, navigation }) => {
     try {
       // Send the updated cart to the server
       await axios.post(
-        "http://192.168.0.26:8080/api/v1/cart/save",
+        "http://34.30.133.165/api/v1/cart/save",
         updatedCart,
         {
           headers: {
