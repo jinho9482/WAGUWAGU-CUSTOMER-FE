@@ -132,7 +132,14 @@ export default function StoreScreen({ navigation, route }) {
                         <View key={menu.menuId} style={[styles.menuContainer]}>
                           <View>
                             {menu.menuPossible ? (
-                              <Text style={{ fontSize: 20 }}>
+                              <Text
+                                numberOfLines={1}
+                                style={[
+                                  styles.textEllipsis,
+                                  { marginTop: 5 },
+                                  { fontSize: 20 },
+                                ]}
+                              >
                                 {menu.menuName}
                               </Text>
                             ) : (
