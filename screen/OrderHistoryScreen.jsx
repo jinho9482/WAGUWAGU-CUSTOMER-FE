@@ -2,8 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { Text, View, StyleSheet, Dimensions, TouchableOpacity, ScrollView, TouchableWithoutFeedback, RefreshControl } from "react-native";
 import { searchOrder } from '../config/orderApi';
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import OrderHistorySpeechBubble from "../components/\bcomponents-order/OrderHistorySpeechBubble";
-
+import OrderHistorySpeechBubble from "../components-order/OrderHistorySpeechBubble"
 
 export default function OrderHistoryScreen() {
   const [selectedId, setSelectedId] = useState(null);
