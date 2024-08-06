@@ -16,7 +16,6 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const MenuDetailScreen = ({ navigation, route }) => {
   const { menuId, storeId, storeName } = route.params;
-
   const [selectedOptions, setSelectedOptions] = useState([]);
   const [menuDetails, setMenuDetails] = useState(null);
   const [optionLists, setOptionLists] = useState([]);
@@ -39,14 +38,42 @@ const MenuDetailScreen = ({ navigation, route }) => {
     }
   };
 
+  // const fetchOptionList = async () => {
+  //   try {
+  //     const response = await axios.get(
+  //       `http://34.69.39.99/api/v1/option-lists/menu/${menuId}`
+  //     );
+  //     setOptionLists(response.data);
+  //     setCurrentOptions(response.data); // Initialize with fetched option lists
+  //   } catch (error) {
+  //     console.error("Error fetching option lists:", error.message);
+  //   }
+  // };
   const fetchOptionList = async () => {
+    const GET_OPTION_LISTS = `
+    query optionLists($menuId: Long!) {
+      optionLists(menuId: $menuId) {
+        
+        listName
+        options {
+        optionId
+          optionTitle
+          optionPrice
+        }
+      }
+    }
+  `;
     try {
-      const response = await axios.get(
-        `http://34.69.39.99/api/v1/option-lists/menu/${menuId}`
-      );
+      const response = await axios.post(`http://192.168.0.26:8080/graphql`, {
+        query: GET_OPTION_LISTS,
+        variables: { menuId },
+      });
 
-      setOptionLists(response.data);
-      setSelectedOptions(response.data);
+      const data = response.data.data.optionLists;
+
+      setOptionLists(data);
+      setSelectedOptions(data);
+      console.log("selected", selectedOptions);
     } catch (error) {
       console.error("Error fetching option lists:", error.message);
     }
@@ -82,6 +109,7 @@ const MenuDetailScreen = ({ navigation, route }) => {
     );
     setSelectedOptions(newselectedOptions);
     calculateTotalPrice(newselectedOptions);
+    console.log("option selected", list, checkedOption);
   };
   console.log(JSON.stringify(selectedOptions));
 
