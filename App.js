@@ -104,7 +104,7 @@ export default function App() {
           />
           <BottomTab.Screen
             name="리뷰"
-            component={ReviewScreen}
+            component={ReviewForm}
             options={{
               tabBarLabel: "review",
               tabBarIcon: ({ color, size }) => (
@@ -139,7 +139,7 @@ export default function App() {
     <RecoilRoot>
       <NavigationContainer>
         <View style={styles.container}></View>
-        <Stack.Navigator initialRouteName="HomeScreen">
+        <Stack.Navigator initialRouteName="Main">
           <Stack.Screen
             name="Login"
             component={LoginScreen}

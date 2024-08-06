@@ -83,13 +83,14 @@ export default function StoreScreen({ navigation, route }) {
         <View style={styles.textContainer}>
           <Text style={styles.textTitle}>{store.storeName}</Text>
           <Pressable
+            style={styles.reviewButton}
             onPress={() =>
               navigation.navigate("ReviewSection", {
                 storeId: storeId,
               })
             }
           >
-            <Text>리뷰리뷰리뷰리뷰리뷰리뷰리뷰</Text>
+            <Text>리뷰 몇개</Text>
           </Pressable>
           <Text style={styles.text}>
             {parseInt(store.distanceFromStoreToCustomer * 4 + 10) +
@@ -228,5 +229,13 @@ const styles = StyleSheet.create({
     width: Dimensions.get("window").width / 2,
     overflow: "hidden",
     // ellipsizeMode: "tail",
+  },
+  reviewButton: {
+    padding: 12,
+    backgroundColor: "#85DB65",
+    borderRadius: 8,
+    alignItems: "center",
+    justifyContent: "center",
+    margin: 10,
   },
 });

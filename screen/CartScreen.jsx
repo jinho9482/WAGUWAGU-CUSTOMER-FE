@@ -24,7 +24,6 @@ const CartScreen = ({ route, navigation }) => {
     try {
       const response = await axios.get(
         `http://34.170.204.47/api/v1/cart/${userId}`
-        `http://34.170.204.47/api/v1/cart/${userId}`
       );
       const fetchedCart = response.data;
       setCart(fetchedCart);
