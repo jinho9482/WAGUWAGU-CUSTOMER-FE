@@ -8,6 +8,7 @@ import {
   Dimensions,
   Image,
   ImageBackground,
+  Pressable,
   ScrollView,
   TouchableOpacity,
   View,
@@ -81,6 +82,15 @@ export default function StoreScreen({ navigation, route }) {
         />
         <View style={styles.textContainer}>
           <Text style={styles.textTitle}>{store.storeName}</Text>
+          <Pressable
+            onPress={() =>
+              navigation.navigate("ReviewSection", {
+                storeId: storeId,
+              })
+            }
+          >
+            <Text>리뷰리뷰리뷰리뷰리뷰리뷰리뷰</Text>
+          </Pressable>
           <Text style={styles.text}>
             {parseInt(store.distanceFromStoreToCustomer * 4 + 10) +
               "~" +
@@ -94,6 +104,7 @@ export default function StoreScreen({ navigation, route }) {
             {"배달팁 : " + store.deliveryFee + "원"}
           </Text>
         </View>
+
         <View style={{ alignSelf: "center" }}>
           <SpeechBubble
             height={80}

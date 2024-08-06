@@ -21,18 +21,12 @@ import OrderScreen from "./screen/OrderScreen";
 import CartScreen from "./screen/CartScreen";
 import MenuDetailScreen from "./screen/MenuDetailScreen";
 import KaKaoLoginScreen from "./screen/KaKaoLoginScreen";
-import { ApolloClient, ApolloProvider, InMemoryCache } from "@apollo/client";
-import TestScreen from "./screen/ReviewScreen";
-import ReviewScreen from "./screen/ReviewScreen";
+import ReviewForm from "./screen/ReviewForm";
+import ReviewSectionScreen from "./screen/ReviewSectionScreen";
 
 export default function App() {
   const BottomTab = createMaterialBottomTabNavigator();
   const Stack = createStackNavigator();
-  const client = new ApolloClient({
-    uri: "http://192.168.0.26:8080/graphql",
-
-    cache: new InMemoryCache(),
-  });
 
   const BottomView = () => {
     return (
@@ -142,75 +136,79 @@ export default function App() {
   };
 
   return (
-    <ApolloProvider client={client}>
-      <RecoilRoot>
-        <NavigationContainer>
-          <View style={styles.container}></View>
-          <Stack.Navigator initialRouteName="Login">
-            <Stack.Screen
-              name="Login"
-              component={LoginScreen}
-              options={{ headerShown: false }}
-            />
-            <Stack.Screen
-              name="OrderScreen"
-              component={OrderScreen}
-              options={{ headerShown: false }}
-            />
+    <RecoilRoot>
+      <NavigationContainer>
+        <View style={styles.container}></View>
+        <Stack.Navigator initialRouteName="HomeScreen">
+          <Stack.Screen
+            name="Login"
+            component={LoginScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="OrderScreen"
+            component={OrderScreen}
+            options={{ headerShown: false }}
+          />
 
-            <Stack.Screen
-              name="HomeScreen"
-              component={HomeScreen}
-              options={{ headerShown: false }}
-            />
-            <Stack.Screen name="MypageScreen" component={MypageScreen} />
-            <Stack.Screen
-              name="OrderHistoryScreen"
-              component={OrderHistoryScreen}
-            />
-            <Stack.Screen name="SearchScreen" component={SearchScreen} />
-            <Stack.Screen name="StoreList" component={StoreListScreen} />
-            <Stack.Screen
-              name="Main"
-              component={BottomView}
-              options={{ headerShown: false }}
-            />
-            <Stack.Screen
-              name="SignUp"
-              component={SignupScreen}
-              options={{ headerShown: false }}
-            />
-            <Stack.Screen
-              name="Mypage"
-              component={MypageScreen}
-              options={{ headerShown: false }}
-            />
+          <Stack.Screen
+            name="HomeScreen"
+            component={HomeScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen name="MypageScreen" component={MypageScreen} />
+          <Stack.Screen
+            name="OrderHistoryScreen"
+            component={OrderHistoryScreen}
+          />
+          <Stack.Screen name="SearchScreen" component={SearchScreen} />
+          <Stack.Screen name="StoreList" component={StoreListScreen} />
+          <Stack.Screen
+            name="Main"
+            component={BottomView}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="SignUp"
+            component={SignupScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="Mypage"
+            component={MypageScreen}
+            options={{ headerShown: false }}
+          />
 
-            <Stack.Screen
-              name="KaKaoLoginScreen" // 여기에서 KaKaoLoginScreen을 추가합니다.
-              component={KaKaoLoginScreen}
-              options={{ headerShown: false }}
-            />
-            <Stack.Screen
-              name="SignupScreen"
-              component={SignupScreen}
-              options={{ headerShown: false }}
-            />
-            <Stack.Screen
-              name="Store"
-              component={StoreScreen}
-              // options={{ headerShown: false }}
-            />
-            <Stack.Screen name="CartScreen" component={CartScreen} />
-            <Stack.Screen
-              name="MenuDetailScreen"
-              component={MenuDetailScreen}
-              options={{ headerShown: false }}
-            />
-          </Stack.Navigator>
-        </NavigationContainer>
-      </RecoilRoot>
-    </ApolloProvider>
+          <Stack.Screen
+            name="KaKaoLoginScreen" // 여기에서 KaKaoLoginScreen을 추가합니다.
+            component={KaKaoLoginScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="SignupScreen"
+            component={SignupScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="Store"
+            component={StoreScreen}
+            // options={{ headerShown: false }}
+          />
+          <Stack.Screen name="CartScreen" component={CartScreen} />
+          <Stack.Screen
+            name="MenuDetailScreen"
+            component={MenuDetailScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="ReviewScreen"
+            component={ReviewForm}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen name="ReviewSection" component={ReviewSectionScreen} />
+        </Stack.Navigator>
+      </NavigationContainer>
+    </RecoilRoot>
   );
 }
 
