@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { Text, View, StyleSheet, Dimensions, TouchableOpacity, ScrollView, TouchableWithoutFeedback, RefreshControl } from "react-native";
-import SpeechBubble from "../components-common/SpeechBubble";
 import { searchOrder } from '../config/orderApi';
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import OrderHistorySpeechBubble from "../components-order/OrderHistorySpeechBubble"
 
 export default function OrderHistoryScreen() {
   const [selectedId, setSelectedId] = useState(null);
@@ -11,7 +11,8 @@ export default function OrderHistoryScreen() {
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [isDetailsVisible, setIsDetailsVisible] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
-  const dimensionWidth = Dimensions.get("window").width / 4;
+  const dimensionWidth = Dimensions.get("window").width / 1.6;
+  const dimensionHeight = 100;
 
   const handledGetHistory = async () => {
     try { 
@@ -64,7 +65,7 @@ export default function OrderHistoryScreen() {
   };
 
   const Item = ({ item, onPress }) => {
-    console.log('Item:', item); // This will log the item object to the console
+    console.log('Item:', item); 
 
     const lastStatus = extractStatusText(item.orderState);
     const backgroundColor = getStatusColor(lastStatus);
@@ -72,8 +73,8 @@ export default function OrderHistoryScreen() {
 
     return (
       <TouchableOpacity onPress={onPress} style={[styles.item, { backgroundColor }]}>
-        <SpeechBubble
-          height={100}
+        <OrderHistorySpeechBubble 
+          height={dimensionHeight}
           width={dimensionWidth}
           textColor={textColor}
           content={`${item.storeName}\n${lastStatus || 'No status'}`}
@@ -111,7 +112,6 @@ export default function OrderHistoryScreen() {
         </ScrollView>
         {isDetailsVisible && selectedOrder && (
           <View style={styles.detailsContainer}>
-  
             <Text>가게 이름: {selectedOrder.storeName}</Text>
             <Text>가게 주소: {selectedOrder.storeAddress}</Text>
             <Text>고객님 주소: {selectedOrder.customerAddress}</Text>
@@ -120,22 +120,17 @@ export default function OrderHistoryScreen() {
             <Text>Rider Requests: {selectedOrder.riderRequests}</Text>
             {selectedOrder.menuItems && selectedOrder.menuItems.map((menuItem, index) => (
               <View key={index} style={styles.menuItemDetail}>
-                <Text>   {menuItem.menuName}</Text>
-
+                <Text>  메뉴 이름: {menuItem.menuName}</Text>
                 {menuItem.selectedOptions && menuItem.selectedOptions.map((optionList, optListIndex) => (
                   <View key={optListIndex} style={styles.optionList}>
                     {optionList.options && optionList.options.map((option, optIndex) => (
                       <Text key={optIndex}>Option: {option.optionTitle}: {option.optionPrice}원</Text>
-                    )
-                      
-                    )}
-                  <Text>   주문 금액: {menuItem.totalPrice}원</Text>
+                    ))}
+                    <Text>   주문 금액: {menuItem.totalPrice}원</Text>
                   </View>
-                  
                 ))}
               </View>
             ))}
-
           </View>
         )}
       </View>
