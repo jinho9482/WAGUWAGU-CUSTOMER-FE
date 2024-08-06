@@ -90,7 +90,7 @@ const MenuDetailScreen = ({ navigation, route }) => {
 
     try {
       const response = await axios.get(
-        `http://34.30.133.165/api/v1/cart/${userId}`
+        `http://34.170.204.47/api/v1/cart/${userId}`
       );
       console.log("xxxxxxxxxxxxxxxxxxxxxxxfgfggf", response.data);
       if (response.data.menuItems) return response.data.menuItems;
@@ -141,7 +141,7 @@ const MenuDetailScreen = ({ navigation, route }) => {
 
     try {
       const request = await axios.post(
-        "http://34.30.133.165/api/v1/cart/save",
+        "http://34.170.204.47/api/v1/cart/save",
         cartItem,
         {
           headers: {

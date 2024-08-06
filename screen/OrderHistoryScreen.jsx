@@ -64,7 +64,7 @@ export default function OrderHistoryScreen() {
   };
 
   const Item = ({ item, onPress }) => {
-    console.log('Item:', item); // This will log the item object to the console
+    console.log('Item:', item); 
 
     const lastStatus = extractStatusText(item.orderState);
     const backgroundColor = getStatusColor(lastStatus);
