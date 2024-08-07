@@ -90,7 +90,7 @@ export default function StoreScreen({ navigation, route }) {
               })
             }
           >
-            <Text>리뷰 몇개</Text>
+            <Text>리뷰보러가기</Text>
           </Pressable>
           <Text style={styles.text}>
             {parseInt(store.distanceFromStoreToCustomer * 4 + 10) +

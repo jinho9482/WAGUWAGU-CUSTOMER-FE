@@ -3,9 +3,40 @@
 import React, { useState } from "react";
 import { View, Text, TextInput, Button, StyleSheet } from "react-native";
 import { AirbnbRating } from "react-native-ratings";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import axios from "axios";
 
 const ReviewForm = () => {
   const [rating, setRating] = useState(1);
+  const [content, setContent] = useState("");
+
+  const handlePostReview = async () => {
+    const userId = await AsyncStorage.getItem("customerId");
+    const storeId = 4;
+    const userName = "소성민";
+    const reviewReq = {
+      reviewerId: userId,
+      content: content,
+      userName: userName,
+      storeId: storeId,
+      rating: rating,
+    };
+
+    try {
+      const request = await axios.post(
+        "http://192.168.0.26:8080/api/v1/reviews",
+        reviewReq,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      console.log("revieqw request :", reviewReq);
+    } catch (error) {
+      console.error("Error uploading review:", error.message);
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -18,14 +49,13 @@ const ReviewForm = () => {
         placeholder="리뷰를 작성하세요."
         multiline
         numberOfLines={4}
+        value={content}
+        onChangeText={setContent}
       />
 
       <AirbnbRating onFinishRating={(value) => setRating(value)} />
 
-      <Button
-        title="리뷰 작성하기"
-        onPress={() => console.log("리뷰 작성 버튼 ")}
-      />
+      <Button title="리뷰 작성하기" onPress={handlePostReview} />
     </View>
   );
 };
