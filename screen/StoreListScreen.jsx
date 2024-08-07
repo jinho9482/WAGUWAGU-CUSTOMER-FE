@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
 import { Dimensions, StyleSheet, Text, View } from "react-native";
-import { getAllStores, getAllStoresNearUser } from "../config/storeApi";
 import StoreListSpeechBubble from "../components-store/StoreListSpeechBubble";
 import {
   RefreshControl,
@@ -29,7 +28,7 @@ export default function StoreListScreen({ navigation, route }) {
           latitude: parseFloat(await AsyncStorage.getItem("customerLatitude")),
         },
       });
-      console.log(response);
+      console.log("999999999999"+response);
       console.log(
         "customerLongitude" +
           parseFloat(await AsyncStorage.getItem("customerLongitude"))
