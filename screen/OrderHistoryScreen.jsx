@@ -1,10 +1,19 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { Text, View, StyleSheet, Dimensions, TouchableOpacity, ScrollView, TouchableWithoutFeedback, RefreshControl } from "react-native";
-import { searchOrder } from '../config/orderApi';
+import {
+  Text,
+  View,
+  StyleSheet,
+  Dimensions,
+  TouchableOpacity,
+  ScrollView,
+  TouchableWithoutFeedback,
+  RefreshControl,
+} from "react-native";
+import { searchOrder } from "../config/orderApi";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import OrderHistorySpeechBubble from "../components-order/OrderHistorySpeechBubble"
+import OrderHistorySpeechBubble from "../components-order/OrderHistorySpeechBubble";
 
-export default function OrderHistoryScreen() {
+export default function OrderHistoryScreen({ navigation }) {
   const [selectedId, setSelectedId] = useState(null);
   const [orders, setOrders] = useState([]);
   const [error, setError] = useState(null);
@@ -15,15 +24,15 @@ export default function OrderHistoryScreen() {
   const dimensionHeight = 100;
 
   const handledGetHistory = async () => {
-    try { 
+    try {
       const consumerId = await AsyncStorage.getItem("customerId");
       const result = await searchOrder({ consumerId });
       console.log(result);
       setOrders(result);
       setRefreshing(false);
     } catch (error) {
-      console.log('Failed to searchHistory:', error);
-      setError('Failed to fetch order history');
+      console.log("Failed to searchHistory:", error);
+      setError("Failed to fetch order history");
       setRefreshing(false);
     }
   };
@@ -40,47 +49,61 @@ export default function OrderHistoryScreen() {
   const extractStatusText = (orderState) => {
     if (orderState && orderState.length > 0) {
       const lastState = orderState[orderState.length - 1];
-      return lastState.split(':')[0];
+      return lastState.split(":")[0];
     }
-    return '';
+    return "";
   };
 
   const getStatusColor = (status) => {
     switch (status) {
-      case '배달요청':
-        return '#2B6DEF';
-      case '배달 수락':
-        return '#F3DD0F';
-      case '조리중':
-        return '#94D35C';
-      case '주문 요청':
-        return '#E55959';
-      case '배달중':
-        return '#6E5656';
-      case '배달 완료':
-        return '#808080';
+      case "배달요청":
+        return "#2B6DEF";
+      case "배달 수락":
+        return "#F3DD0F";
+      case "조리중":
+        return "#94D35C";
+      case "주문 요청":
+        return "#E55959";
+      case "배달중":
+        return "#6E5656";
+      case "배달 완료":
+        return "#808080";
       default:
-        return '#ffffff';
+        return "#ffffff";
     }
   };
 
   const Item = ({ item, onPress }) => {
-    console.log('Item:', item); 
+    console.log("Item:", item);
 
     const lastStatus = extractStatusText(item.orderState);
     const backgroundColor = getStatusColor(lastStatus);
-    const textColor = item.orderId === selectedId ? 'white' : 'black';
+    const textColor = item.orderId === selectedId ? "white" : "black";
 
     return (
-      <TouchableOpacity onPress={onPress} style={[styles.item, { backgroundColor }]}>
-        <OrderHistorySpeechBubble 
-          height={dimensionHeight}
-          width={dimensionWidth}
-          textColor={textColor}
-          content={`${item.storeName}\n${lastStatus || 'No status'}`}
-          backgroundColor={backgroundColor}
-        />
-      </TouchableOpacity>
+      <>
+        <TouchableOpacity
+          onPress={onPress}
+          style={[styles.item, { backgroundColor }]}
+        >
+          <OrderHistorySpeechBubble
+            height={dimensionHeight}
+            width={dimensionWidth}
+            textColor={textColor}
+            content={`${item.storeName}\n${lastStatus || "No status"}`}
+            backgroundColor={backgroundColor}
+          />
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() =>
+            navigation.navigate("RiderRealTimeLocationScreen", {
+              orderItem: item,
+            })
+          }
+        >
+          <Text>라이더 실시간 위치 확인</Text>
+        </TouchableOpacity>
+      </>
     );
   };
 
@@ -100,7 +123,9 @@ export default function OrderHistoryScreen() {
         {error && <Text style={styles.errorText}>{error}</Text>}
         <ScrollView
           contentContainerStyle={styles.scrollViewContainer}
-          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          }
         >
           {orders.map((item) => (
             <Item
@@ -115,22 +140,31 @@ export default function OrderHistoryScreen() {
             <Text>가게 이름: {selectedOrder.storeName}</Text>
             <Text>가게 주소: {selectedOrder.storeAddress}</Text>
             <Text>고객님 주소: {selectedOrder.customerAddress}</Text>
-            <Text>고객님의 주문건 상태: {extractStatusText(selectedOrder.orderState)}</Text>
+            <Text>
+              고객님의 주문건 상태:{" "}
+              {extractStatusText(selectedOrder.orderState)}
+            </Text>
             <Text>Customer Requests: {selectedOrder.customerRequests}</Text>
             <Text>Rider Requests: {selectedOrder.riderRequests}</Text>
-            {selectedOrder.menuItems && selectedOrder.menuItems.map((menuItem, index) => (
-              <View key={index} style={styles.menuItemDetail}>
-                <Text>  메뉴 이름: {menuItem.menuName}</Text>
-                {menuItem.selectedOptions && menuItem.selectedOptions.map((optionList, optListIndex) => (
-                  <View key={optListIndex} style={styles.optionList}>
-                    {optionList.options && optionList.options.map((option, optIndex) => (
-                      <Text key={optIndex}>Option: {option.optionTitle}: {option.optionPrice}원</Text>
+            {selectedOrder.menuItems &&
+              selectedOrder.menuItems.map((menuItem, index) => (
+                <View key={index} style={styles.menuItemDetail}>
+                  <Text> 메뉴 이름: {menuItem.menuName}</Text>
+                  {menuItem.selectedOptions &&
+                    menuItem.selectedOptions.map((optionList, optListIndex) => (
+                      <View key={optListIndex} style={styles.optionList}>
+                        {optionList.options &&
+                          optionList.options.map((option, optIndex) => (
+                            <Text key={optIndex}>
+                              Option: {option.optionTitle}: {option.optionPrice}
+                              원
+                            </Text>
+                          ))}
+                        <Text> 주문 금액: {menuItem.totalPrice}원</Text>
+                      </View>
                     ))}
-                    <Text>   주문 금액: {menuItem.totalPrice}원</Text>
-                  </View>
-                ))}
-              </View>
-            ))}
+                </View>
+              ))}
           </View>
         )}
       </View>
@@ -142,8 +176,8 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 10,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   item: {
     marginVertical: 8,
@@ -157,26 +191,26 @@ const styles = StyleSheet.create({
   scrollViewContainer: {
     flexDirection: "row",
     flexWrap: "wrap",
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   errorText: {
-    color: 'red',
-    textAlign: 'center',
+    color: "red",
+    textAlign: "center",
     marginVertical: 10,
   },
   detailsContainer: {
     padding: 20,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     borderRadius: 10,
     margin: 20,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.8,
     shadowRadius: 2,
     elevation: 5,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   menuItemDetail: {
     marginVertical: 10,

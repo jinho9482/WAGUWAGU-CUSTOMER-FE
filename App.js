@@ -21,6 +21,7 @@ import OrderScreen from "./screen/OrderScreen";
 import CartScreen from "./screen/CartScreen";
 import MenuDetailScreen from "./screen/MenuDetailScreen";
 import KaKaoLoginScreen from "./screen/KaKaoLoginScreen";
+import RiderRealTimeLocationScreen from "./screen/RiderRealTimeLocationScreen";
 
 export default function App() {
   const BottomTab = createMaterialBottomTabNavigator();
@@ -124,7 +125,7 @@ export default function App() {
     <RecoilRoot>
       <NavigationContainer>
         <View style={styles.container}></View>
-        <Stack.Navigator initialRouteName="Login">
+        <Stack.Navigator initialRouteName="Main">
           <Stack.Screen
             name="Login"
             component={LoginScreen}
@@ -184,6 +185,11 @@ export default function App() {
             name="MenuDetailScreen"
             component={MenuDetailScreen}
             options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="RiderRealTimeLocationScreen"
+            component={RiderRealTimeLocationScreen}
+            // options={{ headerShown: false }}
           />
         </Stack.Navigator>
       </NavigationContainer>
