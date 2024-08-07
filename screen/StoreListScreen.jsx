@@ -85,6 +85,7 @@ export default function StoreListScreen({ navigation, route }) {
                   key={store.storeId}
                   width={dimensionWidth}
                   title={store.storeName}
+                  image = {store.storeImage}
                   time={
                     parseInt(store.distanceFromStoreToCustomer * 4 + 10) +
                     "~" +

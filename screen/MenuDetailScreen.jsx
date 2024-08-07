@@ -182,7 +182,7 @@ const MenuDetailScreen = ({ navigation, route }) => {
           </View>
           <View style={styles.imageContainer}>
             <Image
-              source={require("../assets/삼겹김치덮밥.png")}
+              source={menuDetails.menuImage?{uri:"https://storage.googleapis.com/wgwg_bucket/"+menuDetails.menuImage}:require("./../assets/menu.png")}
               resizeMode="cover"
               style={styles.image}
             />

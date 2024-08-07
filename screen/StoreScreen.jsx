@@ -84,7 +84,7 @@ export default function StoreScreen({ navigation, route }) {
       <View>
         <Image
           style={[styles.image, { width: dimensionWidth }]}
-          source={require("./../assets/tteokbokki.png")}
+          source={store.storeImage?{uri:"https://storage.googleapis.com/wgwg_bucket/"+store.storeImage}:require("./../assets/food icon.png")}
         />
         <View style={styles.textContainer}>
           <Text style={styles.textTitle}>{store.storeName}</Text>
@@ -166,7 +166,7 @@ export default function StoreScreen({ navigation, route }) {
                           <View>
                             <Image
                               style={[styles.menuImage]}
-                              source={require("./../assets/tteokbokki.png")}
+                              source={menu.menuImage?{uri:"https://storage.googleapis.com/wgwg_bucket/"+menu.menuImage}:require("./../assets/menu.png")}
                             />
                           </View>
                         </View>

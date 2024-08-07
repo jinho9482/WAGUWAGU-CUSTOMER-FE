@@ -44,6 +44,7 @@ export const getMenuByMenuCategoryQL = async (variables) => {
               menuIntroduction
               menuPrice
               menuPossible
+              menuImage
             }
           }
         `,
@@ -79,6 +80,7 @@ export const getAllStoresNearUserQL = async (variables) => {
                 storeLatitude
                 storeMinimumOrderAmount
                 storeIntroduction
+                storeImage
                 distanceFromStoreToCustomer
                 deliveryFee
               }
@@ -115,6 +117,7 @@ export const getStoreDetailQL = async (variables) => {
                 storeLatitude
                 storeMinimumOrderAmount
                 storeIntroduction
+                storeImage
                 distanceFromStoreToCustomer
                 deliveryFee
               }
@@ -149,6 +152,7 @@ export const getMenuByIdQL = async (variables) => {
                 menuIntroduction
                 menuPrice
                 menuPossible
+                menuImage
               }
             }
           `,
