@@ -12,6 +12,7 @@ import {
 import { searchOrder } from "../config/orderApi";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import OrderHistorySpeechBubble from "../components-order/OrderHistorySpeechBubble";
+import { Button } from "react-native-elements";
 
 export default function OrderHistoryScreen({ navigation }) {
   const [selectedId, setSelectedId] = useState(null);
@@ -22,6 +23,8 @@ export default function OrderHistoryScreen({ navigation }) {
   const [refreshing, setRefreshing] = useState(false);
   const dimensionWidth = Dimensions.get("window").width / 1.6;
   const dimensionHeight = 100;
+
+  //리뷰를 위해 추가된
 
   const handledGetHistory = async () => {
     try {
@@ -165,6 +168,12 @@ export default function OrderHistoryScreen({ navigation }) {
                     ))}
                 </View>
               ))}
+            {extractStatusText(selectedOrder.orderState) === "배달 완료" && (
+              <Button
+                title="리뷰 쓰러가기"
+                onPress={() => navigation.navigate("ReviewScreen")}
+              />
+            )}
           </View>
         )}
       </View>

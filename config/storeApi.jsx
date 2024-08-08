@@ -1,13 +1,13 @@
 import { storeApi } from "./storeNetwork";
 
-export const getAllStores = async () => {
-  try {
-    const res = await storeApi(`/api/v1/store`, "get");
-    return res.data;
-  } catch (error) {
-    console.error("Error in getAllStores", error);
-  }
-};
+// export const getAllStores = async () => {
+//   try {
+//     const res = await storeApi(`/api/v1/store`, "get");
+//     return res.data;
+//   } catch (error) {
+//     console.error("Error in getAllStores", error);
+//   }
+// };
 
 export const getAllStoresNearUser = async (data) => {
   try {

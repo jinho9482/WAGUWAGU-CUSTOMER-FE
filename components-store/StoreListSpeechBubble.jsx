@@ -21,7 +21,7 @@ export default StoreListSpeechBubble = (props) => {
       <View style={styles.imageContainer}>
         <Image
           style={[styles.image, { resizeMode: "contain" }]}
-          source={require("./../assets/store.png")}
+          source={props.image?{uri:"https://storage.googleapis.com/wgwg_bucket/"+props.image}:require("./../assets/food icon.png")}
         />
       </View>
       <View>

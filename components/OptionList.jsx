@@ -8,7 +8,7 @@ const OptionList = ({ optionList, selectedOptions = [], onOptionChange }) => {
     <View style={styles.container}>
       <Text style={styles.listName}>{optionList.listName}</Text>
       {optionList.options.map((option) => {
-        console.log(option);
+        console.log({ option });
         return (
           <View key={option.optionId} style={styles.itemContainer}>
             <Text style={styles.optionTitle}>{option.optionTitle}</Text>

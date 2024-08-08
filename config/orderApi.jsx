@@ -2,8 +2,39 @@ import { orderApi } from "../config/orderNetwork";
 import { storeApi } from "./storeNetwork";
 
 export const createOrder = async (data) => {
+  const userRequestDto = {
+    customerId: data.customerId,
+    customerAddress: data.customerAddress,
+    storeId: data.storeId,
+    ownerId: data.ownerId,
+    changeTime: data.changeTime,
+    orderState: data.orderState,
+    orderCreatedAt: data.orderCreatedAt,
+    storePhone: data.storePhone,
+    storeName: data.storeName,
+    storeAddress: data.storeAddress,
+    menuName: data.menuName,
+    menuIntroduction: data.menuIntroduction,
+    menuPrice: data.menuPrice,
+    optionTitle: data.optionTitle,
+    optionPrice: data.optionPrice,
+    listName: data.listName,
+    options: data.options,
+    customerRequests: data.customerRequests,
+    riderRequests: data.riderRequests,
+    order: data.order,
+    orderTotalAmount: data.orderTotalAmount,
+    storeDeliveryFee: data.storeDeliveryFee,
+    deliveryFee: data.deliveryFee,
+    distanceFromStoreToCustomer: data.distanceFromStoreToCustomer,
+    storeLongitude: data.storeLongitude,
+    storeLatitude: data.storeLatitude,
+    due: data.due,
+    menuNameList: data.menuNameList,
+  };
+
   try {
-    const res = await orderApi("api/v1/order/", "post", data);
+    const res = await orderApi("api/v1/order/", "post", userRequestDto);
     return res.data;
   } catch (error) {
     console.error("Error creating order:", error);
@@ -27,6 +58,7 @@ export const searchOrder = async ({ consumerId }) => {
 };
 
 export const getStoreInfoDetailByStoreId = async (storeId, data) => {
+  console.log(storeId);
   try {
     const res = await storeApi(
       `api/v1/distance-cal/store/${storeId}`,

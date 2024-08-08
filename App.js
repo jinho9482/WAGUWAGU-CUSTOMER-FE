@@ -22,6 +22,8 @@ import CartScreen from "./screen/CartScreen";
 import MenuDetailScreen from "./screen/MenuDetailScreen";
 import KaKaoLoginScreen from "./screen/KaKaoLoginScreen";
 import RiderRealTimeLocationScreen from "./screen/RiderRealTimeLocationScreen";
+import ReviewForm from "./screen/ReviewForm";
+import ReviewSectionScreen from "./screen/ReviewSectionScreen";
 
 export default function App() {
   const BottomTab = createMaterialBottomTabNavigator();
@@ -101,7 +103,20 @@ export default function App() {
               ),
             }}
           />
-
+          <BottomTab.Screen
+            name="리뷰"
+            component={ReviewForm}
+            options={{
+              tabBarLabel: "review",
+              tabBarIcon: ({ color, size }) => (
+                <MaterialCommunityIcons
+                  name="account-circle"
+                  color={color}
+                  size={20}
+                />
+              ),
+            }}
+          />
           <BottomTab.Screen
             name="메뉴"
             component={MenuDetailScreen}
@@ -125,7 +140,7 @@ export default function App() {
     <RecoilRoot>
       <NavigationContainer>
         <View style={styles.container}></View>
-        <Stack.Navigator initialRouteName="Main">
+        <Stack.Navigator initialRouteName="Login">
           <Stack.Screen
             name="Login"
             component={LoginScreen}
@@ -191,6 +206,12 @@ export default function App() {
             component={RiderRealTimeLocationScreen}
             // options={{ headerShown: false }}
           />
+          <Stack.Screen
+            name="ReviewScreen"
+            component={ReviewForm}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen name="ReviewSection" component={ReviewSectionScreen} />
         </Stack.Navigator>
       </NavigationContainer>
     </RecoilRoot>

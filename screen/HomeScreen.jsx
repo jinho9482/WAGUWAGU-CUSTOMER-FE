@@ -2,6 +2,7 @@ import {
   Dimensions,
   FlatList,
   Image,
+  Pressable,
   ScrollView,
   StyleSheet,
   Text,
@@ -111,6 +112,9 @@ export default function HomeScreen({ navigation }) {
               />
             );
           })}
+          <Pressable onPress={() => navigation.navigate("ReviewScreen")}>
+            <Text>리뷰</Text>
+          </Pressable>
         </View>
       </View>
     </ScrollView>
