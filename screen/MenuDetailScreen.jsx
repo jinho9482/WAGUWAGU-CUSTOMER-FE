@@ -13,6 +13,7 @@ import axios from "axios";
 import { COLORS, SIZES, FONTS } from "../assets/constants/theme";
 import OptionList from "../components/OptionList.jsx";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { getMenuByIdQL } from "../config/storeGraphQL.jsx";
 
 const MenuDetailScreen = ({ navigation, route }) => {
   const { menuId, storeId, storeName } = route.params;
@@ -22,17 +23,27 @@ const MenuDetailScreen = ({ navigation, route }) => {
   const [loading, setLoading] = useState(true);
   const [totalPrice, setTotalPrice] = useState(0);
 
+  // const fetchMenuDetails = async () => {
+  //   try {
+  //     const response = await axios.get(
+  //       `http://192.168.0.17:8080/api/v1/menu/${menuId}`,
+  //       {
+  //         timeout: 20000,
+  //       }
+  //     );
+  //     console.log("menuid :", menuId);
+  //     setMenuDetails(response.data);
+  //     setTotalPrice(response.data.menuPrice);
+  //   } catch (error) {
+  //     console.error("Error fetching menu details:", error.message);
+  //   }
+  // };
   const fetchMenuDetails = async () => {
     try {
-      const response = await axios.get(
-        `http://34.69.39.99/api/v1/menu/${menuId}`,
-        {
-          timeout: 20000,
-        }
-      );
+      const response = await getMenuByIdQL({ menuId: menuId });
       console.log("menuid :", menuId);
-      setMenuDetails(response.data);
-      setTotalPrice(response.data.menuPrice);
+      setMenuDetails(response);
+      setTotalPrice(response.menuPrice);
     } catch (error) {
       console.error("Error fetching menu details:", error.message);
     }
@@ -199,7 +210,7 @@ const MenuDetailScreen = ({ navigation, route }) => {
           </View>
           <View style={styles.imageContainer}>
             <Image
-              source={require("../assets/삼겹김치덮밥.png")}
+              source={menuDetails.menuImage?{uri:"https://storage.googleapis.com/wgwg_bucket/"+menuDetails.menuImage}:require("./../assets/menu.png")}
               resizeMode="cover"
               style={styles.image}
             />

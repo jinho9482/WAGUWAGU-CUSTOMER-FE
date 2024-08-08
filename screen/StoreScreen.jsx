@@ -1,10 +1,5 @@
 import React, { useEffect, useState } from "react";
 import {
-  getMenuByMenuCategory,
-  getMenuCategoryByStore,
-  getStoreDetail,
-} from "../config/storeApi";
-import {
   Dimensions,
   Image,
   ImageBackground,
@@ -17,6 +12,11 @@ import { StyleSheet } from "react-native";
 import { Text } from "react-native";
 import SpeechBubble from "../components-common/SpeechBubble";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import {
+  getMenuByMenuCategoryQL,
+  getMenuCategoryByStoreQL,
+  getStoreDetailQL,
+} from "../config/storeGraphQL";
 
 export default function StoreScreen({ navigation, route }) {
   const { storeId } = route.params;
@@ -27,14 +27,19 @@ export default function StoreScreen({ navigation, route }) {
   const getStoreDetailApi = async () => {
     console.log(storeId);
     try {
-      const response = await getStoreDetail(storeId, {
-        longitude: parseFloat(await AsyncStorage.getItem("customerLongitude")),
-        latitude: parseFloat(await AsyncStorage.getItem("customerLatitude")),
-        // longitude: 127.027619,
-        // latitude: 37.497952,
-        // longitude: 37.497952,
+      const response = await getStoreDetailQL({
+        storeId: storeId,
+        input: {
+          longitude: parseFloat(
+            await AsyncStorage.getItem("customerLongitude")
+          ),
+          latitude: parseFloat(await AsyncStorage.getItem("customerLatitude")),
+          // longitude: 127.027619,
+          // latitude: 37.497952,
+          // longitude: 37.497952,
+        },
       });
-      console.log(response);
+      console.log("####" + response);
       setStore(response);
     } catch {
       console.log("error in getStoreDetailApi");
@@ -45,7 +50,7 @@ export default function StoreScreen({ navigation, route }) {
   const getMenuCategoryByStoreApi = async () => {
     try {
       console.log("hi");
-      const response = await getMenuCategoryByStore(storeId);
+      const response = await getMenuCategoryByStoreQL({ storeId: storeId });
       console.log(response);
       setCategories(response);
       response.forEach((category) => {
@@ -58,7 +63,9 @@ export default function StoreScreen({ navigation, route }) {
 
   const getMenuByMenuCategoryApi = async (menuCategoryId) => {
     try {
-      const response = await getMenuByMenuCategory(menuCategoryId);
+      const response = await getMenuByMenuCategoryQL({
+        menuCategoryId: menuCategoryId,
+      });
       setMenus((prevMenus) => ({ ...prevMenus, [menuCategoryId]: response }));
     } catch {
       console.log("error in getMenuByMenuCategoryApi");
@@ -78,7 +85,7 @@ export default function StoreScreen({ navigation, route }) {
       <View>
         <Image
           style={[styles.image, { width: dimensionWidth }]}
-          source={require("./../assets/tteokbokki.png")}
+          source={store.storeImage?{uri:"https://storage.googleapis.com/wgwg_bucket/"+store.storeImage}:require("./../assets/food icon.png")}
         />
         <View style={styles.textContainer}>
           <Text style={styles.textTitle}>{store.storeName}</Text>
@@ -137,7 +144,14 @@ export default function StoreScreen({ navigation, route }) {
                         <View key={menu.menuId} style={[styles.menuContainer]}>
                           <View>
                             {menu.menuPossible ? (
-                              <Text style={{ fontSize: 20 }}>
+                              <Text
+                                numberOfLines={1}
+                                style={[
+                                  styles.textEllipsis,
+                                  { marginTop: 5 },
+                                  { fontSize: 20 },
+                                ]}
+                              >
                                 {menu.menuName}
                               </Text>
                             ) : (
@@ -164,7 +178,7 @@ export default function StoreScreen({ navigation, route }) {
                           <View>
                             <Image
                               style={[styles.menuImage]}
-                              source={require("./../assets/tteokbokki.png")}
+                              source={menu.menuImage?{uri:"https://storage.googleapis.com/wgwg_bucket/"+menu.menuImage}:require("./../assets/menu.png")}
                             />
                           </View>
                         </View>
