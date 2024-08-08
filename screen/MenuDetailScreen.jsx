@@ -74,7 +74,7 @@ const MenuDetailScreen = ({ navigation, route }) => {
     }
   `;
     try {
-      const response = await axios.post(`http://192.168.0.26:8080/graphql`, {
+      const response = await axios.post(`http://34.69.39.99/graphql`, {
         query: GET_OPTION_LISTS,
         variables: { menuId },
       });
@@ -96,7 +96,6 @@ const MenuDetailScreen = ({ navigation, route }) => {
 
     //   setLoading(false);
     // };
-    
     const fetchData =  () => {
       fetchMenuDetails();
       fetchOptionList();
@@ -251,7 +250,7 @@ const MenuDetailScreen = ({ navigation, route }) => {
 
   const renderOptionLists = () => (
     <View>
-      {selectedOptions.length > 0 ? (
+      {selectedOptions&&selectedOptions.length > 0 ? (
         selectedOptions.map((list) => (
           <OptionList
             key={list.listId}
