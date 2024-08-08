@@ -64,7 +64,6 @@ const MenuDetailScreen = ({ navigation, route }) => {
     const GET_OPTION_LISTS = `
     query optionLists($menuId: Long!) {
       optionLists(menuId: $menuId) {
-        
         listName
         options {
         optionId
@@ -91,9 +90,16 @@ const MenuDetailScreen = ({ navigation, route }) => {
   };
 
   useEffect(() => {
-    const fetchData = async () => {
-      await fetchMenuDetails();
-      await fetchOptionList();
+    // const fetchData = async () => {
+    //   await fetchMenuDetails();
+    //   await fetchOptionList();
+
+    //   setLoading(false);
+    // };
+    
+    const fetchData =  () => {
+      fetchMenuDetails();
+      fetchOptionList();
 
       setLoading(false);
     };

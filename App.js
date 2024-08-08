@@ -139,7 +139,7 @@ export default function App() {
     <RecoilRoot>
       <NavigationContainer>
         <View style={styles.container}></View>
-        <Stack.Navigator initialRouteName="Main">
+        <Stack.Navigator initialRouteName="Login">
           <Stack.Screen
             name="Login"
             component={LoginScreen}
