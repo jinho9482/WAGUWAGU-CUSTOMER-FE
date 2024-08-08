@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { createOrder, getStoreInfoDetailByStoreId } from "../config/orderApi";
-import { useNavigation } from '@react-navigation/native';
+import { getStoreDetailQL } from "../config/storeGraphQL";
 
 export default function OrderScreen({ route }) {
   const [riderRequest, setRiderRequest] = useState("");
@@ -42,12 +42,19 @@ export default function OrderScreen({ route }) {
       console.log("Cart details:", cart);
       const id = await AsyncStorage.getItem("customerId");
       const customerAddress = await AsyncStorage.getItem("customerAddress");
-      const customerLongitude = parseFloat(await AsyncStorage.getItem("customerLongitude"));
-      const customerLatitude = parseFloat(await AsyncStorage.getItem("customerLatitude"));
+      const customerLongitude = parseFloat(
+        await AsyncStorage.getItem("customerLongitude")
+      );
+      const customerLatitude = parseFloat(
+        await AsyncStorage.getItem("customerLatitude")
+      );
 
-      const storeInfo = await getStoreInfoDetailByStoreId(cart.storeId, {
-        longitude: customerLongitude,
-        latitude: customerLatitude,
+      const storeInfo = await getStoreDetailQL({
+        storeId: cart.storeId,
+        input: {
+          longitude: customerLongitude,
+          latitude: customerLatitude,
+        },
       });
       console.log("Store Info:", storeInfo);
 
@@ -69,16 +76,16 @@ export default function OrderScreen({ route }) {
         storeLatitude: storeInfo.storeLatitude,
         storeMinimumOrderAmount: cart.storeMinimumOrderAmount,
         customerAddress: customerAddress,
-        menuItems: cart.menuItems.map(item => ({
+        menuItems: cart.menuItems.map((item) => ({
           menuName: item.menuName,
           totalPrice: item.totalPrice,
-          selectedOptions: item.selectedOptions.map(optionList => ({
+          selectedOptions: item.selectedOptions.map((optionList) => ({
             listName: optionList.listName,
-            options: optionList.options.map(option => ({
+            options: optionList.options.map((option) => ({
               optionTitle: option.optionTitle,
               optionPrice: option.optionPrice,
-            }))
-          }))
+            })),
+          })),
         })),
         optionTitle: cart.optionTitle || "",
         optionPrice: cart.optionPrice || 0,
@@ -117,7 +124,10 @@ export default function OrderScreen({ route }) {
   }
 
   return (
-    <ScrollView style={styles.scrollContainer} contentContainerStyle={styles.container}>
+    <ScrollView
+      style={styles.scrollContainer}
+      contentContainerStyle={styles.container}
+    >
       <View style={styles.deliveryInfo}>
         <Text style={styles.deliveryText}>한집 배달</Text>
         <Text style={styles.deliveryText}>15분~30분</Text>
@@ -126,26 +136,27 @@ export default function OrderScreen({ route }) {
       <Text style={styles.title}>주문하기</Text>
       <Text style={styles.cartDetail}>가게 이름: {cart.storeName}</Text>
 
-      {cart.menuItems && cart.menuItems.map((item, index) => (
-        <View key={index} style={styles.menuItem}>
-          <Text style={styles.menuItemText}>메뉴 이름: {item.menuName}</Text>
-          <Text style={styles.menuItemText}>가격: {item.totalPrice}원</Text>
-          {item.selectedOptions &&
-            item.selectedOptions.map((optionList, optListIndex) => (
-              <View key={optListIndex} style={styles.optionList}>
-                <Text style={styles.optionListTitle}>
-                  {optionList.listName}
-                </Text>
-                {optionList.options &&
-                  optionList.options.map((option, optIndex) => (
-                    <Text key={optIndex} style={styles.optionText}>
-                      옵션: {option.optionTitle} ({option.optionPrice}원)
-                    </Text>
-                  ))}
-              </View>
-            ))}
-        </View>
-      ))}
+      {cart.menuItems &&
+        cart.menuItems.map((item, index) => (
+          <View key={index} style={styles.menuItem}>
+            <Text style={styles.menuItemText}>메뉴 이름: {item.menuName}</Text>
+            <Text style={styles.menuItemText}>가격: {item.totalPrice}원</Text>
+            {item.selectedOptions &&
+              item.selectedOptions.map((optionList, optListIndex) => (
+                <View key={optListIndex} style={styles.optionList}>
+                  <Text style={styles.optionListTitle}>
+                    {optionList.listName}
+                  </Text>
+                  {optionList.options &&
+                    optionList.options.map((option, optIndex) => (
+                      <Text key={optIndex} style={styles.optionText}>
+                        옵션: {option.optionTitle} ({option.optionPrice}원)
+                      </Text>
+                    ))}
+                </View>
+              ))}
+          </View>
+        ))}
 
       <View style={styles.section}>
         <TouchableOpacity
@@ -216,13 +227,13 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
   },
   container: {
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   errorContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     backgroundColor: "#fff",
   },
   title: {

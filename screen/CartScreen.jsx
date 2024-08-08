@@ -74,15 +74,11 @@ const CartScreen = ({ route, navigation }) => {
 
     try {
       // Send the updated cart to the server
-      await axios.post(
-        "http://34.45.108.74/api/v1/cart/save",
-        updatedCart,
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      await axios.post("http://34.45.108.74/api/v1/cart/save", updatedCart, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
       console.log("Cart updated successfully");
     } catch (error) {
       console.error("Error updating cart:", error);

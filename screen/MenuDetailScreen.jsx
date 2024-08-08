@@ -13,32 +13,82 @@ import axios from "axios";
 import { COLORS, SIZES, FONTS } from "../assets/constants/theme";
 import OptionList from "../components/OptionList.jsx";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { getMenuByIdQL } from "../config/storeGraphQL.jsx";
 
 const MenuDetailScreen = ({ navigation, route }) => {
   const { menuId, storeId, storeName } = route.params;
-
   const [selectedOptions, setSelectedOptions] = useState([]);
   const [menuDetails, setMenuDetails] = useState(null);
   const [optionLists, setOptionLists] = useState([]);
   const [loading, setLoading] = useState(true);
   const [totalPrice, setTotalPrice] = useState(0);
 
+  // const fetchMenuDetails = async () => {
+  //   try {
+  //     const response = await axios.get(
+  //       `http://192.168.0.17:8080/api/v1/menu/${menuId}`,
+  //       {
+  //         timeout: 20000,
+  //       }
+  //     );
+  //     console.log("menuid :", menuId);
+  //     setMenuDetails(response.data);
+  //     setTotalPrice(response.data.menuPrice);
+  //   } catch (error) {
+  //     console.error("Error fetching menu details:", error.message);
+  //   }
+  // };
   const fetchMenuDetails = async () => {
     try {
-      const response = await axios.get(
-        `http://34.69.39.99/api/v1/menu/${menuId}`,
-        {
-          timeout: 20000,
-        }
-      );
+      const response = await getMenuByIdQL({ menuId: menuId });
       console.log("menuid :", menuId);
-      setMenuDetails(response.data);
-      setTotalPrice(response.data.menuPrice);
+      setMenuDetails(response);
+      setTotalPrice(response.menuPrice);
     } catch (error) {
       console.error("Error fetching menu details:", error.message);
     }
   };
 
+  // const fetchOptionList = async () => {
+  //   try {
+  //     const response = await axios.get(
+  //       `http://34.69.39.99/api/v1/option-lists/menu/${menuId}`
+  //     );
+  //     setOptionLists(response.data);
+  //     setCurrentOptions(response.data); // Initialize with fetched option lists
+  //   } catch (error) {
+  //     console.error("Error fetching option lists:", error.message);
+  //   }
+  // };
+  const fetchOptionList = async () => {
+    const GET_OPTION_LISTS = `
+    query optionLists($menuId: Long!) {
+      optionLists(menuId: $menuId) {
+        
+        listName
+        options {
+        optionId
+          optionTitle
+          optionPrice
+        }
+      }
+    }
+  `;
+    try {
+      const response = await axios.post(`http://192.168.0.26:8080/graphql`, {
+        query: GET_OPTION_LISTS,
+        variables: { menuId },
+      });
+
+      const data = response.data.data.optionLists;
+
+      setOptionLists(data);
+      setSelectedOptions(data);
+      console.log("selected", selectedOptions);
+    } catch (error) {
+      console.error("Error fetching option lists:", error.message);
+    }
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -70,6 +120,7 @@ const MenuDetailScreen = ({ navigation, route }) => {
     );
     setSelectedOptions(newselectedOptions);
     calculateTotalPrice(newselectedOptions);
+    console.log("option selected", list, checkedOption);
   };
   console.log(JSON.stringify(selectedOptions));
 
@@ -129,7 +180,7 @@ const MenuDetailScreen = ({ navigation, route }) => {
 
     try {
       const request = await axios.post(
-        "http://34.45.108.74/api/v1/cart/save",
+        "http:/34.45.108.74/api/v1/cart/save",
         cartItem,
         {
           headers: {
@@ -159,7 +210,7 @@ const MenuDetailScreen = ({ navigation, route }) => {
           </View>
           <View style={styles.imageContainer}>
             <Image
-              source={require("../assets/삼겹김치덮밥.png")}
+              source={menuDetails.menuImage?{uri:"https://storage.googleapis.com/wgwg_bucket/"+menuDetails.menuImage}:require("./../assets/menu.png")}
               resizeMode="cover"
               style={styles.image}
             />
