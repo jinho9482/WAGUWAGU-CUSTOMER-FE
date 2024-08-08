@@ -48,19 +48,19 @@ export default function OrderHistoryScreen() {
   const getStatusColor = (status) => {
     switch (status) {
       case '배달요청':
-        return '#2B6DEF';
-      case '배달 수락':
-        return '#F3DD0F';
-      case '조리중':
-        return '#94D35C';
-      case '주문 요청':
-        return '#E55959';
-      case '배달중':
-        return '#6E5656';
-      case '배달 완료':
-        return '#808080';
-      default:
-        return '#ffffff';
+        return '#2B6DEF80';
+    case '배달 수락':
+        return '#F3DD0F80';
+    case '조리중':
+        return '#94D35C80';
+    case '주문 요청':
+        return '#E5595980';
+    case '배달중':
+        return '#6E565680';
+    case '배달 완료':
+        return '#80808080';
+    default:
+        return '#ffffff80';
     }
   };
 
@@ -77,7 +77,7 @@ export default function OrderHistoryScreen() {
           height={dimensionHeight}
           width={dimensionWidth}
           textColor={textColor}
-          content={`${item.storeName}\n${lastStatus || 'No status'}`}
+          content= {`${item.storeName}\n${lastStatus || 'No status'}\n${item.menuItems.length > 0 ? item.menuItems[0].menuName : 'No menu items'}`}
           backgroundColor={backgroundColor}
         />
       </TouchableOpacity>

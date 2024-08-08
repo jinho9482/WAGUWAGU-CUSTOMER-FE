@@ -6,9 +6,11 @@ import {
   TouchableOpacity,
   ScrollView,
   TextInput,
+  Alert,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { createOrder, getStoreInfoDetailByStoreId } from "../config/orderApi";
+import { useNavigation } from '@react-navigation/native';
 
 export default function OrderScreen({ route }) {
   const [riderRequest, setRiderRequest] = useState("");
@@ -22,6 +24,8 @@ export default function OrderScreen({ route }) {
   const [cartTotal, setCartTotal] = useState(0);
   const [cart, setCart] = useState({});
   const [error, setError] = useState(false);
+
+  const navigation = useNavigation();
 
   useEffect(() => {
     if (route.params) {
@@ -90,6 +94,14 @@ export default function OrderScreen({ route }) {
 
       const result = await createOrder(userRequest);
       console.log("Order created successfully:", result);
+
+      // Show success alert and navigate to HomeScreen
+      Alert.alert("주문 성공", "주문이 성공적으로 생성되었습니다.", [
+        {
+          text: "확인",
+          onPress: () => navigation.navigate("HomeScreen"),
+        },
+      ]);
     } catch (error) {
       console.error("Failed to create order:", error);
       setError(true); // Set the error state to true
