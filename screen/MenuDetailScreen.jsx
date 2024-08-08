@@ -251,7 +251,7 @@ const MenuDetailScreen = ({ navigation, route }) => {
 
   const renderOptionLists = () => (
     <View>
-      {selectedOptions.length > 0 ? (
+      {selectedOptions&&selectedOptions.length > 0 ? (
         selectedOptions.map((list) => (
           <OptionList
             key={list.listId}
