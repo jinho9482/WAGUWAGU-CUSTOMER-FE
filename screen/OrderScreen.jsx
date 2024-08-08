@@ -12,7 +12,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { createOrder, getStoreInfoDetailByStoreId } from "../config/orderApi";
 import { getStoreDetailQL } from "../config/storeGraphQL";
 
-export default function OrderScreen({ route }) {
+export default function OrderScreen({ route,navigation }) {
   const [riderRequest, setRiderRequest] = useState("");
   const [consumerRequest, setConsumerRequest] = useState("");
   const [showInput, setShowInput] = useState(false);
@@ -25,7 +25,7 @@ export default function OrderScreen({ route }) {
   const [cart, setCart] = useState({});
   const [error, setError] = useState(false);
 
-  const navigation = useNavigation();
+
 
   useEffect(() => {
     if (route.params) {
@@ -102,16 +102,15 @@ export default function OrderScreen({ route }) {
       const result = await createOrder(userRequest);
       console.log("Order created successfully:", result);
 
-      // Show success alert and navigate to HomeScreen
       Alert.alert("주문 성공", "주문이 성공적으로 생성되었습니다.", [
         {
           text: "확인",
-          onPress: () => navigation.navigate("HomeScreen"),
+          onPress: () => navigation.navigate("HomeScreen")
         },
       ]);
     } catch (error) {
       console.error("Failed to create order:", error);
-      setError(true); // Set the error state to true
+      setError(true); 
     }
   };
 

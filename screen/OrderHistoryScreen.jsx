@@ -92,7 +92,8 @@ export default function OrderHistoryScreen({ navigation }) {
           height={dimensionHeight}
           width={dimensionWidth}
           textColor={textColor}
-          content= {`${item.storeName}\n${lastStatus || 'No status'}\n${item.menuItems.length > 0 ? item.menuItems[0].menuName : 'No menu items'}`}
+          content= {`${item.storeName}\n${lastStatus || 'No status'}\n${item && item.menuItems && item.menuItems.length > 0 ? item.menuItems[0].menuName : 'No menu items'}
+`}
           backgroundColor={backgroundColor}
         />
       </TouchableOpacity>
