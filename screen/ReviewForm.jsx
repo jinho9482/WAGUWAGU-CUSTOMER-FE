@@ -1,7 +1,14 @@
 // components/ReviewForm.js
 
 import React, { useState } from "react";
-import { View, Text, TextInput, Button, StyleSheet } from "react-native";
+import {
+  View,
+  Text,
+  TextInput,
+  Button,
+  StyleSheet,
+  Pressable,
+} from "react-native";
 import { AirbnbRating } from "react-native-ratings";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
@@ -41,21 +48,23 @@ const ReviewForm = () => {
   return (
     <View style={styles.container}>
       <View style={styles.headerContainer}>
-        <Text style={styles.header}>리뷰</Text>
+        <Text style={styles.header}></Text>
       </View>
       <Text style={styles.label}></Text>
       <TextInput
         style={styles.input}
         placeholder="리뷰를 작성하세요."
         multiline
-        numberOfLines={4}
+        numberOfLines={10}
         value={content}
         onChangeText={setContent}
       />
 
       <AirbnbRating onFinishRating={(value) => setRating(value)} />
 
-      <Button title="리뷰 작성하기" onPress={handlePostReview} />
+      <Pressable style={styles.reviewButton} onPress={handlePostReview}>
+        <Text style={styles.reviewButtonText}>리뷰 작성하기</Text>
+      </Pressable>
     </View>
   );
 };
@@ -102,6 +111,19 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: "#ddd",
     marginBottom: 16,
+  },
+  reviewButton: {
+    backgroundColor: "#4CAF50",
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 5,
+    alignItems: "center",
+    marginTop: 10,
+  },
+  reviewButtonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "bold",
   },
 });
 
