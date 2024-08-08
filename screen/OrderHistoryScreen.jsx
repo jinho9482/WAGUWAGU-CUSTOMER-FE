@@ -10,7 +10,6 @@ import {
   RefreshControl,
 } from "react-native";
 import { searchOrder } from "../config/orderApi";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import OrderHistorySpeechBubble from "../components-order/OrderHistorySpeechBubble";
 import { Button } from "react-native-elements";
 

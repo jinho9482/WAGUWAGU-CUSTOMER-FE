@@ -8,24 +8,23 @@ import {
   TextInput,
   Alert,
 } from "react-native";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { createOrder, getStoreInfoDetailByStoreId } from "../config/orderApi";
+import { createOrder,UserInformation } from "../config/orderApi";
 import { getStoreDetailQL } from "../config/storeGraphQL";
 
-export default function OrderScreen({ route,navigation }) {
+
+export default function OrderScreen({ route, navigation }) {
   const [riderRequest, setRiderRequest] = useState("");
   const [consumerRequest, setConsumerRequest] = useState("");
   const [showInput, setShowInput] = useState(false);
   const [showInput1, setShowInput1] = useState(false);
   const [menuName, setMenuName] = useState("");
   const [customerAddress, setCustomerAddress] = useState("");
+  const [customerLongitude, setCustomerLongitude] = useState("");
+  const [customerLatitude, setCustomerLatitude] = useState("");
   const [storeId, setStoreId] = useState("");
-  const [customerId, setCustomerId] = useState("");
   const [cartTotal, setCartTotal] = useState(0);
   const [cart, setCart] = useState({});
   const [error, setError] = useState(false);
-
-
 
   useEffect(() => {
     if (route.params) {
@@ -35,36 +34,40 @@ export default function OrderScreen({ route,navigation }) {
     } else {
       setError(true);
     }
+
+    const fetchUserInfo = async () => {
+      try {
+        const userInfo = await UserInformation();
+        setCustomerLongitude(userInfo.customerLongitude);
+        setCustomerLatitude(userInfo.customerLatitude);
+      } catch (error) {
+        console.error("Failed to fetch user information:", error);
+        setError(true);
+      }
+    };
+
+    fetchUserInfo();
   }, [route.params]);
 
   const handleCreateOrder = async () => {
     try {
-      console.log("Cart details:", cart);
-      const id = await AsyncStorage.getItem("customerId");
-      const customerAddress = await AsyncStorage.getItem("customerAddress");
-      const customerLongitude = parseFloat(
-        await AsyncStorage.getItem("customerLongitude")
-      );
-      const customerLatitude = parseFloat(
-        await AsyncStorage.getItem("customerLatitude")
-      );
+      const userInfo = await UserInformation();
+      console.log("User Info:", userInfo);
 
       const storeInfo = await getStoreDetailQL({
         storeId: cart.storeId,
         input: {
-          longitude: customerLongitude,
-          latitude: customerLatitude,
+          longitude: userInfo.customerLongitude,
+          latitude: userInfo.customerLatitude,
         },
       });
       console.log("Store Info:", storeInfo);
 
       const dueDate = new Date();
-      dueDate.setMinutes(dueDate.getMinutes() + 30);
+      dueDate.setMinutes(dueDate.getMinutes());
 
       const userRequest = {
-        customerId: id,
         storeId: cart.storeId,
-        ownerId: cart.ownerId,
         storePhone: cart.storePhone,
         storeName: cart.storeName,
         storeAddress: storeInfo.storeAddress,
@@ -75,7 +78,7 @@ export default function OrderScreen({ route,navigation }) {
         storeLongitude: storeInfo.storeLongitude,
         storeLatitude: storeInfo.storeLatitude,
         storeMinimumOrderAmount: cart.storeMinimumOrderAmount,
-        customerAddress: customerAddress,
+        customerAddress: userInfo.customerAddress,
         menuItems: cart.menuItems.map((item) => ({
           menuName: item.menuName,
           totalPrice: item.totalPrice,
@@ -94,8 +97,6 @@ export default function OrderScreen({ route,navigation }) {
         menuName: menuName,
         totalPrice: cartTotal,
         selectedOptions: cart.selectedOptions || [],
-        customerLongitude: customerLongitude,
-        customerLatitude: customerLatitude,
         due: dueDate.toISOString(),
       };
 
@@ -105,12 +106,12 @@ export default function OrderScreen({ route,navigation }) {
       Alert.alert("주문 성공", "주문이 성공적으로 생성되었습니다.", [
         {
           text: "확인",
-          onPress: () => navigation.navigate("HomeScreen")
+          onPress: () => navigation.navigate("HomeScreen"),
         },
       ]);
     } catch (error) {
       console.error("Failed to create order:", error);
-      setError(true); 
+      setError(true);
     }
   };
 
