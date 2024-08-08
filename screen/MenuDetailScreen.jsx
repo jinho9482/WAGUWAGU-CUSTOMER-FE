@@ -74,7 +74,9 @@ const MenuDetailScreen = ({ navigation, route }) => {
     }
   `;
     try {
+
       const response = await axios.post(`http://34.69.39.99/graphql`, {
+
         query: GET_OPTION_LISTS,
         variables: { menuId },
       });
@@ -96,7 +98,9 @@ const MenuDetailScreen = ({ navigation, route }) => {
 
     //   setLoading(false);
     // };
-    const fetchData =  () => {
+
+    const fetchData = () => {
+
       fetchMenuDetails();
       fetchOptionList();
 
@@ -215,7 +219,15 @@ const MenuDetailScreen = ({ navigation, route }) => {
           </View>
           <View style={styles.imageContainer}>
             <Image
-              source={menuDetails.menuImage?{uri:"https://storage.googleapis.com/wgwg_bucket/"+menuDetails.menuImage}:require("./../assets/menu.png")}
+              source={
+                menuDetails.menuImage
+                  ? {
+                      uri:
+                        "https://storage.googleapis.com/wgwg_bucket/" +
+                        menuDetails.menuImage,
+                    }
+                  : require("./../assets/menu.png")
+              }
               resizeMode="cover"
               style={styles.image}
             />
