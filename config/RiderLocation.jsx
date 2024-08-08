@@ -1,7 +1,8 @@
 import axios from "axios";
 import { riderLocationApi } from "./RiderLocationNetwork";
 
-export const getRiderLocationByOrderId = async (orderId) => {
+// 라이더 이동수단이랑 위,경도 가져옴 (카카오 내비에서 차종에 따라 배달지까지 남은 시간을 계산하기 위함)
+export const getRiderLocationAndTransportation = async (orderId) => {
   try {
     const res = await riderLocationApi(
       `/api/v1/rider-locations/${orderId}`,
@@ -29,7 +30,7 @@ export const getAddressDetail = async (address) => {
 };
 
 // 라이더 현재 위치 ~ 배달지까지 걸리는 시간 with kakao navi api
-export const calculateTimeToDestination = async (params) => {
+export const calculateTimeToDestinationWithNavi = async (params) => {
   const res = await axios.get(
     "https://apis-navi.kakaomobility.com/v1/directions",
     {
@@ -45,13 +46,12 @@ export const calculateTimeToDestination = async (params) => {
   return res.data;
 };
 
-// 라이더 이동수단을 가져옴 (카카오 내비에서 차종에 따라 배달지까지 남은 시간을 계산하기 위함)
-export const getRiderTransportationByRiderId = async (riderId) => {
+// 두 지점 간 직선 거리 계산
+export const calculateStraightLineDistance = async (body) => {
   try {
-    const res = await riderLocationApi(`/api/v1/riders/${riderId}`, "get");
-    console.log(res.data, " from api getRiderTransportationByRiderId");
+    const res = await riderLocationApi("/api/v1/geo", "post", body);
     return res.data;
   } catch (error) {
-    console.error("Error in getRiderTransportationByRiderId:", error);
+    console.log("Error in calculateStraightLineDistance", error);
   }
 };

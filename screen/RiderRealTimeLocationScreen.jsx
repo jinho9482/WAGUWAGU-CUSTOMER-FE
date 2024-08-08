@@ -1,6 +1,8 @@
 import { useEffect, useState, useRef } from "react";
 import {
+  calculateStraightLineDistance,
   calculateTimeToDestination,
+  calculateTimeToDestinationWithNavi,
   getAddressDetail,
   getRiderLocationAndTransportation,
   getRiderLocationByOrderId,
@@ -11,15 +13,13 @@ import { Image, StyleSheet, View, Text, Alert } from "react-native";
 
 const RiderRealTimeLocationScreen = ({ route, navigation }) => {
   const [riderLocation, setRiderLocation] = useState({
-    riderLatitude: 37.484918,
-    riderLongitude: 127.01629,
+    latitude: 37.484918,
+    longitude: 127.01629,
   });
 
   const [mapHtml, setMapHtml] = useState("");
-  const [timeToDestination, setTimeToDestination] = useState(0);
+  const [duration, setDuration] = useState(0);
   const [intervalId, setIntervalId] = useState(null);
-  const [timeoutId, setTimeoutId] = useState(null);
-  //   const [customerCoordinate, setCustomerCoordinate] = useState(null);
   const webviewRef = useRef(null);
 
   const customerImage = Image.resolveAssetSource(
@@ -34,69 +34,82 @@ const RiderRealTimeLocationScreen = ({ route, navigation }) => {
     require("../assets/store.png")
   ).uri;
 
-  const getRealTimeData = async (customerCoord, riderCoord) => {
-    console.log(
-      "============================고객 위, 경도 체크==========================="
-    );
-    console.log(customerCoord);
-
+  const getRealTimeData = async (customerCoord) => {
     const orderId = route.params.orderItem.orderId; // 주문 id 뽑기
-    const riderId = route.params.orderItem.riderId; // 라이더 id 뽑기
-
     intervalId = setInterval(async () => {
-      //   const riderInfo = await getRiderLocationAndTransportation(orderId);
-
-      console.log(riderCoord, "..............................");
-
-      newRiderLatitude = riderCoord.riderLatitude + 0.00005;
-      newRiderLongitude = riderCoord.riderLongitude + 0.0001;
+      const riderCoordAndTransportation =
+        await getRiderLocationAndTransportation(orderId);
+      newRiderLatitude = riderCoordAndTransportation.riderLatitude + 0.00005; // 테스트
+      newRiderLongitude = riderCoordAndTransportation.riderLongitud + 0.0001;
       const newRiderCoord = {
-        riderLatitude: newRiderLatitude,
-        riderLongitude: newRiderLongitude,
+        latitude: newRiderLatitude,
+        longitude: newRiderLongitude,
       };
-
+      console.log(newRiderCoord, "라이더 좌표");
       console.log(
-        "============================라이더 좌표==========================="
-      );
-      console.log(newRiderCoord);
-
-      console.log(
-        "============================라이더 이동수단==========================="
+        riderCoordAndTransportation.riderTransportation,
+        "라이더 이동 수단"
       );
 
-      const calculateRequest = {
-        origin: `${newRiderCoord.riderLongitude},${newRiderCoord.riderLatitude}`,
-        destination: `${customerCoord.longitude},${customerCoord.latitude}`,
-        carType: 1,
-      }; // 라이더, 고객 위치 및 차종 설정
-      const res = await calculateTimeToDestination(calculateRequest); // 카카오 내비 반환 값 가져오기
-      console.log(
-        "===========================카카오 내비 반환 값==========================="
+      // 이동 수단별 시간 계산
+      const timeToDestination = await getTimeToDestination(
+        customerCoord,
+        riderCoordAndTransportation.riderTransportation
       );
-      console.log(res.routes[0].summary.duration);
-      if (res.routes[0].result_code === 0) {
-        const time = Math.floor(res.routes[0].summary.duration / 60); // 시간을 분으로 표현
-        console.log(
-          "===========================남은 시간==========================="
-        );
-        console.log(time);
-        setTimeToDestination(time); // 시간 저장
+      console.log(timeToDestination, "남은 시간");
+      setIntervalId(intervalId);
+      if (timeToDestination) {
+        setDuration(timeToDestination); // 시간 저장
         setRiderLocation(newRiderCoord);
         console.log(intervalId);
-        // const timeoutId = setTimeout(
-        //   () => getRealTimeData(customerCoord, newRiderCoord),
-        //   1000
-        // );
-        // setTimeoutId(timeoutId);
-        // console.log(timeoutId, "#######################################");
-        // intervalId.coord = intervalId
-        setIntervalId(intervalId);
-      } else if (res.routes[0].result_code === 104) {
-        Alert.alert("알람", "음식이 5m 이내에 도착했어요!");
+      } else {
         setRiderLocation(newRiderCoord);
-        clearInterval(intervalId);
+        clearInterval(intervalId); // 라이더가 5m 이내로 들어오면 실시간 위치 호출 종료
       }
     }, 1000);
+  };
+
+  const getTimeToDestination = async (customerCoord, riderTransportation) => {
+    let timeToDestination;
+    if (riderTransportation === "WALK" || riderTransportation === "BICYCLE") {
+      const geoDistanceRequest = {
+        startLat: newRiderCoord.latitude,
+        startLong: newRiderCoord.longitude,
+        endLat: customerCoord.latitude,
+        endLong: customerCoord.longitude,
+      };
+      const distance = await calculateStraightLineDistance(geoDistanceRequest);
+      if (riderTransportation === "WALK")
+        timeToDestination = Math.floor(distance / 3); // 걷는 속도 : 3km/h
+      else timeToDestination = Math.floor(distance / 16); // 자전거 속도 : 16km/
+    } else {
+      let calculateRequest;
+      if (riderTransportation === "MOTORBIKE") {
+        calculateRequest = {
+          origin: `${newRiderCoord.longitude},${newRiderCoord.latitude}`,
+          destination: `${customerCoord.longitude},${customerCoord.latitude}`,
+          carType: 7,
+        };
+      } else {
+        calculateRequest = {
+          origin: `${newRiderCoord.longitude},${newRiderCoord.latitude}`,
+          destination: `${customerCoord.longitude},${customerCoord.latitude}`,
+          carType: 1,
+        };
+      }
+      const naviInfo = await calculateTimeToDestinationWithNavi(
+        calculateRequest
+      );
+
+      if (naviInfo.routes[0].result_code === 0) {
+        timeToDestination = Math.floor(
+          naviInfo.routes[0].summary.duration / 60
+        ); // 시간을 분으로 표현
+      } else if (naviInfo.routes[0].result_code === 104) {
+        Alert.alert("알람", "음식이 5m 이내에 도착했어요!"); // timeToDestination = null
+      }
+    }
+    return timeToDestination;
   };
 
   const getCustomerCoordinate = async () => {
@@ -106,21 +119,18 @@ const RiderRealTimeLocationScreen = ({ route, navigation }) => {
     const y = parseFloat(addressDetail.documents[0].y);
     const x = parseFloat(addressDetail.documents[0].x);
     const customerCoord = { latitude: y, longitude: x };
-    console.log(
-      "===========================고객 위, 경도==========================="
-    );
-    console.log(customerCoord);
+    console.log(customerCoord, "고객 위, 경도");
     // setCustomerCoordinate(customerCoord); // 고객 좌표 저장
     return customerCoord;
   };
 
-  const generateMapHtml = (customerCoord) => {
+  const generateMapHtml = (customerCoord, riderCoord) => {
     console.log(
       "===========================카카오맵 재 렌더링==========================="
     );
-    console.log(riderLocation);
     console.log(customerCoord);
-    if (riderLocation && customerCoord) {
+    console.log(riderCoord);
+    if (riderCoord && customerCoord) {
       return `
           <!DOCTYPE html>
           <html>
@@ -132,10 +142,8 @@ const RiderRealTimeLocationScreen = ({ route, navigation }) => {
           <body>
             <div id="map" style="width:100%;height:100vh;"></div>
             <script>
-              
-            //   const KakaoMap = () => {
                 const mapContainer = document.getElementById('map');
-                const locPosition = new kakao.maps.LatLng(${riderLocation.riderLatitude}, ${riderLocation.riderLongitude});  
+                const locPosition = new kakao.maps.LatLng(${riderCoord.latitude}, ${riderCoord.longitude});  
                 const mapOption = {
                   center: locPosition,
                   level: 6,
@@ -156,7 +164,7 @@ const RiderRealTimeLocationScreen = ({ route, navigation }) => {
                     
                 // 라이더 위치 마커 이미지 설정
                 const riderMarkerImage = new kakao.maps.MarkerImage(riderImageSrc, imageSize, imageOption);
-                const riderMarkerPosition = new kakao.maps.LatLng(${riderLocation.riderLatitude}, ${riderLocation.riderLongitude}); // 마커가 표시될 위치
+                const riderMarkerPosition = new kakao.maps.LatLng(${riderCoord.latitude}, ${riderCoord.longitude}); // 마커가 표시될 위치
                     
                 // 가게 위치 마커 이미지 설정
                 const storeMarkerImage = new kakao.maps.MarkerImage(storeImageSrc, imageSize, imageOption);
@@ -171,8 +179,6 @@ const RiderRealTimeLocationScreen = ({ route, navigation }) => {
                 customerMarker.setMap(map);
                 riderMarker.setMap(map);
                 storeMarker.setMap(map);
-            //   };
-            //   KakaoMap();
             </script>
           </body>
           </html>
@@ -182,28 +188,31 @@ const RiderRealTimeLocationScreen = ({ route, navigation }) => {
 
   const initSetting = async () => {
     const customerCoord = await getCustomerCoordinate();
-    console.log("1111111111111111111111111111111111111111111");
-    setMapHtml(generateMapHtml(customerCoord));
-    console.log("2222222222222222222222222222222222222");
-    await getRealTimeData(customerCoord, riderLocation);
-    console.log("33333333333333333333333333333333333333333");
+    const riderCoordAndTransportation = await getRiderLocationAndTransportation(
+      route.params.orderItem.orderId
+    );
+    const riderCoord = {
+      latitude: riderCoordAndTransportation.riderLatitude,
+      longitude: riderCoordAndTransportation.riderLongitude,
+    };
+    setMapHtml(generateMapHtml(customerCoord, riderCoord));
+    setRiderLocation(riderCoord);
+    await getRealTimeData(customerCoord);
   };
 
   const setMarkerPosition = `
       (function() {
-        riderMarker.setPosition(new kakao.maps.LatLng(${riderLocation.riderLatitude}, ${riderLocation.riderLongitude}));
+        riderMarker.setPosition(new kakao.maps.LatLng(${riderLocation.latitude}, ${riderLocation.longitude}));
       })();
     `;
 
   useEffect(() => {
     if (intervalId) {
-      console.log(intervalId, "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
-      console.log(navigation);
+      console.log(intervalId, "intervalID");
+      // 뒤로 가기 하면 실시간 위치 가져오기 종료하기
       const unsubcribe = navigation.addListener("beforeRemove", () => {
-        console.log(
-          "뒤로가기ㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣㅣ"
-        );
         clearInterval(intervalId);
+        console.log("실시간 위치 가져오기 종료");
       });
     }
     // return unsubscribe;
@@ -214,12 +223,8 @@ const RiderRealTimeLocationScreen = ({ route, navigation }) => {
   }, []);
 
   useEffect(() => {
-    console.log("=========================WebView===========================");
-    console.log(webviewRef);
-    if (webviewRef.current) {
-      console.log(setMarkerPosition);
+    if (webviewRef.current)
       webviewRef.current.injectJavaScript(setMarkerPosition);
-    }
   }, [riderLocation]);
 
   return (
@@ -233,7 +238,7 @@ const RiderRealTimeLocationScreen = ({ route, navigation }) => {
       />
       <View style={styles.timeInfo}>
         <Text style={styles.timeToDestination}>
-          {timeToDestination}분 뒤 음식이 도착 예정이예요
+          {duration}분 뒤 음식이 도착 예정이예요
         </Text>
         <Text style={styles.warningMessage}>
           (실제 도착 시간은 상황에 따라 다를 수 있습니다.)
