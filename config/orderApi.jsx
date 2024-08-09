@@ -1,37 +1,33 @@
+// orderApi.js
 import { orderApi } from "../config/orderNetwork";
-import { storeApi } from "./storeNetwork";
 
 export const createOrder = async (data) => {
   const userRequestDto = {
-    customerId: data.customerId,
-    customerAddress: data.customerAddress,
     storeId: data.storeId,
-    ownerId: data.ownerId,
-    changeTime: data.changeTime,
-    orderState: data.orderState,
-    orderCreatedAt: data.orderCreatedAt,
-    storePhone: data.storePhone,
     storeName: data.storeName,
     storeAddress: data.storeAddress,
-    menuName: data.menuName,
-    menuIntroduction: data.menuIntroduction,
-    menuPrice: data.menuPrice,
-    optionTitle: data.optionTitle,
-    optionPrice: data.optionPrice,
-    listName: data.listName,
-    options: data.options,
+    storePhone: data.storePhone,
+    storeMinimumOrderAmount: data.storeMinimumOrderAmount,
     customerRequests: data.customerRequests,
     riderRequests: data.riderRequests,
-    order: data.order,
-    orderTotalAmount: data.orderTotalAmount,
-    storeDeliveryFee: data.storeDeliveryFee,
     deliveryFee: data.deliveryFee,
     distanceFromStoreToCustomer: data.distanceFromStoreToCustomer,
     storeLongitude: data.storeLongitude,
     storeLatitude: data.storeLatitude,
-    due: data.due,
-    menuNameList: data.menuNameList,
-  };
+    totalPrice: data.totalPrice,
+    orderTotalPrice: data.orderTotalPrice,
+    menuItems: data.menuItems.map(item => ({
+        menuName: item.menuName,
+        totalPrice: item.totalPrice,
+        selectedOptions: item.selectedOptions.map(optionList => ({
+            listName: optionList.listName,
+            options: optionList.options.map(option => ({
+                optionTitle: option.optionTitle,
+                optionPrice: option.optionPrice
+            }))
+        }))
+    }))
+};
 
   try {
     const res = await orderApi("api/v1/order/", "post", userRequestDto);
@@ -42,42 +38,52 @@ export const createOrder = async (data) => {
   }
 };
 
-export const searchOrder = async ({ consumerId }) => {
+export const searchOrder = async () => {
   try {
-    console.log(consumerId);
+    const res = await orderApi('api/v1/order/customer', 'get');
+    console.log(res.data);
+    return res.data;
+  } catch (error) {
+    console.error('Error fetching order:', error);
+    throw error;
+  }
+};
+
+export const searchOrderHistory = async (startDate, endDate, pageNumber) => {
+  try {
     const res = await orderApi(
-      `api/v1/order/consumer/${consumerId}/all`,
-      "get"
+      'api/v1/order/history',
+      'get',
+      {
+        startDate,
+        endDate,
+        pageNumber,
+      }
     );
     console.log(res.data);
     return res.data;
   } catch (error) {
-    console.error("Error fetching order history:", error);
+    console.error('Error fetching order history:', error);
     throw error;
   }
 };
 
-export const getStoreInfoDetailByStoreId = async (storeId, data) => {
-  console.log(storeId);
+export const UserInformation = async () => {
   try {
-    const res = await storeApi(
-      `api/v1/distance-cal/store/${storeId}`,
-      "post",
-      data
-    );
-    console.log("API response:", res.data);
+    const res = await orderApi('api/v1/order/userInformation', 'get');
     return res.data;
   } catch (error) {
-    console.error("InfoDetailError in getStoreInfoDetailByStoreId", error);
+    console.error('Error in UserInformation ', error);
     throw error;
   }
 };
 
-export const updateState = async (orderId, status) => {
+export const updateState = async (orderId, data) => {
   try {
-    const res = await axios.post(`api/v1/order/request/${orderId}`, { status });
+    const res = await orderApi(`api/v1/order/request/${orderId}`, 'post', data);
     return res.data;
   } catch (error) {
-    console.error("Error in updateState", error);
+    console.error('Error in updateState', error);
+    throw error;
   }
 };
