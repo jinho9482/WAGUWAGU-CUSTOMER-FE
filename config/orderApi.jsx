@@ -74,6 +74,7 @@ try {
 export const UserInformation = async () => {
   try {
     const res = await orderApi('api/v1/order/userInformation', 'get');
+    
     return res.data;
   } catch (error) {
     console.error('Error in UserInformation ', error);
