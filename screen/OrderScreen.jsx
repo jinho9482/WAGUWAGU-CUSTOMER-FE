@@ -52,8 +52,6 @@ export default function OrderScreen({ route, navigation }) {
   const handleCreateOrder = async () => {
     try {
       const userInfo = await UserInformation();
-      console.log("User Info:", userInfo);
-
       const storeInfo = await getStoreDetailQL({
         storeId: cart.storeId,
         input: {
@@ -63,8 +61,7 @@ export default function OrderScreen({ route, navigation }) {
       });
       console.log("Store Info:", storeInfo);
 
-      const dueDate = new Date();
-      dueDate.setMinutes(dueDate.getMinutes());
+
 
       const userRequest = {
         storeId: cart.storeId,
@@ -90,23 +87,18 @@ export default function OrderScreen({ route, navigation }) {
             })),
           })),
         })),
-        optionTitle: cart.optionTitle || "",
-        optionPrice: cart.optionPrice || 0,
-        listName: cart.listName || "",
-        options: cart.options || [],
-        menuName: menuName,
-        totalPrice: cartTotal,
-        selectedOptions: cart.selectedOptions || [],
-        due: dueDate.toISOString(),
+        orderTotalPrice: cartTotal,
       };
 
       const result = await createOrder(userRequest);
+      console.log("주문건 값들: " + JSON.stringify(userRequest, null, 2));
+
       console.log("Order created successfully:", result);
 
       Alert.alert("주문 성공", "주문이 성공적으로 생성되었습니다.", [
         {
           text: "확인",
-          onPress: () => navigation.navigate("HomeScreen"),
+          onPress: () => navigation.navigate("Main"),
         },
       ]);
     } catch (error) {

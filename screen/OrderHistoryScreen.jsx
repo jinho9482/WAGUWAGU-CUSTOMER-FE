@@ -9,7 +9,7 @@ import {
   TouchableWithoutFeedback,
   RefreshControl,
 } from "react-native";
-import { searchOrder } from "../config/orderApi";
+import { searchOrder, UserInformation } from "../config/orderApi";
 import OrderHistorySpeechBubble from "../components-order/OrderHistorySpeechBubble";
 import { Button } from "react-native-elements";
 
@@ -20,25 +20,26 @@ export default function OrderHistoryScreen({ navigation }) {
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [isDetailsVisible, setIsDetailsVisible] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+  const [customerId, setCustomerId] = useState(null);
   const dimensionWidth = Dimensions.get("window").width / 1.6;
   const dimensionHeight = 100;
 
-  //리뷰를 위해 추가된
-
   const handledGetHistory = async () => {
     try {
-      const consumerId = await AsyncStorage.getItem("customerId");
-      const result = await searchOrder({ consumerId });
+      const userInfo = await UserInformation();
+      const customerId = userInfo.customerId;
+      setCustomerId(userInfo.customerId);
+      const result = await searchOrder({ customerId });
       console.log(result);
       setOrders(result);
-      setRefreshing(false);
     } catch (error) {
-      console.log("Failed to searchHistory:", error);
+      console.error("Failed to fetch data:", error);
       setError("Failed to fetch order history");
+    } finally {
       setRefreshing(false);
     }
   };
-
+  
   useEffect(() => {
     handledGetHistory();
   }, []);
@@ -60,17 +61,17 @@ export default function OrderHistoryScreen({ navigation }) {
     switch (status) {
       case '배달요청':
         return '#2B6DEF80';
-    case '배달 수락':
+      case '배달 수락':
         return '#F3DD0F80';
-    case '조리중':
+      case '조리중':
         return '#94D35C80';
-    case '주문 요청':
+      case '주문 요청':
         return '#E5595980';
-    case '배달중':
+      case '배달중':
         return '#6E565680';
-    case '배달 완료':
+      case '배달 완료':
         return '#80808080';
-    default:
+      default:
         return '#ffffff80';
     }
   };
@@ -91,8 +92,11 @@ export default function OrderHistoryScreen({ navigation }) {
           height={dimensionHeight}
           width={dimensionWidth}
           textColor={textColor}
-          content= {`${item.storeName}\n${lastStatus || 'No status'}\n${item && item.menuItems && item.menuItems.length > 0 ? item.menuItems[0].menuName : 'No menu items'}
-`}
+          content={`${item.storeName}\n${lastStatus || 'No status'}\n${
+            item && item.menuItems && item.menuItems.length > 0
+              ? item.menuItems[0].menuName
+              : 'No menu items'
+          }`}
           backgroundColor={backgroundColor}
         />
       </TouchableOpacity>
@@ -129,34 +133,34 @@ export default function OrderHistoryScreen({ navigation }) {
         </ScrollView>
         {isDetailsVisible && selectedOrder && (
           <View style={styles.detailsContainer}>
-            <Text>가게 이름: {selectedOrder.storeName}</Text>
-            <Text>가게 주소: {selectedOrder.storeAddress}</Text>
-            <Text>고객님 주소: {selectedOrder.customerAddress}</Text>
-            <Text>
-              고객님의 주문건 상태:{" "}
-              {extractStatusText(selectedOrder.orderState)}
+            <Text style={styles.centeredText}>가게 이름: {selectedOrder.storeName}</Text>
+            <Text style={styles.centeredText}>가게 주소: {selectedOrder.storeAddress}</Text>
+            <Text style={styles.centeredText}>고객 주소: {selectedOrder.customerAddress}</Text>
+            <Text style={styles.centeredText}>
+              주문 상태: {extractStatusText(selectedOrder.orderState)}
             </Text>
-            <Text>Customer Requests: {selectedOrder.customerRequests}</Text>
-            <Text>Rider Requests: {selectedOrder.riderRequests}</Text>
+            <Text style={styles.centeredText}>Customer Requests: {selectedOrder.customerRequests}</Text>
+            <Text style={styles.centeredText}>Rider Requests: {selectedOrder.riderRequests}</Text>
             {selectedOrder.menuItems &&
               selectedOrder.menuItems.map((menuItem, index) => (
                 <View key={index} style={styles.menuItemDetail}>
-                  <Text> 메뉴 이름: {menuItem.menuName}</Text>
+                  <Text style={styles.centeredText}>메뉴: {menuItem.menuName}</Text>
                   {menuItem.selectedOptions &&
                     menuItem.selectedOptions.map((optionList, optListIndex) => (
                       <View key={optListIndex} style={styles.optionList}>
                         {optionList.options &&
                           optionList.options.map((option, optIndex) => (
-                            <Text key={optIndex}>
-                              Option: {option.optionTitle}: {option.optionPrice}
-                              원
+                            <Text key={optIndex} style={styles.centeredText}>
+                              옵션: {option.optionTitle}: {option.optionPrice}원
                             </Text>
                           ))}
-                        <Text> 주문 금액: {menuItem.totalPrice}원</Text>
+                        <Text style={styles.centeredText}>주문 금액: {menuItem.totalPrice}원</Text>
                       </View>
                     ))}
                 </View>
               ))}
+            <Text style={styles.centeredText}>총 주문 금액: {selectedOrder.orderTotalPrice}원</Text>
+
             {extractStatusText(selectedOrder.orderState) === "배달 완료" && (
               <Button
                 title="리뷰 쓰러가기"
@@ -182,9 +186,6 @@ const styles = StyleSheet.create({
     marginHorizontal: 16,
     borderRadius: 10,
     padding: 10,
-  },
-  search: {
-    margin: 20,
   },
   scrollViewContainer: {
     flexDirection: "row",
@@ -216,8 +217,7 @@ const styles = StyleSheet.create({
   optionList: {
     marginLeft: 10,
   },
-  orderStateText: {
-    fontSize: 14,
-    marginVertical: 2,
+  centeredText: {
+    textAlign: "center",
   },
 });

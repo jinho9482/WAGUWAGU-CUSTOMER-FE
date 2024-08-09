@@ -4,26 +4,30 @@ import { orderApi } from "../config/orderNetwork";
 export const createOrder = async (data) => {
   const userRequestDto = {
     storeId: data.storeId,
-    storePhone: data.storePhone,
     storeName: data.storeName,
     storeAddress: data.storeAddress,
-    menuName: data.menuName,
-    menuIntroduction: data.menuIntroduction,
-    menuPrice: data.menuPrice,
-    optionTitle: data.optionTitle,
-    optionPrice: data.optionPrice,
-    listName: data.listName,
-    options: data.options,
+    storePhone: data.storePhone,
+    storeMinimumOrderAmount: data.storeMinimumOrderAmount,
     customerRequests: data.customerRequests,
     riderRequests: data.riderRequests,
-    orderTotalAmount: data.orderTotalAmount,
-    storeDeliveryFee: data.storeDeliveryFee,
     deliveryFee: data.deliveryFee,
     distanceFromStoreToCustomer: data.distanceFromStoreToCustomer,
     storeLongitude: data.storeLongitude,
     storeLatitude: data.storeLatitude,
-    menuNameList: data.menuNameList,
-  };
+    totalPrice: data.totalPrice,
+    orderTotalPrice: data.orderTotalPrice,
+    menuItems: data.menuItems.map(item => ({
+        menuName: item.menuName,
+        totalPrice: item.totalPrice,
+        selectedOptions: item.selectedOptions.map(optionList => ({
+            listName: optionList.listName,
+            options: optionList.options.map(option => ({
+                optionTitle: option.optionTitle,
+                optionPrice: option.optionPrice
+            }))
+        }))
+    }))
+};
 
   try {
     const res = await orderApi("api/v1/order/", "post", userRequestDto);
@@ -36,7 +40,7 @@ export const createOrder = async (data) => {
 
 export const searchOrder = async () => {
   try {
-    const res = await orderApi('api/v1/order/customer/', 'get');
+    const res = await orderApi('api/v1/order/customer', 'get');
     console.log(res.data);
     return res.data;
   } catch (error) {
@@ -67,7 +71,6 @@ export const searchOrderHistory = async (startDate, endDate, pageNumber) => {
 export const UserInformation = async () => {
   try {
     const res = await orderApi('api/v1/order/userInformation', 'get');
-    console.log('orderApi 호출 :' + res.data);
     return res.data;
   } catch (error) {
     console.error('Error in UserInformation ', error);
