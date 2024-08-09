@@ -50,22 +50,25 @@ export const searchOrder = async () => {
 };
 
 export const searchOrderHistory = async (startDate, endDate, pageNumber) => {
-  try {
-    const res = await orderApi(
-      'api/v1/order/history',
-      'get',
-      {
-        startDate,
-        endDate,
-        pageNumber,
-      }
-    );
-    console.log(res.data);
-    return res.data;
-  } catch (error) {
-    console.error('Error fetching order history:', error);
-    throw error;
-  }
+  console.log("startDate : " + startDate);
+  console.log("endDate : " + endDate);
+  console.log("pageNumber : " + pageNumber);
+try {
+  const res = await orderApi(
+    'api/v1/order/customer/history',
+    'get',
+    null, 
+    { 
+      startDate,
+      endDate,
+      pageNumber,
+    }
+  );
+  return res.data;
+} catch (error) {
+  console.error('Error fetching order history:', error);
+  throw error;
+}
 };
 
 export const UserInformation = async () => {
