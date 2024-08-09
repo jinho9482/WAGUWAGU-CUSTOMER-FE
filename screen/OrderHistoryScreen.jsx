@@ -9,29 +9,36 @@ import {
   TouchableWithoutFeedback,
   RefreshControl,
 } from "react-native";
-import { searchOrder, UserInformation } from "../config/orderApi";
+import { searchOrder, UserInformation, searchOrderHistory } from "../config/orderApi";
 import OrderHistorySpeechBubble from "../components-order/OrderHistorySpeechBubble";
 import { Button } from "react-native-elements";
 
 export default function OrderHistoryScreen({ navigation }) {
   const [selectedId, setSelectedId] = useState(null);
   const [orders, setOrders] = useState([]);
+  const [orderHistory, setOrderHistory] = useState([]);
   const [error, setError] = useState(null);
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [isDetailsVisible, setIsDetailsVisible] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [customerId, setCustomerId] = useState(null);
   const dimensionWidth = Dimensions.get("window").width / 1.6;
-  const dimensionHeight = 100;
+  const dimensionHeight = 90;
 
   const handledGetHistory = async () => {
     try {
       const userInfo = await UserInformation();
       const customerId = userInfo.customerId;
-      setCustomerId(userInfo.customerId);
+      setCustomerId(customerId);
+
       const result = await searchOrder({ customerId });
       console.log(result);
       setOrders(result);
+
+      const historyResult = await searchOrderHistory("2024-01-01", "2024-12-31", 0);
+      console.log(historyResult);
+      setOrderHistory(historyResult);
+
     } catch (error) {
       console.error("Failed to fetch data:", error);
       setError("Failed to fetch order history");
@@ -39,7 +46,7 @@ export default function OrderHistoryScreen({ navigation }) {
       setRefreshing(false);
     }
   };
-  
+
   useEffect(() => {
     handledGetHistory();
   }, []);
@@ -76,9 +83,7 @@ export default function OrderHistoryScreen({ navigation }) {
     }
   };
 
-  const Item = ({ item, onPress }) => {
-    console.log("Item:", item);
-
+  const OrderItem = ({ item, onPress }) => {
     const lastStatus = extractStatusText(item.orderState);
     const backgroundColor = getStatusColor(lastStatus);
     const textColor = item.orderId === selectedId ? "white" : "black";
@@ -123,11 +128,21 @@ export default function OrderHistoryScreen({ navigation }) {
             <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
           }
         >
+          <Text style={styles.sectionTitle}>현재 주문건</Text>
           {orders.map((item) => (
-            <Item
+            <OrderItem
               key={item.orderId}
               item={item}
               onPress={() => handleItemPress(item)}
+            />
+          ))}
+          
+          <Text style={styles.sectionTitle}>배달완료건</Text>
+          {orderHistory.map((item, index) => (
+            <OrderItem
+              key={index}
+              item={item}
+              onPress={() => handleItemPress(item)} 
             />
           ))}
         </ScrollView>
@@ -188,9 +203,6 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   scrollViewContainer: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "center",
     alignItems: "center",
   },
   errorText: {
@@ -219,5 +231,12 @@ const styles = StyleSheet.create({
   },
   centeredText: {
     textAlign: "center",
+  },
+  sectionTitle: {
+    fontSize: 17,
+    fontWeight: "bold",
+    marginVertical: 15,
+    textAlign: "center",
+    color: "#333",
   },
 });
