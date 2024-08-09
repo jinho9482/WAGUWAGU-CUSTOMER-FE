@@ -1,4 +1,5 @@
-import { api } from "../config/orderNetwork";
+// orderApi.js
+import { orderApi } from "../config/orderNetwork";
 
 export const createOrder = async (data) => {
   const userRequestDto = {
@@ -25,7 +26,7 @@ export const createOrder = async (data) => {
   };
 
   try {
-    const res = await api("api/v1/order/", "post", userRequestDto);
+    const res = await orderApi("api/v1/order/", "post", userRequestDto);
     return res.data;
   } catch (error) {
     console.error("Error creating order:", error);
@@ -35,7 +36,7 @@ export const createOrder = async (data) => {
 
 export const searchOrder = async () => {
   try {
-    const res = await api('api/v1/order/customer/', 'get');
+    const res = await orderApi('api/v1/order/customer/', 'get');
     console.log(res.data);
     return res.data;
   } catch (error) {
@@ -46,10 +47,9 @@ export const searchOrder = async () => {
 
 export const searchOrderHistory = async (startDate, endDate, pageNumber) => {
   try {
-    const res = await api(
+    const res = await orderApi(
       'api/v1/order/history',
       'get',
-      null,  // No body for GET request
       {
         startDate,
         endDate,
@@ -66,7 +66,7 @@ export const searchOrderHistory = async (startDate, endDate, pageNumber) => {
 
 export const UserInformation = async () => {
   try {
-    const res = await api('api/v1/order/userInformation', 'get');
+    const res = await orderApi('api/v1/order/userInformation', 'get');
     console.log('orderApi 호출 :' + res.data);
     return res.data;
   } catch (error) {
@@ -77,7 +77,7 @@ export const UserInformation = async () => {
 
 export const updateState = async (orderId, data) => {
   try {
-    const res = await api(`api/v1/order/request/${orderId}`, 'post', data);
+    const res = await orderApi(`api/v1/order/request/${orderId}`, 'post', data);
     return res.data;
   } catch (error) {
     console.error('Error in updateState', error);
