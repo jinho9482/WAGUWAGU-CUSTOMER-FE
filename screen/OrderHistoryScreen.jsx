@@ -97,15 +97,6 @@ export default function OrderHistoryScreen({ navigation }) {
             backgroundColor={backgroundColor}
           />
         </TouchableOpacity>
-        <TouchableOpacity
-          onPress={() =>
-            navigation.navigate("RiderRealTimeLocationScreen", {
-              orderItem: item,
-            })
-          }
-        >
-          <Text>라이더 실시간 위치 확인</Text>
-        </TouchableOpacity>
       </>
     );
   };
@@ -174,6 +165,16 @@ export default function OrderHistoryScreen({ navigation }) {
                 onPress={() => navigation.navigate("ReviewScreen")}
               />
             )}
+            {extractStatusText(selectedOrder.orderState) === "배달중" && (
+              <Button
+                title="라이더 실시간 위치 확인"
+                onPress={() =>
+                  navigation.navigate("RiderRealTimeLocationScreen", {
+                    orderItem: selectedOrder,
+                  })
+                }
+              />
+            )}
           </View>
         )}
       </View>
@@ -230,5 +231,26 @@ const styles = StyleSheet.create({
   orderStateText: {
     fontSize: 14,
     marginVertical: 2,
+  },
+  riderLocationButton: {
+    width: Dimensions.get("window").width / 1.6 + 20,
+    backgroundColor: "#fff",
+    paddingVertical: 15,
+    marginTop: 10,
+    borderRadius: 10,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 10,
+    elevation: 5,
+  },
+
+  riderLocationText: {
+    textAlign: "center",
+    fontSize: 15,
+    fontWeight: "600",
   },
 });

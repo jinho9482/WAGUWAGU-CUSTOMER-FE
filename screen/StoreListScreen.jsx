@@ -28,7 +28,8 @@ export default function StoreListScreen({ navigation, route }) {
           latitude: parseFloat(await AsyncStorage.getItem("customerLatitude")),
         },
       });
-      console.log("999999999999"+response);
+      console.log(response, "******");
+      console.log("999999999999" + response);
       console.log(
         "customerLongitude" +
           parseFloat(await AsyncStorage.getItem("customerLongitude"))
@@ -84,7 +85,7 @@ export default function StoreListScreen({ navigation, route }) {
                   key={store.storeId}
                   width={dimensionWidth}
                   title={store.storeName}
-                  image = {store.storeImage}
+                  image={store.storeImage}
                   time={
                     parseInt(store.distanceFromStoreToCustomer * 4 + 10) +
                     "~" +

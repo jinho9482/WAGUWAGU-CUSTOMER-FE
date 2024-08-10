@@ -42,6 +42,7 @@ export const calculateTimeToDestinationWithNavi = async (params) => {
       },
     }
   );
+  console.log(res.data.routes[0].summary);
   //   console.log(res);
   return res.data;
 };
