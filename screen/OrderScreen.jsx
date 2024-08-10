@@ -6,20 +6,22 @@ import {
   TouchableOpacity,
   ScrollView,
   TextInput,
+  Alert,
 } from "react-native";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { createOrder, getStoreInfoDetailByStoreId } from "../config/orderApi";
+import { createOrder,UserInformation } from "../config/orderApi";
 import { getStoreDetailQL } from "../config/storeGraphQL";
 
-export default function OrderScreen({ route }) {
+
+export default function OrderScreen({ route, navigation }) {
   const [riderRequest, setRiderRequest] = useState("");
   const [consumerRequest, setConsumerRequest] = useState("");
   const [showInput, setShowInput] = useState(false);
   const [showInput1, setShowInput1] = useState(false);
   const [menuName, setMenuName] = useState("");
   const [customerAddress, setCustomerAddress] = useState("");
+  const [customerLongitude, setCustomerLongitude] = useState("");
+  const [customerLatitude, setCustomerLatitude] = useState("");
   const [storeId, setStoreId] = useState("");
-  const [customerId, setCustomerId] = useState("");
   const [cartTotal, setCartTotal] = useState(0);
   const [cart, setCart] = useState({});
   const [error, setError] = useState(false);
@@ -32,36 +34,37 @@ export default function OrderScreen({ route }) {
     } else {
       setError(true);
     }
+
+    const fetchUserInfo = async () => {
+      try {
+        const userInfo = await UserInformation();
+        setCustomerLongitude(userInfo.customerLongitude);
+        setCustomerLatitude(userInfo.customerLatitude);
+      } catch (error) {
+        console.error("Failed to fetch user information:", error);
+        setError(true);
+      }
+    };
+
+    fetchUserInfo();
   }, [route.params]);
 
   const handleCreateOrder = async () => {
     try {
-      console.log("Cart details:", cart);
-      const id = await AsyncStorage.getItem("customerId");
-      const customerAddress = await AsyncStorage.getItem("customerAddress");
-      const customerLongitude = parseFloat(
-        await AsyncStorage.getItem("customerLongitude")
-      );
-      const customerLatitude = parseFloat(
-        await AsyncStorage.getItem("customerLatitude")
-      );
-
+      const userInfo = await UserInformation();
       const storeInfo = await getStoreDetailQL({
         storeId: cart.storeId,
         input: {
-          longitude: customerLongitude,
-          latitude: customerLatitude,
+          longitude: userInfo.customerLongitude,
+          latitude: userInfo.customerLatitude,
         },
       });
       console.log("Store Info:", storeInfo);
 
-      const dueDate = new Date();
-      dueDate.setMinutes(dueDate.getMinutes() + 30);
+
 
       const userRequest = {
-        customerId: id,
         storeId: cart.storeId,
-        ownerId: cart.ownerId,
         storePhone: cart.storePhone,
         storeName: cart.storeName,
         storeAddress: storeInfo.storeAddress,
@@ -72,7 +75,7 @@ export default function OrderScreen({ route }) {
         storeLongitude: storeInfo.storeLongitude,
         storeLatitude: storeInfo.storeLatitude,
         storeMinimumOrderAmount: cart.storeMinimumOrderAmount,
-        customerAddress: customerAddress,
+        customerAddress: userInfo.customerAddress,
         menuItems: cart.menuItems.map((item) => ({
           menuName: item.menuName,
           totalPrice: item.totalPrice,
@@ -84,23 +87,23 @@ export default function OrderScreen({ route }) {
             })),
           })),
         })),
-        optionTitle: cart.optionTitle || "",
-        optionPrice: cart.optionPrice || 0,
-        listName: cart.listName || "",
-        options: cart.options || [],
-        menuName: menuName,
-        totalPrice: cartTotal,
-        selectedOptions: cart.selectedOptions || [],
-        customerLongitude: customerLongitude,
-        customerLatitude: customerLatitude,
-        due: dueDate.toISOString(),
+        orderTotalPrice: cartTotal,
       };
 
       const result = await createOrder(userRequest);
+      console.log("주문건 값들: " + JSON.stringify(userRequest, null, 2));
+
       console.log("Order created successfully:", result);
+
+      Alert.alert("주문 성공", "주문이 성공적으로 생성되었습니다.", [
+        {
+          text: "확인",
+          onPress: () => navigation.navigate("Main"),
+        },
+      ]);
     } catch (error) {
       console.error("Failed to create order:", error);
-      setError(true); // Set the error state to true
+      setError(true);
     }
   };
 
