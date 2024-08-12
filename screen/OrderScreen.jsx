@@ -8,9 +8,10 @@ import {
   TextInput,
   Alert,
 } from "react-native";
-import { createOrder,UserInformation } from "../config/orderApi";
+import { createOrder, UserInformation } from "../config/orderApi";
 import { getStoreDetailQL } from "../config/storeGraphQL";
-
+import * as FileSystem from 'expo-file-system';
+import { Audio } from 'expo-av';
 
 export default function OrderScreen({ route, navigation }) {
   const [riderRequest, setRiderRequest] = useState("");
@@ -59,9 +60,6 @@ export default function OrderScreen({ route, navigation }) {
           latitude: userInfo.customerLatitude,
         },
       });
-      console.log("Store Info:", storeInfo);
-
-
 
       const userRequest = {
         storeId: cart.storeId,
@@ -95,6 +93,9 @@ export default function OrderScreen({ route, navigation }) {
 
       console.log("Order created successfully:", result);
 
+      // 주문 생성 후 알림 요청을 보내고 음성 파일 재생
+      await notifyAndPlayAudio(storeId);
+
       Alert.alert("주문 성공", "주문이 성공적으로 생성되었습니다.", [
         {
           text: "확인",
@@ -107,108 +108,147 @@ export default function OrderScreen({ route, navigation }) {
     }
   };
 
+  const notifyAndPlayAudio = async (storeId) => {
+    try {
+      const response = await fetch("http://localhost:8000/notify", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          store_id: storeId, // 가게 ID를 포함하여 서버에 알림 요청
+        }),
+      });
+
+      console.log(response)
+      if (response.ok) {
+        const uri = `${FileSystem.documentDirectory}notification.mp3`;
+        const fileData = await response.blob();
+
+        // Save the mp3 file locally
+        await FileSystem.writeAsStringAsync(uri, fileData);
+
+        // Load and play the audio
+        const { sound } = await Audio.Sound.createAsync({ uri });
+        await sound.playAsync();
+
+        // After playback, unload the sound and delete the file
+        sound.setOnPlaybackStatusUpdate((status) => {
+          if (status.didJustFinish) {
+            sound.unloadAsync();
+            FileSystem.deleteAsync(uri);
+          }
+        });
+      } else {
+        console.error("Failed to notify:", response.statusText);
+      }
+    } catch (error) {
+      console.error("Failed to fetch and play audio:", error);
+    }
+  };
+
   if (error) {
     return (
-      <View style={styles.errorContainer}>
-        <Text style={styles.errorText}>텅~</Text>
-      </View>
+        <View style={styles.errorContainer}>
+          <Text style={styles.errorText}>텅~</Text>
+        </View>
     );
   }
 
   return (
-    <ScrollView
-      style={styles.scrollContainer}
-      contentContainerStyle={styles.container}
-    >
-      <View style={styles.deliveryInfo}>
-        <Text style={styles.deliveryText}>한집 배달</Text>
-        <Text style={styles.deliveryText}>15분~30분</Text>
-      </View>
+      <ScrollView
+          style={styles.scrollContainer}
+          contentContainerStyle={styles.container}
+      >
+        <View style={styles.deliveryInfo}>
+          <Text style={styles.deliveryText}>한집 배달</Text>
+          <Text style={styles.deliveryText}>15분~30분</Text>
+        </View>
 
-      <Text style={styles.title}>주문하기</Text>
-      <Text style={styles.cartDetail}>가게 이름: {cart.storeName}</Text>
+        <Text style={styles.title}>주문하기</Text>
+        <Text style={styles.cartDetail}>가게 이름: {cart.storeName}</Text>
 
-      {cart.menuItems &&
-        cart.menuItems.map((item, index) => (
-          <View key={index} style={styles.menuItem}>
-            <Text style={styles.menuItemText}>메뉴 이름: {item.menuName}</Text>
-            <Text style={styles.menuItemText}>가격: {item.totalPrice}원</Text>
-            {item.selectedOptions &&
-              item.selectedOptions.map((optionList, optListIndex) => (
-                <View key={optListIndex} style={styles.optionList}>
-                  <Text style={styles.optionListTitle}>
-                    {optionList.listName}
-                  </Text>
-                  {optionList.options &&
-                    optionList.options.map((option, optIndex) => (
-                      <Text key={optIndex} style={styles.optionText}>
-                        옵션: {option.optionTitle} ({option.optionPrice}원)
-                      </Text>
-                    ))}
+        {cart.menuItems &&
+            cart.menuItems.map((item, index) => (
+                <View key={index} style={styles.menuItem}>
+                  <Text style={styles.menuItemText}>메뉴 이름: {item.menuName}</Text>
+                  <Text style={styles.menuItemText}>가격: {item.totalPrice}원</Text>
+                  {item.selectedOptions &&
+                      item.selectedOptions.map((optionList, optListIndex) => (
+                          <View key={optListIndex} style={styles.optionList}>
+                            <Text style={styles.optionListTitle}>
+                              {optionList.listName}
+                            </Text>
+                            {optionList.options &&
+                                optionList.options.map((option, optIndex) => (
+                                    <Text key={optIndex} style={styles.optionText}>
+                                      옵션: {option.optionTitle} ({option.optionPrice}원)
+                                    </Text>
+                                ))}
+                          </View>
+                      ))}
                 </View>
-              ))}
-          </View>
-        ))}
+            ))}
 
-      <View style={styles.section}>
-        <TouchableOpacity
-          style={styles.button}
-          onPress={() => setShowInput1(!showInput1)}
-        >
-          <Text style={styles.buttonText}>라이더님께 요청 사항 전달</Text>
-        </TouchableOpacity>
-        {showInput1 && (
-          <TextInput
-            style={styles.input}
-            placeholder="라이더 요청 사항을 입력해주세요"
-            value={riderRequest}
-            onChangeText={setRiderRequest}
-          />
-        )}
+        <View style={styles.section}>
+          <TouchableOpacity
+              style={styles.button}
+              onPress={() => setShowInput1(!showInput1)}
+          >
+            <Text style={styles.buttonText}>라이더님께 요청 사항 전달</Text>
+          </TouchableOpacity>
+          {showInput1 && (
+              <TextInput
+                  style={styles.input}
+                  placeholder="라이더 요청 사항을 입력해주세요"
+                  value={riderRequest}
+                  onChangeText={setRiderRequest}
+              />
+          )}
 
-        <TouchableOpacity
-          style={styles.button}
-          onPress={() => setShowInput(!showInput)}
-        >
-          <Text style={styles.buttonText}>가게 사장님께 요청 사항 전달</Text>
-        </TouchableOpacity>
-        {showInput && (
-          <TextInput
-            style={styles.input}
-            placeholder="가게 사장님께 요청 사항을 입력해주세요"
-            value={consumerRequest}
-            onChangeText={setConsumerRequest}
-          />
-        )}
+          <TouchableOpacity
+              style={styles.button}
+              onPress={() => setShowInput(!showInput)}
+          >
+            <Text style={styles.buttonText}>가게 사장님께 요청 사항 전달</Text>
+          </TouchableOpacity>
+          {showInput && (
+              <TextInput
+                  style={styles.input}
+                  placeholder="가게 사장님께 요청 사항을 입력해주세요"
+                  value={consumerRequest}
+                  onChangeText={setConsumerRequest}
+              />
+          )}
 
-        <TouchableOpacity style={styles.button}>
-          <Text style={styles.buttonText}>결제수단</Text>
-        </TouchableOpacity>
+          <TouchableOpacity style={styles.button}>
+            <Text style={styles.buttonText}>결제수단</Text>
+          </TouchableOpacity>
 
-        <TouchableOpacity style={styles.button}>
-          <Text style={styles.buttonText}>할인 쿠폰</Text>
-        </TouchableOpacity>
+          <TouchableOpacity style={styles.button}>
+            <Text style={styles.buttonText}>할인 쿠폰</Text>
+          </TouchableOpacity>
 
-        <TouchableOpacity style={styles.button}>
-          <Text style={styles.buttonText}>선물함</Text>
-        </TouchableOpacity>
+          <TouchableOpacity style={styles.button}>
+            <Text style={styles.buttonText}>선물함</Text>
+          </TouchableOpacity>
 
-        <TouchableOpacity style={styles.button}>
-          <Text style={styles.buttonText}>포인트</Text>
-        </TouchableOpacity>
-      </View>
+          <TouchableOpacity style={styles.button}>
+            <Text style={styles.buttonText}>포인트</Text>
+          </TouchableOpacity>
+        </View>
 
-      <View style={styles.paymentSection}>
-        <Text style={styles.paymentText}>결제금액</Text>
-        <Text style={styles.cartDetail}>총 가격: {cartTotal}원</Text>
-      </View>
+        <View style={styles.paymentSection}>
+          <Text style={styles.paymentText}>결제금액</Text>
+          <Text style={styles.cartDetail}>총 가격: {cartTotal}원</Text>
+        </View>
 
-      <View style={styles.container}>
-        <TouchableOpacity style={styles.button} onPress={handleCreateOrder}>
-          <Text style={styles.buttonText}>주문하기</Text>
-        </TouchableOpacity>
-      </View>
-    </ScrollView>
+        <View style={styles.container}>
+          <TouchableOpacity style={styles.button} onPress={handleCreateOrder}>
+            <Text style={styles.buttonText}>주문하기</Text>
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
   );
 }
 
