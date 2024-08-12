@@ -27,9 +27,6 @@ const KaKaoLoginScreen = () => {
         const response = await axios.get(
           `http://34.41.123.200/api/v1/customers/callback?code=${authorize_code}`
         );
-        // const response = await axios.get(
-        //   `http://34.41.123.200:8080/api/v1/customers/callback?code=${authorize_code}`
-        // );
         const accessToken = response.data;
 
         if (accessToken) {

@@ -16,18 +16,18 @@ export const createOrder = async (data) => {
     storeLatitude: data.storeLatitude,
     totalPrice: data.totalPrice,
     orderTotalPrice: data.orderTotalPrice,
-    menuItems: data.menuItems.map(item => ({
-        menuName: item.menuName,
-        totalPrice: item.totalPrice,
-        selectedOptions: item.selectedOptions.map(optionList => ({
-            listName: optionList.listName,
-            options: optionList.options.map(option => ({
-                optionTitle: option.optionTitle,
-                optionPrice: option.optionPrice
-            }))
-        }))
-    }))
-};
+    menuItems: data.menuItems.map((item) => ({
+      menuName: item.menuName,
+      totalPrice: item.totalPrice,
+      selectedOptions: item.selectedOptions.map((optionList) => ({
+        listName: optionList.listName,
+        options: optionList.options.map((option) => ({
+          optionTitle: option.optionTitle,
+          optionPrice: option.optionPrice,
+        })),
+      })),
+    })),
+  };
 
   try {
     const res = await orderApi("api/v1/order/", "post", userRequestDto);
@@ -53,11 +53,11 @@ export const selectByConsumerAll = async (offset) => {
 
 export const searchOrder = async () => {
   try {
-    const res = await orderApi('api/v1/order/customer', 'get');
+    const res = await orderApi("api/v1/order/customer", "get");
     console.log(res.data);
     return res.data;
   } catch (error) {
-    console.error('Error fetching order:', error);
+    console.error("Error fetching order:", error);
     throw error;
   }
 };
@@ -66,41 +66,36 @@ export const searchOrderHistory = async (startDate, endDate, pageNumber) => {
   console.log("startDate : " + startDate);
   console.log("endDate : " + endDate);
   console.log("pageNumber : " + pageNumber);
-try {
-  const res = await orderApi(
-    'api/v1/order/customer/history',
-    'get',
-    null, 
-    { 
+  try {
+    const res = await orderApi("api/v1/order/customer/history", "get", null, {
       startDate,
       endDate,
       pageNumber,
-    }
-  );
-  return res.data;
-} catch (error) {
-  console.error('Error fetching order history:', error);
-  throw error;
-}
+    });
+    return res.data;
+  } catch (error) {
+    console.error("Error fetching order history:", error);
+    throw error;
+  }
 };
 
 export const UserInformation = async () => {
   try {
-    const res = await orderApi('api/v1/order/userInformation', 'get');
-    
+    const res = await orderApi("api/v1/order/userInformation", "get");
+
     return res.data;
   } catch (error) {
-    console.error('Error in UserInformation ', error);
+    console.error("Error in UserInformation ", error);
     throw error;
   }
 };
 
 export const updateState = async (orderId, data) => {
   try {
-    const res = await orderApi(`api/v1/order/request/${orderId}`, 'post', data);
+    const res = await orderApi(`api/v1/order/request/${orderId}`, "post", data);
     return res.data;
   } catch (error) {
-    console.error('Error in updateState', error);
+    console.error("Error in updateState", error);
     throw error;
   }
 };

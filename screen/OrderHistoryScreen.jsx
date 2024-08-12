@@ -76,20 +76,20 @@ export default function OrderHistoryScreen({ navigation }) {
 
   const getStatusColor = (status) => {
     switch (status) {
-      case '배달요청':
-        return '#2B6DEF80';
-      case '배달 수락':
-        return '#F3DD0F80';
-      case '조리중':
-        return '#94D35C80';
-      case '주문 요청':
-        return '#E5595980';
-      case '배달중':
-        return '#6E565680';
-      case '배달 완료':
-        return '#80808080';
+      case "배달요청":
+        return "#2B6DEF80";
+      case "배달 수락":
+        return "#F3DD0F80";
+      case "조리중":
+        return "#94D35C80";
+      case "주문 요청":
+        return "#E5595980";
+      case "배달중":
+        return "#6E565680";
+      case "배달 완료":
+        return "#80808080";
       default:
-        return '#ffffff80';
+        return "#ffffff80";
     }
   };
 
@@ -107,10 +107,10 @@ export default function OrderHistoryScreen({ navigation }) {
           height={dimensionHeight}
           width={dimensionWidth}
           textColor={textColor}
-          content={`${item.storeName}\n${lastStatus || 'No status'}\n${
+          content={`${item.storeName}\n${lastStatus || "No status"}\n${
             item && item.menuItems && item.menuItems.length > 0
               ? item.menuItems[0].menuName
-              : 'No menu items'
+              : "No menu items"
           }`}
           backgroundColor={backgroundColor}
         />
@@ -146,13 +146,13 @@ export default function OrderHistoryScreen({ navigation }) {
               onPress={() => handleItemPress(item)}
             />
           ))}
-          
+
           <Text style={styles.sectionTitle}>배달완료건</Text>
           {orderHistory.map((item, index) => (
             <OrderItem
               key={index}
               item={item}
-              onPress={() => handleItemPress(item)} 
+              onPress={() => handleItemPress(item)}
             />
           ))}
           
@@ -164,18 +164,30 @@ export default function OrderHistoryScreen({ navigation }) {
         </ScrollView>
         {isDetailsVisible && selectedOrder && (
           <View style={styles.detailsContainer}>
-            <Text style={styles.centeredText}>가게 이름: {selectedOrder.storeName}</Text>
-            <Text style={styles.centeredText}>가게 주소: {selectedOrder.storeAddress}</Text>
-            <Text style={styles.centeredText}>고객 주소: {selectedOrder.customerAddress}</Text>
+            <Text style={styles.centeredText}>
+              가게 이름: {selectedOrder.storeName}
+            </Text>
+            <Text style={styles.centeredText}>
+              가게 주소: {selectedOrder.storeAddress}
+            </Text>
+            <Text style={styles.centeredText}>
+              고객 주소: {selectedOrder.customerAddress}
+            </Text>
             <Text style={styles.centeredText}>
               주문 상태: {extractStatusText(selectedOrder.orderState)}
             </Text>
-            <Text style={styles.centeredText}>Customer Requests: {selectedOrder.customerRequests}</Text>
-            <Text style={styles.centeredText}>Rider Requests: {selectedOrder.riderRequests}</Text>
+            <Text style={styles.centeredText}>
+              Customer Requests: {selectedOrder.customerRequests}
+            </Text>
+            <Text style={styles.centeredText}>
+              Rider Requests: {selectedOrder.riderRequests}
+            </Text>
             {selectedOrder.menuItems &&
               selectedOrder.menuItems.map((menuItem, index) => (
                 <View key={index} style={styles.menuItemDetail}>
-                  <Text style={styles.centeredText}>메뉴: {menuItem.menuName}</Text>
+                  <Text style={styles.centeredText}>
+                    메뉴: {menuItem.menuName}
+                  </Text>
                   {menuItem.selectedOptions &&
                     menuItem.selectedOptions.map((optionList, optListIndex) => (
                       <View key={optListIndex} style={styles.optionList}>
@@ -185,17 +197,31 @@ export default function OrderHistoryScreen({ navigation }) {
                               옵션: {option.optionTitle}: {option.optionPrice}원
                             </Text>
                           ))}
-                        <Text style={styles.centeredText}>주문 금액: {menuItem.totalPrice}원</Text>
+                        <Text style={styles.centeredText}>
+                          주문 금액: {menuItem.totalPrice}원
+                        </Text>
                       </View>
                     ))}
                 </View>
               ))}
-            <Text style={styles.centeredText}>총 주문 금액: {selectedOrder.orderTotalPrice}원</Text>
+            <Text style={styles.centeredText}>
+              총 주문 금액: {selectedOrder.orderTotalPrice}원
+            </Text>
 
             {extractStatusText(selectedOrder.orderState) === "배달 완료" && (
               <Button
                 title="리뷰 쓰러가기"
                 onPress={() => navigation.navigate("ReviewScreen")}
+              />
+            )}
+            {extractStatusText(selectedOrder.orderState) === "배달중" && (
+              <Button
+                title="라이더 실시간 위치 확인"
+                onPress={() =>
+                  navigation.navigate("RiderRealTimeLocationScreen", {
+                    orderItem: selectedOrder,
+                  })
+                }
               />
             )}
           </View>
