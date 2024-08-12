@@ -9,7 +9,7 @@ import {
   TouchableWithoutFeedback,
   RefreshControl,
 } from "react-native";
-import { searchOrder, UserInformation, searchOrderHistory } from "../config/orderApi";
+import { searchOrder, UserInformation, selectByConsumerAll } from "../config/orderApi";
 import OrderHistorySpeechBubble from "../components-order/OrderHistorySpeechBubble";
 import { Button } from "react-native-elements";
 
@@ -21,7 +21,9 @@ export default function OrderHistoryScreen({ navigation }) {
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [isDetailsVisible, setIsDetailsVisible] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
-  const [customerId, setCustomerId] = useState(null);
+  const [offset, setOffset] = useState(0); 
+  const [hasMore, setHasMore] = useState(true); 
+
   const dimensionWidth = Dimensions.get("window").width / 1.6;
   const dimensionHeight = 90;
 
@@ -29,15 +31,21 @@ export default function OrderHistoryScreen({ navigation }) {
     try {
       const userInfo = await UserInformation();
       const customerId = userInfo.customerId;
-      setCustomerId(customerId);
 
       const result = await searchOrder({ customerId });
       console.log(result);
       setOrders(result);
 
-      const historyResult = await searchOrderHistory("2024-01-01", "2024-12-31", 0);
+    
+      const historyResult = await selectByConsumerAll(offset);
       console.log(historyResult);
-      setOrderHistory(historyResult);
+      
+      if (historyResult.length > 0) {
+        setOrderHistory((prevOrders) => [...prevOrders, ...historyResult]);
+        setOffset((prevOffset) => prevOffset + 10); 
+      } else {
+        setHasMore(false); 
+      }
 
     } catch (error) {
       console.error("Failed to fetch data:", error);
@@ -53,6 +61,8 @@ export default function OrderHistoryScreen({ navigation }) {
 
   const onRefresh = useCallback(() => {
     setRefreshing(true);
+    setOffset(0);
+    setOrderHistory([]); 
     handledGetHistory();
   }, []);
 
@@ -145,6 +155,12 @@ export default function OrderHistoryScreen({ navigation }) {
               onPress={() => handleItemPress(item)} 
             />
           ))}
+          
+          {hasMore && (
+            <TouchableOpacity onPress={handledGetHistory}>
+              <Text style={styles.loadMoreText}>더 보기</Text>
+            </TouchableOpacity>
+          )}
         </ScrollView>
         {isDetailsVisible && selectedOrder && (
           <View style={styles.detailsContainer}>
@@ -238,5 +254,10 @@ const styles = StyleSheet.create({
     marginVertical: 15,
     textAlign: "center",
     color: "#333",
+  },
+  loadMoreText: {
+    color: "#007BFF",
+    marginVertical: 10,
+    fontSize: 16,
   },
 });
