@@ -109,24 +109,24 @@ export default function OrderScreen({ route, navigation }) {
     }
   };
 
-  const notifyAndPlayAudio = async (storeId) => {
+  const notifyAndPlayAudio = async (ownerId) => {
     try {
       const response = await fetch("http://192.168.0.15:8000/notify", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          store_id: storeId, // 가게 ID를 포함하여 서버에 알림 요청
-        }),
+        body: JSON.stringify({ store_id: ownerId }),
       });
 
       if (response.ok) {
-        const fileData = await response.blob();
+        const blob = await response.blob();
+        const arrayBuffer = await blobToArrayBuffer(blob);
+        const base64String = arrayBufferToBase64(arrayBuffer);
         const uri = FileSystem.documentDirectory + 'notification.mp3';
 
         // Save the mp3 file locally
-        await FileSystem.writeAsBytesAsync(uri, new Uint8Array(await fileData.arrayBuffer()));
+        await FileSystem.writeAsStringAsync(uri, base64String, { encoding: FileSystem.EncodingType.Base64 });
 
         // Load and play the audio
         const { sound } = await Audio.Sound.createAsync({ uri });
@@ -145,6 +145,27 @@ export default function OrderScreen({ route, navigation }) {
     } catch (error) {
       console.error("Failed to fetch and play audio:", error);
     }
+  };
+
+// Helper function to convert Blob to ArrayBuffer
+  const blobToArrayBuffer = (blob) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = () => reject(new Error('Failed to read blob as array buffer.'));
+      reader.readAsArrayBuffer(blob);
+    });
+  };
+
+// Helper function to convert ArrayBuffer to Base64
+  const arrayBufferToBase64 = (arrayBuffer) => {
+    let binary = '';
+    const bytes = new Uint8Array(arrayBuffer);
+    const len = bytes.byteLength;
+    for (let i = 0; i < len; i++) {
+      binary += String.fromCharCode(bytes[i]);
+    }
+    return window.btoa(binary);  // Convert binary string to base64
   };
 
   if (error) {
