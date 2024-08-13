@@ -12,6 +12,7 @@ import { createOrder, UserInformation } from "../config/orderApi";
 import { getStoreDetailQL } from "../config/storeGraphQL";
 import * as FileSystem from 'expo-file-system';
 import { Audio } from 'expo-av';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function OrderScreen({ route, navigation }) {
   const [riderRequest, setRiderRequest] = useState("");
@@ -110,7 +111,7 @@ export default function OrderScreen({ route, navigation }) {
 
   const notifyAndPlayAudio = async (storeId) => {
     try {
-      const response = await fetch("http://localhost:8000/notify", {
+      const response = await fetch("http://192.168.0.15:8000/notify", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -120,13 +121,12 @@ export default function OrderScreen({ route, navigation }) {
         }),
       });
 
-      console.log(response)
       if (response.ok) {
-        const uri = `${FileSystem.documentDirectory}notification.mp3`;
         const fileData = await response.blob();
+        const uri = FileSystem.documentDirectory + 'notification.mp3';
 
         // Save the mp3 file locally
-        await FileSystem.writeAsStringAsync(uri, fileData);
+        await FileSystem.writeAsBytesAsync(uri, new Uint8Array(await fileData.arrayBuffer()));
 
         // Load and play the audio
         const { sound } = await Audio.Sound.createAsync({ uri });
