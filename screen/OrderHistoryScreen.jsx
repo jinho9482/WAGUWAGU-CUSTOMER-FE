@@ -1,29 +1,56 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { Text, View, StyleSheet, Dimensions, TouchableOpacity, ScrollView, TouchableWithoutFeedback, RefreshControl } from "react-native";
-import { searchOrder } from '../config/orderApi';
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import OrderHistorySpeechBubble from "../components-order/OrderHistorySpeechBubble"
+import {
+  Text,
+  View,
+  StyleSheet,
+  Dimensions,
+  TouchableOpacity,
+  ScrollView,
+  TouchableWithoutFeedback,
+  RefreshControl,
+} from "react-native";
+import { searchOrder, UserInformation, selectByConsumerAll } from "../config/orderApi";
+import OrderHistorySpeechBubble from "../components-order/OrderHistorySpeechBubble";
+import { Button } from "react-native-elements";
 
-export default function OrderHistoryScreen() {
+export default function OrderHistoryScreen({ navigation }) {
   const [selectedId, setSelectedId] = useState(null);
   const [orders, setOrders] = useState([]);
+  const [orderHistory, setOrderHistory] = useState([]);
   const [error, setError] = useState(null);
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [isDetailsVisible, setIsDetailsVisible] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+  const [offset, setOffset] = useState(0); 
+  const [hasMore, setHasMore] = useState(true); 
+
   const dimensionWidth = Dimensions.get("window").width / 1.6;
-  const dimensionHeight = 100;
+  const dimensionHeight = 90;
 
   const handledGetHistory = async () => {
-    try { 
-      const consumerId = await AsyncStorage.getItem("customerId");
-      const result = await searchOrder({ consumerId });
+    try {
+      const userInfo = await UserInformation();
+      const customerId = userInfo.customerId;
+
+      const result = await searchOrder({ customerId });
       console.log(result);
       setOrders(result);
-      setRefreshing(false);
+
+    
+      const historyResult = await selectByConsumerAll(offset);
+      console.log(historyResult);
+      
+      if (historyResult.length > 0) {
+        setOrderHistory((prevOrders) => [...prevOrders, ...historyResult]);
+        setOffset((prevOffset) => prevOffset + 10); 
+      } else {
+        setHasMore(false); 
+      }
+
     } catch (error) {
-      console.log('Failed to searchHistory:', error);
-      setError('Failed to fetch order history');
+      console.error("Failed to fetch data:", error);
+      setError("Failed to fetch order history");
+    } finally {
       setRefreshing(false);
     }
   };
@@ -34,50 +61,57 @@ export default function OrderHistoryScreen() {
 
   const onRefresh = useCallback(() => {
     setRefreshing(true);
+    setOffset(0);
+    setOrderHistory([]); 
     handledGetHistory();
   }, []);
 
   const extractStatusText = (orderState) => {
     if (orderState && orderState.length > 0) {
       const lastState = orderState[orderState.length - 1];
-      return lastState.split(':')[0];
+      return lastState.split(":")[0];
     }
-    return '';
+    return "";
   };
 
   const getStatusColor = (status) => {
     switch (status) {
-      case '배달요청':
-        return '#2B6DEF';
-      case '배달 수락':
-        return '#F3DD0F';
-      case '조리중':
-        return '#94D35C';
-      case '주문 요청':
-        return '#E55959';
-      case '배달중':
-        return '#6E5656';
-      case '배달 완료':
-        return '#808080';
+      case "배달요청":
+        return "#2B6DEF80";
+      case "배달 수락":
+        return "#F3DD0F80";
+      case "조리중":
+        return "#94D35C80";
+      case "주문 요청":
+        return "#E5595980";
+      case "배달중":
+        return "#6E565680";
+      case "배달 완료":
+        return "#80808080";
       default:
-        return '#ffffff';
+        return "#ffffff80";
     }
   };
 
-  const Item = ({ item, onPress }) => {
-    console.log('Item:', item); 
-
+  const OrderItem = ({ item, onPress }) => {
     const lastStatus = extractStatusText(item.orderState);
     const backgroundColor = getStatusColor(lastStatus);
-    const textColor = item.orderId === selectedId ? 'white' : 'black';
+    const textColor = item.orderId === selectedId ? "white" : "black";
 
     return (
-      <TouchableOpacity onPress={onPress} style={[styles.item, { backgroundColor }]}>
-        <OrderHistorySpeechBubble 
+      <TouchableOpacity
+        onPress={onPress}
+        style={[styles.item, { backgroundColor }]}
+      >
+        <OrderHistorySpeechBubble
           height={dimensionHeight}
           width={dimensionWidth}
           textColor={textColor}
-          content={`${item.storeName}\n${lastStatus || 'No status'}`}
+          content={`${item.storeName}\n${lastStatus || "No status"}\n${
+            item && item.menuItems && item.menuItems.length > 0
+              ? item.menuItems[0].menuName
+              : "No menu items"
+          }`}
           backgroundColor={backgroundColor}
         />
       </TouchableOpacity>
@@ -100,37 +134,96 @@ export default function OrderHistoryScreen() {
         {error && <Text style={styles.errorText}>{error}</Text>}
         <ScrollView
           contentContainerStyle={styles.scrollViewContainer}
-          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          }
         >
+          <Text style={styles.sectionTitle}>현재 주문건</Text>
           {orders.map((item) => (
-            <Item
+            <OrderItem
               key={item.orderId}
               item={item}
               onPress={() => handleItemPress(item)}
             />
           ))}
+
+          <Text style={styles.sectionTitle}>배달완료건</Text>
+          {orderHistory.map((item, index) => (
+            <OrderItem
+              key={index}
+              item={item}
+              onPress={() => handleItemPress(item)}
+            />
+          ))}
+          
+          {hasMore && (
+            <TouchableOpacity onPress={handledGetHistory}>
+              <Text style={styles.loadMoreText}>더 보기</Text>
+            </TouchableOpacity>
+          )}
         </ScrollView>
         {isDetailsVisible && selectedOrder && (
           <View style={styles.detailsContainer}>
-            <Text>가게 이름: {selectedOrder.storeName}</Text>
-            <Text>가게 주소: {selectedOrder.storeAddress}</Text>
-            <Text>고객님 주소: {selectedOrder.customerAddress}</Text>
-            <Text>고객님의 주문건 상태: {extractStatusText(selectedOrder.orderState)}</Text>
-            <Text>Customer Requests: {selectedOrder.customerRequests}</Text>
-            <Text>Rider Requests: {selectedOrder.riderRequests}</Text>
-            {selectedOrder.menuItems && selectedOrder.menuItems.map((menuItem, index) => (
-              <View key={index} style={styles.menuItemDetail}>
-                <Text>  메뉴 이름: {menuItem.menuName}</Text>
-                {menuItem.selectedOptions && menuItem.selectedOptions.map((optionList, optListIndex) => (
-                  <View key={optListIndex} style={styles.optionList}>
-                    {optionList.options && optionList.options.map((option, optIndex) => (
-                      <Text key={optIndex}>Option: {option.optionTitle}: {option.optionPrice}원</Text>
+            <Text style={styles.centeredText}>
+              가게 이름: {selectedOrder.storeName}
+            </Text>
+            <Text style={styles.centeredText}>
+              가게 주소: {selectedOrder.storeAddress}
+            </Text>
+            <Text style={styles.centeredText}>
+              고객 주소: {selectedOrder.customerAddress}
+            </Text>
+            <Text style={styles.centeredText}>
+              주문 상태: {extractStatusText(selectedOrder.orderState)}
+            </Text>
+            <Text style={styles.centeredText}>
+              Customer Requests: {selectedOrder.customerRequests}
+            </Text>
+            <Text style={styles.centeredText}>
+              Rider Requests: {selectedOrder.riderRequests}
+            </Text>
+            {selectedOrder.menuItems &&
+              selectedOrder.menuItems.map((menuItem, index) => (
+                <View key={index} style={styles.menuItemDetail}>
+                  <Text style={styles.centeredText}>
+                    메뉴: {menuItem.menuName}
+                  </Text>
+                  {menuItem.selectedOptions &&
+                    menuItem.selectedOptions.map((optionList, optListIndex) => (
+                      <View key={optListIndex} style={styles.optionList}>
+                        {optionList.options &&
+                          optionList.options.map((option, optIndex) => (
+                            <Text key={optIndex} style={styles.centeredText}>
+                              옵션: {option.optionTitle}: {option.optionPrice}원
+                            </Text>
+                          ))}
+                        <Text style={styles.centeredText}>
+                          주문 금액: {menuItem.totalPrice}원
+                        </Text>
+                      </View>
                     ))}
-                    <Text>   주문 금액: {menuItem.totalPrice}원</Text>
-                  </View>
-                ))}
-              </View>
-            ))}
+                </View>
+              ))}
+            <Text style={styles.centeredText}>
+              총 주문 금액: {selectedOrder.orderTotalPrice}원
+            </Text>
+
+            {extractStatusText(selectedOrder.orderState) === "배달 완료" && (
+              <Button
+                title="리뷰 쓰러가기"
+                onPress={() => navigation.navigate("ReviewScreen")}
+              />
+            )}
+            {extractStatusText(selectedOrder.orderState) === "배달중" && (
+              <Button
+                title="라이더 실시간 위치 확인"
+                onPress={() =>
+                  navigation.navigate("RiderRealTimeLocationScreen", {
+                    orderItem: selectedOrder,
+                  })
+                }
+              />
+            )}
           </View>
         )}
       </View>
@@ -142,8 +235,8 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 10,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   item: {
     marginVertical: 8,
@@ -151,32 +244,26 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     padding: 10,
   },
-  search: {
-    margin: 20,
-  },
   scrollViewContainer: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: 'center',
-    alignItems: 'center',
+    alignItems: "center",
   },
   errorText: {
-    color: 'red',
-    textAlign: 'center',
+    color: "red",
+    textAlign: "center",
     marginVertical: 10,
   },
   detailsContainer: {
     padding: 20,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     borderRadius: 10,
     margin: 20,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.8,
     shadowRadius: 2,
     elevation: 5,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   menuItemDetail: {
     marginVertical: 10,
@@ -184,8 +271,19 @@ const styles = StyleSheet.create({
   optionList: {
     marginLeft: 10,
   },
-  orderStateText: {
-    fontSize: 14,
-    marginVertical: 2,
+  centeredText: {
+    textAlign: "center",
+  },
+  sectionTitle: {
+    fontSize: 17,
+    fontWeight: "bold",
+    marginVertical: 15,
+    textAlign: "center",
+    color: "#333",
+  },
+  loadMoreText: {
+    color: "#007BFF",
+    marginVertical: 10,
+    fontSize: 16,
   },
 });

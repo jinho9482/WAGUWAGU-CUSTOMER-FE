@@ -13,6 +13,7 @@ import axios from "axios";
 import { COLORS, SIZES, FONTS } from "../assets/constants/theme";
 import OptionList from "../components/OptionList.jsx";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { getMenuByIdQL } from "../config/storeGraphQL.jsx";
 
 const MenuDetailScreen = ({ navigation, route }) => {
   const { menuId, storeId, storeName } = route.params;
@@ -22,17 +23,27 @@ const MenuDetailScreen = ({ navigation, route }) => {
   const [loading, setLoading] = useState(true);
   const [totalPrice, setTotalPrice] = useState(0);
 
+  // const fetchMenuDetails = async () => {
+  //   try {
+  //     const response = await axios.get(
+  //       `http://192.168.0.17:8080/api/v1/menu/${menuId}`,
+  //       {
+  //         timeout: 20000,
+  //       }
+  //     );
+  //     console.log("menuid :", menuId);
+  //     setMenuDetails(response.data);
+  //     setTotalPrice(response.data.menuPrice);
+  //   } catch (error) {
+  //     console.error("Error fetching menu details:", error.message);
+  //   }
+  // };
   const fetchMenuDetails = async () => {
     try {
-      const response = await axios.get(
-        `http://34.69.39.99/api/v1/menu/${menuId}`,
-        {
-          timeout: 20000,
-        }
-      );
+      const response = await getMenuByIdQL({ menuId: menuId });
       console.log("menuid :", menuId);
-      setMenuDetails(response.data);
-      setTotalPrice(response.data.menuPrice);
+      setMenuDetails(response);
+      setTotalPrice(response.menuPrice);
     } catch (error) {
       console.error("Error fetching menu details:", error.message);
     }
@@ -53,7 +64,6 @@ const MenuDetailScreen = ({ navigation, route }) => {
     const GET_OPTION_LISTS = `
     query optionLists($menuId: Long!) {
       optionLists(menuId: $menuId) {
-        
         listName
         options {
         optionId
@@ -64,7 +74,9 @@ const MenuDetailScreen = ({ navigation, route }) => {
     }
   `;
     try {
-      const response = await axios.post(`http://192.168.0.26:8080/graphql`, {
+
+      const response = await axios.post(`http://34.69.39.99/graphql`, {
+
         query: GET_OPTION_LISTS,
         variables: { menuId },
       });
@@ -80,9 +92,17 @@ const MenuDetailScreen = ({ navigation, route }) => {
   };
 
   useEffect(() => {
-    const fetchData = async () => {
-      await fetchMenuDetails();
-      await fetchOptionList();
+    // const fetchData = async () => {
+    //   await fetchMenuDetails();
+    //   await fetchOptionList();
+
+    //   setLoading(false);
+    // };
+
+    const fetchData = () => {
+
+      fetchMenuDetails();
+      fetchOptionList();
 
       setLoading(false);
     };
@@ -118,7 +138,7 @@ const MenuDetailScreen = ({ navigation, route }) => {
 
     try {
       const response = await axios.get(
-        `http://34.170.204.47/api/v1/cart/${userId}`
+        `http://34.45.108.74/api/v1/cart/${userId}`
       );
       console.log("xxxxxxxxxxxxxxxxxxxxxxxfgfggf", response.data);
       if (response.data.menuItems) return response.data.menuItems;
@@ -169,7 +189,7 @@ const MenuDetailScreen = ({ navigation, route }) => {
 
     try {
       const request = await axios.post(
-        "http://34.170.204.47/api/v1/cart/save",
+        "http://34.45.108.74/api/v1/cart/save",
         cartItem,
         {
           headers: {
@@ -199,7 +219,15 @@ const MenuDetailScreen = ({ navigation, route }) => {
           </View>
           <View style={styles.imageContainer}>
             <Image
-              source={require("../assets/삼겹김치덮밥.png")}
+              source={
+                menuDetails.menuImage
+                  ? {
+                      uri:
+                        "https://storage.googleapis.com/wgwg_bucket/" +
+                        menuDetails.menuImage,
+                    }
+                  : require("./../assets/menu.png")
+              }
               resizeMode="cover"
               style={styles.image}
             />
@@ -234,7 +262,7 @@ const MenuDetailScreen = ({ navigation, route }) => {
 
   const renderOptionLists = () => (
     <View>
-      {selectedOptions.length > 0 ? (
+      {selectedOptions&&selectedOptions.length > 0 ? (
         selectedOptions.map((list) => (
           <OptionList
             key={list.listId}

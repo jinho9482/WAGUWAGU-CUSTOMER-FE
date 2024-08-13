@@ -18,6 +18,7 @@ export const storeApi = async (url, method, body, params) => {
     url,
     method,
     baseURL: "http://34.69.39.99", // baseURL
+    // baseURL: "http://34.69.39.99",
     data: body,
     params: params,
     //   headers: {

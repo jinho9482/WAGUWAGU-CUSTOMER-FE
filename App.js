@@ -21,6 +21,7 @@ import OrderScreen from "./screen/OrderScreen";
 import CartScreen from "./screen/CartScreen";
 import MenuDetailScreen from "./screen/MenuDetailScreen";
 import KaKaoLoginScreen from "./screen/KaKaoLoginScreen";
+import RiderRealTimeLocationScreen from "./screen/RiderRealTimeLocationScreen";
 import ReviewForm from "./screen/ReviewForm";
 import ReviewSectionScreen from "./screen/ReviewSectionScreen";
 
@@ -136,7 +137,6 @@ export default function App() {
             component={OrderScreen}
             options={{ headerShown: false }}
           />
-
           <Stack.Screen
             name="HomeScreen"
             component={HomeScreen}
@@ -164,7 +164,6 @@ export default function App() {
             component={MypageScreen}
             options={{ headerShown: false }}
           />
-
           <Stack.Screen
             name="KaKaoLoginScreen" // 여기에서 KaKaoLoginScreen을 추가합니다.
             component={KaKaoLoginScreen}
@@ -192,6 +191,22 @@ export default function App() {
             options={{ headerShown: false }}
           />
           <Stack.Screen name="ReviewSection" component={ReviewSectionScreen} />
+          <Stack.Screen
+            name="RiderRealTimeLocationScreen"
+            component={RiderRealTimeLocationScreen}
+            options={{
+              headerTitle: "라이더 실시간 위치",
+              headerTitleAlign: "center",
+              headerStyle: {
+                backgroundColor: "#94D35C",
+                // height: 40,
+              },
+              // headerTitleStyle: {
+              //   fontSize: 25,
+              // },
+            }}
+            // options={{ headerShown: false }}
+          />
         </Stack.Navigator>
       </NavigationContainer>
     </RecoilRoot>
@@ -200,7 +215,7 @@ export default function App() {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 0.02,
+    flex: 0.0000005,
     padding: 16,
     backgroundColor: "#94D35C",
     alignItems: "center",

@@ -6,19 +6,22 @@ import {
   TouchableOpacity,
   ScrollView,
   TextInput,
+  Alert,
 } from "react-native";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { createOrder, getStoreInfoDetailByStoreId } from "../config/orderApi";
+import { createOrder,UserInformation } from "../config/orderApi";
+import { getStoreDetailQL } from "../config/storeGraphQL";
 
-export default function OrderScreen({ route }) {
+
+export default function OrderScreen({ route, navigation }) {
   const [riderRequest, setRiderRequest] = useState("");
   const [consumerRequest, setConsumerRequest] = useState("");
   const [showInput, setShowInput] = useState(false);
   const [showInput1, setShowInput1] = useState(false);
   const [menuName, setMenuName] = useState("");
   const [customerAddress, setCustomerAddress] = useState("");
+  const [customerLongitude, setCustomerLongitude] = useState("");
+  const [customerLatitude, setCustomerLatitude] = useState("");
   const [storeId, setStoreId] = useState("");
-  const [customerId, setCustomerId] = useState("");
   const [cartTotal, setCartTotal] = useState(0);
   const [cart, setCart] = useState({});
   const [error, setError] = useState(false);
@@ -31,29 +34,37 @@ export default function OrderScreen({ route }) {
     } else {
       setError(true);
     }
+
+    const fetchUserInfo = async () => {
+      try {
+        const userInfo = await UserInformation();
+        setCustomerLongitude(userInfo.customerLongitude);
+        setCustomerLatitude(userInfo.customerLatitude);
+      } catch (error) {
+        console.error("Failed to fetch user information:", error);
+        setError(true);
+      }
+    };
+
+    fetchUserInfo();
   }, [route.params]);
 
   const handleCreateOrder = async () => {
     try {
-      console.log("Cart details:", cart);
-      const id = await AsyncStorage.getItem("customerId");
-      const customerAddress = await AsyncStorage.getItem("customerAddress");
-      const customerLongitude = parseFloat(await AsyncStorage.getItem("customerLongitude"));
-      const customerLatitude = parseFloat(await AsyncStorage.getItem("customerLatitude"));
-
-      const storeInfo = await getStoreInfoDetailByStoreId(cart.storeId, {
-        longitude: customerLongitude,
-        latitude: customerLatitude,
+      const userInfo = await UserInformation();
+      const storeInfo = await getStoreDetailQL({
+        storeId: cart.storeId,
+        input: {
+          longitude: userInfo.customerLongitude,
+          latitude: userInfo.customerLatitude,
+        },
       });
       console.log("Store Info:", storeInfo);
 
-      const dueDate = new Date();
-      dueDate.setMinutes(dueDate.getMinutes() + 30);
+
 
       const userRequest = {
-        customerId: id,
         storeId: cart.storeId,
-        ownerId: cart.ownerId,
         storePhone: cart.storePhone,
         storeName: cart.storeName,
         storeAddress: storeInfo.storeAddress,
@@ -64,35 +75,35 @@ export default function OrderScreen({ route }) {
         storeLongitude: storeInfo.storeLongitude,
         storeLatitude: storeInfo.storeLatitude,
         storeMinimumOrderAmount: cart.storeMinimumOrderAmount,
-        customerAddress: customerAddress,
-        menuItems: cart.menuItems.map(item => ({
+        customerAddress: userInfo.customerAddress,
+        menuItems: cart.menuItems.map((item) => ({
           menuName: item.menuName,
           totalPrice: item.totalPrice,
-          selectedOptions: item.selectedOptions.map(optionList => ({
+          selectedOptions: item.selectedOptions.map((optionList) => ({
             listName: optionList.listName,
-            options: optionList.options.map(option => ({
+            options: optionList.options.map((option) => ({
               optionTitle: option.optionTitle,
               optionPrice: option.optionPrice,
-            }))
-          }))
+            })),
+          })),
         })),
-        optionTitle: cart.optionTitle || "",
-        optionPrice: cart.optionPrice || 0,
-        listName: cart.listName || "",
-        options: cart.options || [],
-        menuName: menuName,
-        totalPrice: cartTotal,
-        selectedOptions: cart.selectedOptions || [],
-        customerLongitude: customerLongitude,
-        customerLatitude: customerLatitude,
-        due: dueDate.toISOString(),
+        orderTotalPrice: cartTotal,
       };
 
       const result = await createOrder(userRequest);
+      console.log("주문건 값들: " + JSON.stringify(userRequest, null, 2));
+
       console.log("Order created successfully:", result);
+
+      Alert.alert("주문 성공", "주문이 성공적으로 생성되었습니다.", [
+        {
+          text: "확인",
+          onPress: () => navigation.navigate("Main"),
+        },
+      ]);
     } catch (error) {
       console.error("Failed to create order:", error);
-      setError(true); // Set the error state to true
+      setError(true);
     }
   };
 
@@ -105,7 +116,10 @@ export default function OrderScreen({ route }) {
   }
 
   return (
-    <ScrollView style={styles.scrollContainer} contentContainerStyle={styles.container}>
+    <ScrollView
+      style={styles.scrollContainer}
+      contentContainerStyle={styles.container}
+    >
       <View style={styles.deliveryInfo}>
         <Text style={styles.deliveryText}>한집 배달</Text>
         <Text style={styles.deliveryText}>15분~30분</Text>
@@ -114,26 +128,27 @@ export default function OrderScreen({ route }) {
       <Text style={styles.title}>주문하기</Text>
       <Text style={styles.cartDetail}>가게 이름: {cart.storeName}</Text>
 
-      {cart.menuItems && cart.menuItems.map((item, index) => (
-        <View key={index} style={styles.menuItem}>
-          <Text style={styles.menuItemText}>메뉴 이름: {item.menuName}</Text>
-          <Text style={styles.menuItemText}>가격: {item.totalPrice}원</Text>
-          {item.selectedOptions &&
-            item.selectedOptions.map((optionList, optListIndex) => (
-              <View key={optListIndex} style={styles.optionList}>
-                <Text style={styles.optionListTitle}>
-                  {optionList.listName}
-                </Text>
-                {optionList.options &&
-                  optionList.options.map((option, optIndex) => (
-                    <Text key={optIndex} style={styles.optionText}>
-                      옵션: {option.optionTitle} ({option.optionPrice}원)
-                    </Text>
-                  ))}
-              </View>
-            ))}
-        </View>
-      ))}
+      {cart.menuItems &&
+        cart.menuItems.map((item, index) => (
+          <View key={index} style={styles.menuItem}>
+            <Text style={styles.menuItemText}>메뉴 이름: {item.menuName}</Text>
+            <Text style={styles.menuItemText}>가격: {item.totalPrice}원</Text>
+            {item.selectedOptions &&
+              item.selectedOptions.map((optionList, optListIndex) => (
+                <View key={optListIndex} style={styles.optionList}>
+                  <Text style={styles.optionListTitle}>
+                    {optionList.listName}
+                  </Text>
+                  {optionList.options &&
+                    optionList.options.map((option, optIndex) => (
+                      <Text key={optIndex} style={styles.optionText}>
+                        옵션: {option.optionTitle} ({option.optionPrice}원)
+                      </Text>
+                    ))}
+                </View>
+              ))}
+          </View>
+        ))}
 
       <View style={styles.section}>
         <TouchableOpacity
@@ -204,13 +219,13 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
   },
   container: {
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   errorContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     backgroundColor: "#fff",
   },
   title: {
