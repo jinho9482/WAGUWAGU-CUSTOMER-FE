@@ -440,6 +440,17 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginTop: SIZES.padding,
   },
+  reviewPostBtn: {
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    backgroundColor: "#4CAF50", // Green background color
+    borderRadius: 5,
+    borderWidth: 1,
+    borderColor: "#388E3C",
+    color: "#ffffff", // White text color
+    fontSize: 18,
+    fontWeight: "bold",
+  },
 });
 
 export default MenuDetailScreen;
