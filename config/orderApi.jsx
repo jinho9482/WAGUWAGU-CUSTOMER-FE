@@ -81,8 +81,9 @@ export const searchOrderHistory = async (startDate, endDate, pageNumber) => {
 
 export const UserInformation = async () => {
   try {
+    console.log("UserInformation 반응");
     const res = await orderApi("api/v1/order/userInformation", "get");
-
+      console.log(res.data);
     return res.data;
   } catch (error) {
     console.error("Error in UserInformation ", error);
