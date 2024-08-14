@@ -4,6 +4,7 @@ import { Button } from "react-native-elements";
 
 const OrderDetailScreen = ({ route, navigation }) => {
   const { selectedOrder, userName } = route.params;
+  console.log("Received userName:", userName);
 
   const extractStatusText = (orderState) => {
     if (orderState && orderState.length > 0) {
