@@ -85,7 +85,15 @@ export default function StoreScreen({ navigation, route }) {
       <View>
         <Image
           style={[styles.image, { width: dimensionWidth }]}
-          source={store.storeImage?{uri:"https://storage.googleapis.com/wgwg_bucket/"+store.storeImage}:require("./../assets/food icon.png")}
+          source={
+            store.storeImage
+              ? {
+                  uri:
+                    "https://storage.googleapis.com/wgwg_bucket/" +
+                    store.storeImage,
+                }
+              : require("./../assets/food icon.png")
+          }
         />
         <View style={styles.textContainer}>
           <Text style={styles.textTitle}>{store.storeName}</Text>
@@ -94,6 +102,7 @@ export default function StoreScreen({ navigation, route }) {
             onPress={() =>
               navigation.navigate("ReviewSection", {
                 storeId: storeId,
+                storeName: store.storeName,
               })
             }
           >
@@ -178,7 +187,15 @@ export default function StoreScreen({ navigation, route }) {
                           <View>
                             <Image
                               style={[styles.menuImage]}
-                              source={menu.menuImage?{uri:"https://storage.googleapis.com/wgwg_bucket/"+menu.menuImage}:require("./../assets/menu.png")}
+                              source={
+                                menu.menuImage
+                                  ? {
+                                      uri:
+                                        "https://storage.googleapis.com/wgwg_bucket/" +
+                                        menu.menuImage,
+                                    }
+                                  : require("./../assets/menu.png")
+                              }
                             />
                           </View>
                         </View>
