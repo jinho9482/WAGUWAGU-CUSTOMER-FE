@@ -9,18 +9,18 @@ import {
   StyleSheet,
   Pressable,
 } from "react-native";
-import { AirbnbRating } from "react-native-ratings";
+import { Rating } from "react-native-ratings";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 
-const ReviewForm = () => {
+const ReviewForm = ({ route }) => {
+  const { storeId, storeName, userName } = route.params;
   const [rating, setRating] = useState(1);
   const [content, setContent] = useState("");
 
   const handlePostReview = async () => {
     const userId = await AsyncStorage.getItem("customerId");
-    const storeId = 4;
-    const userName = "소성민";
+
     const reviewReq = {
       storeName: storeName,
       reviewerId: userId,
@@ -49,9 +49,10 @@ const ReviewForm = () => {
   return (
     <View style={styles.container}>
       <View style={styles.headerContainer}>
-        <Text style={styles.header}></Text>
+        <Text style={styles.storeNames}>{storeName}</Text>
+        <Text style={styles.header}>리뷰 작성을 해보세요</Text>
       </View>
-      <Text style={styles.label}></Text>
+      <Text style={styles.label}>{userName}</Text>
       <TextInput
         style={styles.input}
         placeholder="리뷰를 작성하세요."
@@ -61,7 +62,7 @@ const ReviewForm = () => {
         onChangeText={setContent}
       />
 
-      <AirbnbRating onFinishRating={(value) => setRating(value)} />
+      <Rating onFinishRating={(value) => setRating(value)} />
 
       <Pressable style={styles.reviewButton} onPress={handlePostReview}>
         <Text style={styles.reviewButtonText}>리뷰 작성하기</Text>
