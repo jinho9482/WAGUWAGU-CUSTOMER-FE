@@ -38,7 +38,8 @@ const SignupScreen = ({ navigation }) => {
                         await AsyncStorage.setItem('customerLongitude', JSON.stringify(customerLongitude));
 
                         // WebSocket 연결 설정
-                        connectWebSocket(customerId);
+                        // connectWebSocket(customerId);
+                        connectWebSocket(await AsyncStorage.getItem('customerId'));
                     }
                 }
             } catch (error) {
