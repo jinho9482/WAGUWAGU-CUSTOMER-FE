@@ -64,7 +64,6 @@ const MenuDetailScreen = ({ navigation, route }) => {
     const GET_OPTION_LISTS = `
     query optionLists($menuId: Long!) {
       optionLists(menuId: $menuId) {
-        
         listName
         options {
         optionId
@@ -75,7 +74,9 @@ const MenuDetailScreen = ({ navigation, route }) => {
     }
   `;
     try {
+
       const response = await axios.post(`http://34.69.39.99/graphql`, {
+
         query: GET_OPTION_LISTS,
         variables: { menuId },
       });
@@ -99,6 +100,7 @@ const MenuDetailScreen = ({ navigation, route }) => {
     // };
 
     const fetchData = () => {
+
       fetchMenuDetails();
       fetchOptionList();
 
@@ -260,7 +262,7 @@ const MenuDetailScreen = ({ navigation, route }) => {
 
   const renderOptionLists = () => (
     <View>
-      {selectedOptions && selectedOptions.length > 0 ? (
+      {selectedOptions&&selectedOptions.length > 0 ? (
         selectedOptions.map((list) => (
           <OptionList
             key={list.listId}
@@ -465,17 +467,6 @@ const styles = StyleSheet.create({
     color: COLORS.darkGray,
     textAlign: "center",
     marginTop: SIZES.padding,
-  },
-  reviewPostBtn: {
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    backgroundColor: "#4CAF50", // Green background color
-    borderRadius: 5,
-    borderWidth: 1,
-    borderColor: "#388E3C",
-    color: "#ffffff", // White text color
-    fontSize: 18,
-    fontWeight: "bold",
   },
 });
 
