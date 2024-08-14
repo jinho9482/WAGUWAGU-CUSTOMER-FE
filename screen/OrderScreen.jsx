@@ -76,6 +76,7 @@ export default function OrderScreen({ route, navigation }) {
         storeLatitude: storeInfo.storeLatitude,
         storeMinimumOrderAmount: cart.storeMinimumOrderAmount,
         customerAddress: userInfo.customerAddress,
+        customerNickname: userInfo.customerNickname,
         menuItems: cart.menuItems.map((item) => ({
           menuName: item.menuName,
           totalPrice: item.totalPrice,

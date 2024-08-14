@@ -22,7 +22,8 @@ export default function OrderHistoryScreen({ navigation }) {
   const [isDetailsVisible, setIsDetailsVisible] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [offset, setOffset] = useState(0); 
-  const [hasMore, setHasMore] = useState(true); 
+  const [hasMore, setHasMore] = useState(true);
+  const [customerNickname, setCustomerNickname] = useState([]);
 
   const dimensionWidth = Dimensions.get("window").width / 1.6;
   const dimensionHeight = 90;
@@ -31,6 +32,7 @@ export default function OrderHistoryScreen({ navigation }) {
     try {
       const userInfo = await UserInformation();
       const customerId = userInfo.customerId;
+      const customerNickname = userInfo.customerNickname;
 
       const result = await searchOrder({ customerId });
       console.log(result);
