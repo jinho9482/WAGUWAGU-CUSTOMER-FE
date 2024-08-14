@@ -119,7 +119,7 @@ export default function OrderHistoryScreen({ navigation }) {
   };
 
   const handleBackgroundPress = () => {
-    setIsDetailsVisible(false);
+    // setIsDetailsVisible(false);
   };
 
   return (

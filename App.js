@@ -174,20 +174,7 @@ export default function App() {
               ),
             }}
           />
-          <BottomTab.Screen
-            name="주문기록"
-            component={OrderDetailScreen}
-            options={{
-              tabBarLabel: "기록 ",
-              tabBarIcon: ({ color, size }) => (
-                <MaterialCommunityIcons
-                  name="account-circle"
-                  color={color}
-                  size={20}
-                />
-              ),
-            }}
-          />
+
           <BottomTab.Screen
             name="메뉴"
             component={MenuDetailScreen}
