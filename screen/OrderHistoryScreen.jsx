@@ -30,7 +30,8 @@ export default function OrderHistoryScreen({ navigation }) {
     try {
       const userInfo = await UserInformation();
       const customerId = userInfo.customerId;
-      setUserName(userInfo.customerNickname);
+      const customerNickname = userInfo.customerNickname;
+
       const result = await searchOrder({ customerId });
       setOrders(result);
 

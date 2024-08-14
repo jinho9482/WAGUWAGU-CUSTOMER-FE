@@ -188,6 +188,20 @@ export default function App() {
               ),
             }}
           />
+          <BottomTab.Screen
+            name="메뉴"
+            component={MenuDetailScreen}
+            options={{
+              tabBarLabel: "메뉴 상세",
+              tabBarIcon: ({ color, size }) => (
+                <MaterialCommunityIcons
+                  name="account-circle"
+                  color={color}
+                  size={20}
+                />
+              ),
+            }}
+          />
         </BottomTab.Navigator>
       </View>
     );
