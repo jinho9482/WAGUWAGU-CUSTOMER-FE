@@ -10,6 +10,7 @@ const ReviewSectionScreen = ({ navigation, route }) => {
   const { storeId } = route.params;
   const [reviews, setReviews] = useState([]);
   const [averageRatings, setAverageRatings] = useState([]);
+  const { storeId, storeName } = route.params;
 
   const fetchReviews = async () => {
     try {
@@ -85,7 +86,7 @@ const ReviewSectionScreen = ({ navigation, route }) => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>리뷰</Text>
+      <Text style={styles.header}>리뷰 {storeName}</Text>
       {averageRatings.length > 0 && (
         <BarChart
           data={chartData}
