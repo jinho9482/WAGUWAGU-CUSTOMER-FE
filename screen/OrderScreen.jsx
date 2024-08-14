@@ -111,7 +111,7 @@ export default function OrderScreen({ route, navigation }) {
 
   const notifyAndPlayAudio = async (ownerId) => {
     try {
-      const response = await fetch("http://192.168.0.15:8000/notify", {
+      const response = await fetch("http://192.168.0.15:8000/notify/order-completed", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
