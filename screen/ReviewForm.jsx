@@ -22,6 +22,7 @@ const ReviewForm = () => {
     const storeId = 4;
     const userName = "소성민";
     const reviewReq = {
+      storeName: storeName,
       reviewerId: userId,
       content: content,
       userName: userName,

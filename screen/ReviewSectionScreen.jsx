@@ -7,7 +7,6 @@ import { BarChart } from "react-native-chart-kit";
 import { Rating } from "react-native-ratings";
 
 const ReviewSectionScreen = ({ navigation, route }) => {
-  const { storeId } = route.params;
   const [reviews, setReviews] = useState([]);
   const [averageRatings, setAverageRatings] = useState([]);
   const { storeId, storeName } = route.params;

@@ -27,6 +27,9 @@ import KaKaoLoginScreen from "./screen/KaKaoLoginScreen";
 import RiderRealTimeLocationScreen from "./screen/RiderRealTimeLocationScreen";
 import ReviewForm from "./screen/ReviewForm";
 import ReviewSectionScreen from "./screen/ReviewSectionScreen";
+import MyReviewScreen from "./screen/MyReviewScreen";
+
+import OrderDetailScreen from "./screen/OrderDetailScreen";
 // import messaging from "@react-native-firebase/messaging";
 // import AsyncStorage from "@react-native-async-storage/async-storage";
 // import axios from "axios";
@@ -158,10 +161,10 @@ export default function App() {
           />
 
           <BottomTab.Screen
-            name="리뷰"
-            component={ReviewForm}
+            name="내리뷰"
+            component={MyReviewScreen}
             options={{
-              tabBarLabel: "review",
+              tabBarLabel: "내 리뷰 ",
               tabBarIcon: ({ color, size }) => (
                 <MaterialCommunityIcons
                   name="account-circle"
@@ -171,6 +174,7 @@ export default function App() {
               ),
             }}
           />
+
           <BottomTab.Screen
             name="메뉴"
             component={MenuDetailScreen}
@@ -208,6 +212,11 @@ export default function App() {
           <Stack.Screen
             name="HomeScreen"
             component={HomeScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="OrderDetailScreen"
+            component={OrderDetailScreen}
             options={{ headerShown: false }}
           />
           <Stack.Screen name="MypageScreen" component={MypageScreen} />
