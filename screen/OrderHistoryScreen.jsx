@@ -9,7 +9,11 @@ import {
   TouchableWithoutFeedback,
   RefreshControl,
 } from "react-native";
-import { searchOrder, UserInformation, selectByConsumerAll } from "../config/orderApi";
+import {
+  searchOrder,
+  UserInformation,
+  selectByConsumerAll,
+} from "../config/orderApi";
 import OrderHistorySpeechBubble from "../components-order/OrderHistorySpeechBubble";
 import { Button } from "react-native-elements";
 
@@ -21,8 +25,9 @@ export default function OrderHistoryScreen({ navigation }) {
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [isDetailsVisible, setIsDetailsVisible] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
-  const [offset, setOffset] = useState(0); 
-  const [hasMore, setHasMore] = useState(true); 
+  const [offset, setOffset] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
+  const [userName, setUserName] = useState("");
 
   const dimensionWidth = Dimensions.get("window").width / 1.6;
   const dimensionHeight = 90;
@@ -30,23 +35,22 @@ export default function OrderHistoryScreen({ navigation }) {
   const handledGetHistory = async () => {
     try {
       const userInfo = await UserInformation();
+      console.log("userinfo:", userInfo);
       const customerId = userInfo.customerId;
-
+      setUserName(userInfo.customerNickname);
       const result = await searchOrder({ customerId });
       console.log(result);
       setOrders(result);
 
-    
       const historyResult = await selectByConsumerAll(offset);
       console.log(historyResult);
-      
+
       if (historyResult.length > 0) {
         setOrderHistory((prevOrders) => [...prevOrders, ...historyResult]);
-        setOffset((prevOffset) => prevOffset + 10); 
+        setOffset((prevOffset) => prevOffset + 10);
       } else {
-        setHasMore(false); 
+        setHasMore(false);
       }
-
     } catch (error) {
       console.error("Failed to fetch data:", error);
       setError("Failed to fetch order history");
@@ -62,7 +66,7 @@ export default function OrderHistoryScreen({ navigation }) {
   const onRefresh = useCallback(() => {
     setRefreshing(true);
     setOffset(0);
-    setOrderHistory([]); 
+    setOrderHistory([]);
     handledGetHistory();
   }, []);
 
@@ -155,7 +159,7 @@ export default function OrderHistoryScreen({ navigation }) {
               onPress={() => handleItemPress(item)}
             />
           ))}
-          
+
           {hasMore && (
             <TouchableOpacity onPress={handledGetHistory}>
               <Text style={styles.loadMoreText}>더 보기</Text>
@@ -211,7 +215,13 @@ export default function OrderHistoryScreen({ navigation }) {
             {extractStatusText(selectedOrder.orderState) === "배달 완료" && (
               <Button
                 title="리뷰 쓰러가기"
-                onPress={() => navigation.navigate("ReviewScreen")}
+                onPress={() =>
+                  navigation.navigate("ReviewScreen", {
+                    storeId: selectedOrder.storeId,
+                    storeName: selectedOrder.storeName,
+                    userName: userName,
+                  })
+                }
               />
             )}
             {extractStatusText(selectedOrder.orderState) === "배달중" && (

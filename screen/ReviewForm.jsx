@@ -14,15 +14,14 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 
 const ReviewForm = ({ route }) => {
-  const storeId = route.params;
+  const { storeId, storeName, userName } = route.params;
 
   const [rating, setRating] = useState(1);
   const [content, setContent] = useState("");
 
   const handlePostReview = async () => {
     const userId = await AsyncStorage.getItem("customerId");
-    const storeId = 4;
-    const userName = "소성민";
+
     const reviewReq = {
       reviewerId: userId,
       content: content,
@@ -50,9 +49,10 @@ const ReviewForm = ({ route }) => {
   return (
     <View style={styles.container}>
       <View style={styles.headerContainer}>
-        <Text style={styles.header}></Text>
+        <Text style={styles.storeNames}>{storeName}</Text>
+        <Text style={styles.header}>리뷰 작성을 해보세요</Text>
       </View>
-      <Text style={styles.label}></Text>
+      <Text style={styles.label}>{userName}</Text>
       <TextInput
         style={styles.input}
         placeholder="리뷰를 작성하세요."
@@ -131,6 +131,10 @@ const styles = StyleSheet.create({
   reviewButtonText: {
     color: "#fff",
     fontSize: 16,
+    fontWeight: "bold",
+  },
+  storeNames: {
+    fontSize: 20,
     fontWeight: "bold",
   },
 });

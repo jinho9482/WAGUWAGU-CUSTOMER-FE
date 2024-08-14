@@ -6,7 +6,7 @@ export const orderApi = async (url, method, body, params) => {
   const res = await axios({
     url,
     method,
-    baseURL: "http://35.223.83.225:8080", // baseURL
+    baseURL: "http://35.223.83.225", // baseURL
     // baseURL: "http://35.223.83.225",
     data: body,
     params: params,
