@@ -23,6 +23,7 @@ const ReviewForm = ({ route }) => {
     const userId = await AsyncStorage.getItem("customerId");
 
     const reviewReq = {
+      storeName: storeName,
       reviewerId: userId,
       content: content,
       userName: userName,
