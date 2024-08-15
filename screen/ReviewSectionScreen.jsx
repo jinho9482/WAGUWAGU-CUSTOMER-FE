@@ -14,7 +14,7 @@ const ReviewSectionScreen = ({ navigation, route }) => {
   const fetchReviews = async () => {
     try {
       const response = await axios.get(
-        `http://192.168.0.26:8080/api/v1/reviews/store/${storeId}`
+        `http://34.45.108.74/api/v1/reviews/store/${storeId}`
       );
       console.log(storeId);
       setReviews(response.data);
@@ -63,6 +63,7 @@ const ReviewSectionScreen = ({ navigation, route }) => {
       <Text style={styles.timestamp}>
         {new Date(item.timestamp).toLocaleString()}
       </Text>
+
       <Rating
         type="star"
         fractions={1}
@@ -85,20 +86,20 @@ const ReviewSectionScreen = ({ navigation, route }) => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>리뷰 {storeName}</Text>
+      <Text style={styles.header}></Text>
+      <Text style={styles.storeName}>{storeName}</Text>
       {averageRatings.length > 0 && (
         <BarChart
           data={chartData}
           width={Dimensions.get("window").width - 32} // from react-native
           height={220}
-          yAxisLabel=""
           chartConfig={{
             paddingRight: 30,
             paddingLeft: 30,
             backgroundColor: "#ffffff",
             backgroundGradientFrom: "#ffffff",
             backgroundGradientTo: "#ffffff",
-            decimalPlaces: 2,
+            decimalPlaces: 0,
             color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
             labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
             style: {
@@ -131,9 +132,11 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   header: {
-    fontSize: 24,
-    fontWeight: "bold",
-    marginBottom: 16,
+    fontSize: 20,
+    fontWeight: "600",
+    color: "#333",
+    marginVertical: 16,
+    textAlign: "center",
   },
   reviewContainer: {
     marginBottom: 16,
@@ -162,6 +165,11 @@ const styles = StyleSheet.create({
   },
   content: {
     fontSize: 16,
+  },
+  storeName: {
+    fontSize: 20,
+    fontWeight: "bold",
+    color: "#4CAF50",
   },
 });
 
