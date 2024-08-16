@@ -19,7 +19,7 @@ const MyReviewScreen = ({ userId }) => {
       const userId = await AsyncStorage.getItem("customerId");
       try {
         const response = await fetch(
-          `http://192.168.0.26:8080/api/v1/reviews/myReview/${userId}`
+          `http://34.45.108.74/api/v1/reviews/myReview/${userId}`
         );
         if (!response.ok) {
           throw new Error("Failed to fetch reviews");
