@@ -83,6 +83,7 @@ export default function StoreScreen({ navigation, route }) {
   return (
     <ScrollView>
       <View>
+        {console.log("image check" + store.storeImage)}
         <Image
           style={[styles.image, { width: dimensionWidth }]}
           source={
