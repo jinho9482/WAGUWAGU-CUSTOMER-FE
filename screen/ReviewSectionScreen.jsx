@@ -2,7 +2,7 @@ import axios from "axios";
 import moment from "moment";
 import React, { useEffect, useState } from "react";
 import { View, Text, FlatList, StyleSheet, Dimensions } from "react-native";
-import { BarChart } from "react-native-chart-kit";
+import { BarChart, LineChart } from "react-native-chart-kit";
 
 import { Rating } from "react-native-ratings";
 
@@ -48,9 +48,17 @@ const ReviewSectionScreen = ({ navigation, route }) => {
       .map((month) => ({
         month,
         monthNumber: parseInt(month),
-        average: (
-          monthlyRatings[month].sum / monthlyRatings[month].count
-        ).toFixed(2),
+        average: Math.max(
+          1,
+          Math.min(
+            5,
+            parseFloat(
+              (monthlyRatings[month].sum / monthlyRatings[month].count).toFixed(
+                1
+              )
+            )
+          )
+        ),
       }))
       .sort((a, b) => a.monthNumber - b.monthNumber);
 
@@ -90,6 +98,7 @@ const ReviewSectionScreen = ({ navigation, route }) => {
       <Text style={styles.storeName}>{storeName}</Text>
       {averageRatings.length > 0 && (
         <BarChart
+          showYAxisIndices={false}
           data={chartData}
           width={Dimensions.get("window").width - 32} // from react-native
           height={220}
