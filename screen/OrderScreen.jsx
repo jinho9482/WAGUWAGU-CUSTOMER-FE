@@ -18,6 +18,11 @@ import { getStoreDetailQL } from "../config/storeGraphQL";
 import { requestPayment } from "../config/KakaoPaymentApi";
 import { createPayment } from "../config/PaymentApi";
 import { requestDdalkakPayment } from "../config/DdalkakPaymentApi";
+import { createOrder, UserInformation } from "../config/orderApi";
+import { getStoreDetailQL } from "../config/storeGraphQL";
+import * as FileSystem from "expo-file-system";
+import { Audio } from "expo-av";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function OrderScreen({ route, navigation }) {
   const [riderRequest, setRiderRequest] = useState("");
@@ -82,6 +87,7 @@ export default function OrderScreen({ route, navigation }) {
         storeLatitude: storeInfo.storeLatitude,
         storeMinimumOrderAmount: cart.storeMinimumOrderAmount,
         customerAddress: userInfo.customerAddress,
+        customerNickname: userInfo.customerNickname,
         menuItems: cart.menuItems.map((item) => ({
           menuName: item.menuName,
           totalPrice: item.totalPrice,
@@ -104,6 +110,9 @@ export default function OrderScreen({ route, navigation }) {
       console.log("주문건 값들: " + JSON.stringify(userRequest, null, 2));
 
       console.log("Order created successfully:", savedOrderId);
+
+      // 주문 생성 후 알림 요청을 보내고 음성 파일 재생
+      await notifyAndPlayAudio(storeId);
 
       Alert.alert("주문 성공", "주문이 성공적으로 생성되었습니다.", [
         {
@@ -161,6 +170,70 @@ export default function OrderScreen({ route, navigation }) {
   const handlePaymentAndOrder = async (cartTotal) => {
     if (paymentButtonText === "결제하기") await handlePayment(cartTotal);
     else await handleCreateOrder();
+  };
+  const notifyAndPlayAudio = async (ownerId) => {
+    try {
+      const response = await fetch(
+        "http://192.168.0.15:8000/alarm/notify/order-completed",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ store_id: ownerId }),
+        }
+      );
+
+      if (response.ok) {
+        const blob = await response.blob();
+        const arrayBuffer = await blobToArrayBuffer(blob);
+        const base64String = arrayBufferToBase64(arrayBuffer);
+        const uri = FileSystem.documentDirectory + "notification.mp3";
+
+        // Save the mp3 file locally
+        await FileSystem.writeAsStringAsync(uri, base64String, {
+          encoding: FileSystem.EncodingType.Base64,
+        });
+
+        // Load and play the audio
+        const { sound } = await Audio.Sound.createAsync({ uri });
+        await sound.playAsync();
+
+        // After playback, unload the sound and delete the file
+        sound.setOnPlaybackStatusUpdate((status) => {
+          if (status.didJustFinish) {
+            sound.unloadAsync();
+            FileSystem.deleteAsync(uri);
+          }
+        });
+      } else {
+        console.error("Failed to notify:", response.statusText);
+      }
+    } catch (error) {
+      console.error("Failed to fetch and play audio:", error);
+    }
+  };
+
+  // Helper function to convert Blob to ArrayBuffer
+  const blobToArrayBuffer = (blob) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = () =>
+        reject(new Error("Failed to read blob as array buffer."));
+      reader.readAsArrayBuffer(blob);
+    });
+  };
+
+  // Helper function to convert ArrayBuffer to Base64
+  const arrayBufferToBase64 = (arrayBuffer) => {
+    let binary = "";
+    const bytes = new Uint8Array(arrayBuffer);
+    const len = bytes.byteLength;
+    for (let i = 0; i < len; i++) {
+      binary += String.fromCharCode(bytes[i]);
+    }
+    return window.btoa(binary); // Convert binary string to base64
   };
 
   if (error) {

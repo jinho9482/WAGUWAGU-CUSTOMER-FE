@@ -38,6 +38,19 @@ export const createOrder = async (data) => {
   }
 };
 
+export const selectByConsumerAll = async (offset) => {
+  console.log("offset : " + offset);
+  try{
+      const res = await orderApi('api/v1/order/customer/history','get',null, { 
+        offset,
+      });
+      console.log(res.data);
+      return res.data;
+  }catch(error){
+    throw error;
+  }
+};
+
 export const searchOrder = async () => {
   try {
     const res = await orderApi("api/v1/order/customer", "get");
@@ -68,8 +81,9 @@ export const searchOrderHistory = async (startDate, endDate, pageNumber) => {
 
 export const UserInformation = async () => {
   try {
+    console.log("UserInformation 반응");
     const res = await orderApi("api/v1/order/userInformation", "get");
-
+      console.log(res.data);
     return res.data;
   } catch (error) {
     console.error("Error in UserInformation ", error);
