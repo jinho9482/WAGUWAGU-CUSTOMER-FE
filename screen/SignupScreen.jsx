@@ -61,7 +61,7 @@ const SignupScreen = ({ navigation }) => {
     const connectWebSocket = (customerId) => {
         let reconnectInterval = 5000; // 5초 후 재연결 시도
         try {
-            const ws = new WebSocket(`ws://192.168.0.15:8000/ws/customer/${customerId}`);
+            const ws = new WebSocket(`ws://172.16.101.39:8000/alarm/ws/customer/${customerId}`);
 
             ws.onopen = () => {
                 console.log("WebSocket 연결되었습니다");
