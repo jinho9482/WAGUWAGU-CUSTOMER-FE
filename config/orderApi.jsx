@@ -86,3 +86,40 @@ export const updateState = async (orderId, data) => {
     throw error;
   }
 };
+
+export const createOrderAndReturnUUID = async (data) => {
+  const userRequestDto = {
+    storeId: data.storeId,
+    storeName: data.storeName,
+    storeAddress: data.storeAddress,
+    storePhone: data.storePhone,
+    storeMinimumOrderAmount: data.storeMinimumOrderAmount,
+    customerRequests: data.customerRequests,
+    riderRequests: data.riderRequests,
+    deliveryFee: data.deliveryFee,
+    distanceFromStoreToCustomer: data.distanceFromStoreToCustomer,
+    storeLongitude: data.storeLongitude,
+    storeLatitude: data.storeLatitude,
+    totalPrice: data.totalPrice,
+    orderTotalPrice: data.orderTotalPrice,
+    menuItems: data.menuItems.map((item) => ({
+      menuName: item.menuName,
+      totalPrice: item.totalPrice,
+      selectedOptions: item.selectedOptions.map((optionList) => ({
+        listName: optionList.listName,
+        options: optionList.options.map((option) => ({
+          optionTitle: option.optionTitle,
+          optionPrice: option.optionPrice,
+        })),
+      })),
+    })),
+  };
+
+  try {
+    const res = await orderApi("/api/v1/order/return", "post", userRequestDto);
+    return res.data;
+  } catch (error) {
+    console.error("Error creating order:", error);
+    throw error;
+  }
+};

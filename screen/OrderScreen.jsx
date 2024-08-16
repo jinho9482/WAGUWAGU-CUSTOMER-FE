@@ -7,10 +7,17 @@ import {
   ScrollView,
   TextInput,
   Alert,
+  Linking,
 } from "react-native";
-import { createOrder,UserInformation } from "../config/orderApi";
+import {
+  createOrder,
+  createOrderAndReturnUUID,
+  UserInformation,
+} from "../config/orderApi";
 import { getStoreDetailQL } from "../config/storeGraphQL";
-
+import { requestPayment } from "../config/KakaoPaymentApi";
+import { createPayment } from "../config/PaymentApi";
+import { requestDdalkakPayment } from "../config/DdalkakPaymentApi";
 
 export default function OrderScreen({ route, navigation }) {
   const [riderRequest, setRiderRequest] = useState("");
@@ -25,6 +32,7 @@ export default function OrderScreen({ route, navigation }) {
   const [cartTotal, setCartTotal] = useState(0);
   const [cart, setCart] = useState({});
   const [error, setError] = useState(false);
+  const [paymentButtonText, setPaymentButtonText] = useState("결제하기");
 
   useEffect(() => {
     if (route.params) {
@@ -61,8 +69,6 @@ export default function OrderScreen({ route, navigation }) {
       });
       console.log("Store Info:", storeInfo);
 
-
-
       const userRequest = {
         storeId: cart.storeId,
         storePhone: cart.storePhone,
@@ -90,10 +96,14 @@ export default function OrderScreen({ route, navigation }) {
         orderTotalPrice: cartTotal,
       };
 
-      const result = await createOrder(userRequest);
+      const savedOrderId = await createOrderAndReturnUUID(userRequest);
+      // 결제 내역 생성
+      const paymentRequest = { orderId: savedOrderId };
+      await createPayment(paymentRequest);
+
       console.log("주문건 값들: " + JSON.stringify(userRequest, null, 2));
 
-      console.log("Order created successfully:", result);
+      console.log("Order created successfully:", savedOrderId);
 
       Alert.alert("주문 성공", "주문이 성공적으로 생성되었습니다.", [
         {
@@ -105,6 +115,52 @@ export default function OrderScreen({ route, navigation }) {
       console.error("Failed to create order:", error);
       setError(true);
     }
+  };
+
+  const handlePayment = async (cartTotal) => {
+    // 카카오 페이 이용
+
+    // let menuNames = "";
+    // cart.menuItems.forEach((el) => {
+    //   menuNames += el.menuName + " ";
+    // });
+
+    // const requestPaymentDto = {
+    //   cid: "TC0ONETIME",
+    //   partner_order_id: "orderId",
+    //   partner_user_id: cart.storeId + "",
+    //   item_name: menuNames,
+    //   quantity: 1,
+    //   total_amount: cartTotal,
+    //   vat_amount: (cartTotal * 10) / 11,
+    //   tax_free_amount: 0,
+    //   approval_url: "https://developers.kakao.com/success",
+    //   fail_url: "https://developers.kakao.com/fail",
+    //   cancel_url: "https://developers.kakao.com/cancel",
+    // };
+
+    // 딸깍 페이 이용
+    const requestPaymentDto = {
+      payNum: 1000,
+      payAmount: cartTotal,
+      failRedirUrl: "https://click-market.com/purchase/fail",
+      successRedirUrl: "exp://192.168.0.25:8081",
+    };
+
+    const res = await requestDdalkakPayment(requestPaymentDto);
+    console.log(res);
+    if (res.data.code === 0) {
+      console.log(res.data);
+      // const isValid = await Linking.openURL(res.data.next_redirect_app_url);
+      await Linking.openURL(res.data.appLink);
+      // if (isValid) setPaymentButtonText("주문완료");
+      setPaymentButtonText("주문완료");
+    }
+  };
+
+  const handlePaymentAndOrder = async (cartTotal) => {
+    if (paymentButtonText === "결제하기") await handlePayment(cartTotal);
+    else await handleCreateOrder();
   };
 
   if (error) {
@@ -203,9 +259,18 @@ export default function OrderScreen({ route, navigation }) {
         <Text style={styles.cartDetail}>총 가격: {cartTotal}원</Text>
       </View>
 
-      <View style={styles.container}>
+      {/* <View style={styles.container}>
         <TouchableOpacity style={styles.button} onPress={handleCreateOrder}>
           <Text style={styles.buttonText}>주문하기</Text>
+        </TouchableOpacity>
+      </View> */}
+
+      <View style={styles.container}>
+        <TouchableOpacity
+          style={[styles.button, { marginBottom: 40 }]}
+          onPress={() => handlePaymentAndOrder(cartTotal)}
+        >
+          <Text style={styles.buttonText}>{paymentButtonText}</Text>
         </TouchableOpacity>
       </View>
     </ScrollView>
