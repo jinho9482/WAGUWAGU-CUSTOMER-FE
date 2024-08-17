@@ -7,11 +7,19 @@ import {
   ScrollView,
   TextInput,
   Alert,
+  Linking,
+  AppState,
 } from "react-native";
-import { createOrder, UserInformation } from "../config/orderApi";
+
+import { createPayment } from "../config/PaymentApi";
+import {
+  getPaymentState,
+  requestDdalkakPayment,
+} from "../config/DdalkakPaymentApi";
+import { UserInformation, createOrderAndReturnUUID } from "../config/orderApi";
 import { getStoreDetailQL } from "../config/storeGraphQL";
-import * as FileSystem from 'expo-file-system';
-import { Audio } from 'expo-av';
+import * as FileSystem from "expo-file-system";
+import { Audio } from "expo-av";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function OrderScreen({ route, navigation }) {
@@ -27,6 +35,9 @@ export default function OrderScreen({ route, navigation }) {
   const [cartTotal, setCartTotal] = useState(0);
   const [cart, setCart] = useState({});
   const [error, setError] = useState(false);
+  const [paymentButtonText, setPaymentButtonText] = useState("결제하기");
+  const [payId, setPayId] = useState(null);
+  const [payState, setPayState] = useState(null);
 
   useEffect(() => {
     if (route.params) {
@@ -52,6 +63,7 @@ export default function OrderScreen({ route, navigation }) {
   }, [route.params]);
 
   const handleCreateOrder = async () => {
+    console.log(payId);
     try {
       const userInfo = await UserInformation();
       const storeInfo = await getStoreDetailQL({
@@ -61,6 +73,7 @@ export default function OrderScreen({ route, navigation }) {
           latitude: userInfo.customerLatitude,
         },
       });
+      console.log("Store Info:", storeInfo);
 
       const userRequest = {
         storeId: cart.storeId,
@@ -76,12 +89,12 @@ export default function OrderScreen({ route, navigation }) {
         storeMinimumOrderAmount: cart.storeMinimumOrderAmount,
         customerAddress: userInfo.customerAddress,
         customerNickname: userInfo.customerNickname,
-        menuItems: cart.menuItems.map((item) => ({
+        menuItems: cart.menuItems?.map((item) => ({
           menuName: item.menuName,
           totalPrice: item.totalPrice,
-          selectedOptions: item.selectedOptions.map((optionList) => ({
+          selectedOptions: item.selectedOptions?.map((optionList) => ({
             listName: optionList.listName,
-            options: optionList.options.map((option) => ({
+            options: optionList?.options?.map((option) => ({
               optionTitle: option.optionTitle,
               optionPrice: option.optionPrice,
             })),
@@ -90,10 +103,14 @@ export default function OrderScreen({ route, navigation }) {
         orderTotalPrice: cartTotal,
       };
 
-      const result = await createOrder(userRequest);
+      const savedOrderId = await createOrderAndReturnUUID(userRequest);
+      // 결제 내역 생성
+      const paymentRequest = { id: payId, orderId: savedOrderId };
+      await createPayment(paymentRequest);
+
       console.log("주문건 값들: " + JSON.stringify(userRequest, null, 2));
 
-      console.log("Order created successfully:", result);
+      console.log("Order created successfully:", savedOrderId);
 
       // 주문 생성 후 알림 요청을 보내고 음성 파일 재생
       await notifyAndPlayAudio(storeId);
@@ -110,24 +127,52 @@ export default function OrderScreen({ route, navigation }) {
     }
   };
 
+  const handlePayment = async (cartTotal) => {
+    // 딸깍 페이 이용
+    const requestPaymentDto = {
+      payNum: 1000,
+      payAmount: cartTotal,
+      failRedirUrl: "exp://192.168.45.138:8081",
+      successRedirUrl: "exp://192.168.45.138:8081",
+    };
+
+    const res = await requestDdalkakPayment(requestPaymentDto);
+    if (res.data.code === 0) {
+      await Linking.openURL(res.data.appLink);
+      setPayId(res.data.payId);
+    }
+  };
+
+  const handlePaymentAndOrder = async (cartTotal) => {
+    if (payState === "PAY_COMPLETE") {
+      console.log(payState, "결제 진행");
+      await handleCreateOrder();
+    } else await handlePayment(cartTotal);
+  };
+
   const notifyAndPlayAudio = async (ownerId) => {
     try {
-      const response = await fetch("http://192.168.0.15:8000/alarm/notify/order-completed", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ store_id: ownerId }),
-      });
+      const response = await fetch(
+        "http://192.168.0.15:8000/alarm/notify/order-completed",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ store_id: ownerId }),
+        }
+      );
 
       if (response.ok) {
         const blob = await response.blob();
         const arrayBuffer = await blobToArrayBuffer(blob);
         const base64String = arrayBufferToBase64(arrayBuffer);
-        const uri = FileSystem.documentDirectory + 'notification.mp3';
+        const uri = FileSystem.documentDirectory + "notification.mp3";
 
         // Save the mp3 file locally
-        await FileSystem.writeAsStringAsync(uri, base64String, { encoding: FileSystem.EncodingType.Base64 });
+        await FileSystem.writeAsStringAsync(uri, base64String, {
+          encoding: FileSystem.EncodingType.Base64,
+        });
 
         // Load and play the audio
         const { sound } = await Audio.Sound.createAsync({ uri });
@@ -148,129 +193,149 @@ export default function OrderScreen({ route, navigation }) {
     }
   };
 
-// Helper function to convert Blob to ArrayBuffer
+  // Helper function to convert Blob to ArrayBuffer
   const blobToArrayBuffer = (blob) => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.onload = () => resolve(reader.result);
-      reader.onerror = () => reject(new Error('Failed to read blob as array buffer.'));
+      reader.onerror = () =>
+        reject(new Error("Failed to read blob as array buffer."));
       reader.readAsArrayBuffer(blob);
     });
   };
 
-// Helper function to convert ArrayBuffer to Base64
+  // Helper function to convert ArrayBuffer to Base64
   const arrayBufferToBase64 = (arrayBuffer) => {
-    let binary = '';
+    let binary = "";
     const bytes = new Uint8Array(arrayBuffer);
     const len = bytes.byteLength;
     for (let i = 0; i < len; i++) {
       binary += String.fromCharCode(bytes[i]);
     }
-    return window.btoa(binary);  // Convert binary string to base64
+    return window.btoa(binary); // Convert binary string to base64
   };
 
   if (error) {
     return (
-        <View style={styles.errorContainer}>
-          <Text style={styles.errorText}>텅~</Text>
-        </View>
+      <View style={styles.errorContainer}>
+        <Text style={styles.errorText}>텅~</Text>
+      </View>
     );
   }
 
+  const savePaymentState = async (e) => {
+    if (payId && e.url === "exp://192.168.45.138:8081") {
+      Linking.removeAllListeners("url");
+      console.log(payId, "결제 시");
+      const paymentState = await getPaymentState(payId);
+      setPayState(paymentState.payState);
+      if (paymentState.payState === "PAY_COMPLETE") {
+        console.log(paymentState.payState, "결제 직후");
+        setPaymentButtonText("주문 완료");
+      }
+    }
+  };
+
+  // 결제 앱에서 결제 완료 후 돌아올 때 url 을 읽어오는 이벤트 리스너
+  Linking.addEventListener("url", savePaymentState);
+
   return (
-      <ScrollView
-          style={styles.scrollContainer}
-          contentContainerStyle={styles.container}
-      >
-        <View style={styles.deliveryInfo}>
-          <Text style={styles.deliveryText}>한집 배달</Text>
-          <Text style={styles.deliveryText}>15분~30분</Text>
-        </View>
+    <ScrollView
+      style={styles.scrollContainer}
+      contentContainerStyle={styles.container}
+    >
+      <View style={styles.deliveryInfo}>
+        <Text style={styles.deliveryText}>한집 배달</Text>
+        <Text style={styles.deliveryText}>15분~30분</Text>
+      </View>
 
-        <Text style={styles.title}>주문하기</Text>
-        <Text style={styles.cartDetail}>가게 이름: {cart.storeName}</Text>
+      <Text style={styles.title}>주문하기</Text>
+      <Text style={styles.cartDetail}>가게 이름: {cart.storeName}</Text>
 
-        {cart.menuItems &&
-            cart.menuItems.map((item, index) => (
-                <View key={index} style={styles.menuItem}>
-                  <Text style={styles.menuItemText}>메뉴 이름: {item.menuName}</Text>
-                  <Text style={styles.menuItemText}>가격: {item.totalPrice}원</Text>
-                  {item.selectedOptions &&
-                      item.selectedOptions.map((optionList, optListIndex) => (
-                          <View key={optListIndex} style={styles.optionList}>
-                            <Text style={styles.optionListTitle}>
-                              {optionList.listName}
-                            </Text>
-                            {optionList.options &&
-                                optionList.options.map((option, optIndex) => (
-                                    <Text key={optIndex} style={styles.optionText}>
-                                      옵션: {option.optionTitle} ({option.optionPrice}원)
-                                    </Text>
-                                ))}
-                          </View>
-                      ))}
+      {cart.menuItems &&
+        cart.menuItems.map((item, index) => (
+          <View key={index} style={styles.menuItem}>
+            <Text style={styles.menuItemText}>메뉴 이름: {item.menuName}</Text>
+            <Text style={styles.menuItemText}>가격: {item.totalPrice}원</Text>
+            {item.selectedOptions &&
+              item.selectedOptions.map((optionList, optListIndex) => (
+                <View key={optListIndex} style={styles.optionList}>
+                  <Text style={styles.optionListTitle}>
+                    {optionList.listName}
+                  </Text>
+                  {optionList.options &&
+                    optionList.options.map((option, optIndex) => (
+                      <Text key={optIndex} style={styles.optionText}>
+                        옵션: {option.optionTitle} ({option.optionPrice}원)
+                      </Text>
+                    ))}
                 </View>
-            ))}
+              ))}
+          </View>
+        ))}
 
-        <View style={styles.section}>
-          <TouchableOpacity
-              style={styles.button}
-              onPress={() => setShowInput1(!showInput1)}
-          >
-            <Text style={styles.buttonText}>라이더님께 요청 사항 전달</Text>
-          </TouchableOpacity>
-          {showInput1 && (
-              <TextInput
-                  style={styles.input}
-                  placeholder="라이더 요청 사항을 입력해주세요"
-                  value={riderRequest}
-                  onChangeText={setRiderRequest}
-              />
-          )}
+      <View style={styles.section}>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => setShowInput1(!showInput1)}
+        >
+          <Text style={styles.buttonText}>라이더님께 요청 사항 전달</Text>
+        </TouchableOpacity>
+        {showInput1 && (
+          <TextInput
+            style={styles.input}
+            placeholder="라이더 요청 사항을 입력해주세요"
+            value={riderRequest}
+            onChangeText={setRiderRequest}
+          />
+        )}
 
-          <TouchableOpacity
-              style={styles.button}
-              onPress={() => setShowInput(!showInput)}
-          >
-            <Text style={styles.buttonText}>가게 사장님께 요청 사항 전달</Text>
-          </TouchableOpacity>
-          {showInput && (
-              <TextInput
-                  style={styles.input}
-                  placeholder="가게 사장님께 요청 사항을 입력해주세요"
-                  value={consumerRequest}
-                  onChangeText={setConsumerRequest}
-              />
-          )}
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => setShowInput(!showInput)}
+        >
+          <Text style={styles.buttonText}>가게 사장님께 요청 사항 전달</Text>
+        </TouchableOpacity>
+        {showInput && (
+          <TextInput
+            style={styles.input}
+            placeholder="가게 사장님께 요청 사항을 입력해주세요"
+            value={consumerRequest}
+            onChangeText={setConsumerRequest}
+          />
+        )}
 
-          <TouchableOpacity style={styles.button}>
-            <Text style={styles.buttonText}>결제수단</Text>
-          </TouchableOpacity>
+        <TouchableOpacity style={styles.button}>
+          <Text style={styles.buttonText}>결제수단</Text>
+        </TouchableOpacity>
 
-          <TouchableOpacity style={styles.button}>
-            <Text style={styles.buttonText}>할인 쿠폰</Text>
-          </TouchableOpacity>
+        <TouchableOpacity style={styles.button}>
+          <Text style={styles.buttonText}>할인 쿠폰</Text>
+        </TouchableOpacity>
 
-          <TouchableOpacity style={styles.button}>
-            <Text style={styles.buttonText}>선물함</Text>
-          </TouchableOpacity>
+        <TouchableOpacity style={styles.button}>
+          <Text style={styles.buttonText}>선물함</Text>
+        </TouchableOpacity>
 
-          <TouchableOpacity style={styles.button}>
-            <Text style={styles.buttonText}>포인트</Text>
-          </TouchableOpacity>
-        </View>
+        <TouchableOpacity style={styles.button}>
+          <Text style={styles.buttonText}>포인트</Text>
+        </TouchableOpacity>
+      </View>
 
-        <View style={styles.paymentSection}>
-          <Text style={styles.paymentText}>결제금액</Text>
-          <Text style={styles.cartDetail}>총 가격: {cartTotal}원</Text>
-        </View>
+      <View style={styles.paymentSection}>
+        <Text style={styles.paymentText}>결제금액</Text>
+        <Text style={styles.cartDetail}>총 가격: {cartTotal}원</Text>
+      </View>
 
-        <View style={styles.container}>
-          <TouchableOpacity style={styles.button} onPress={handleCreateOrder}>
-            <Text style={styles.buttonText}>주문하기</Text>
-          </TouchableOpacity>
-        </View>
-      </ScrollView>
+      <View style={styles.container}>
+        <TouchableOpacity
+          style={[styles.button, { marginBottom: 40 }]}
+          onPress={() => handlePaymentAndOrder(cartTotal)}
+        >
+          <Text style={styles.buttonText}>{paymentButtonText}</Text>
+        </TouchableOpacity>
+      </View>
+    </ScrollView>
   );
 }
 

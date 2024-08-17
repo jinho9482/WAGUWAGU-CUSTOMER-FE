@@ -157,7 +157,7 @@ const MenuDetailScreen = ({ navigation, route }) => {
             menuId: menuDetails.menuId,
             menuName: menuDetails.menuName,
             totalPrice: totalPrice,
-            selectedOptions: selectedOptions.map((list) => ({
+            selectedOptions: selectedOptions?.map((list) => ({
               listId: list.listId,
               listName: list.listName,
               options: list.options.filter((op) => op.isChecked),
@@ -169,7 +169,7 @@ const MenuDetailScreen = ({ navigation, route }) => {
             menuId: menuDetails.menuId,
             menuName: menuDetails.menuName,
             totalPrice: totalPrice,
-            selectedOptions: selectedOptions.map((list) => ({
+            selectedOptions: selectedOptions?.map((list) => ({
               listId: list.listId,
               listName: list.listName,
               options: list.options.filter((op) => op.isChecked),
