@@ -8,17 +8,15 @@ import {
   TextInput,
   Alert,
   Linking,
+  AppState,
 } from "react-native";
-import {
-  createOrder,
-  createOrderAndReturnUUID,
-  UserInformation,
-} from "../config/orderApi";
-import { getStoreDetailQL } from "../config/storeGraphQL";
-import { requestPayment } from "../config/KakaoPaymentApi";
+
 import { createPayment } from "../config/PaymentApi";
-import { requestDdalkakPayment } from "../config/DdalkakPaymentApi";
-import { createOrder, UserInformation } from "../config/orderApi";
+import {
+  getPaymentState,
+  requestDdalkakPayment,
+} from "../config/DdalkakPaymentApi";
+import { UserInformation, createOrderAndReturnUUID } from "../config/orderApi";
 import { getStoreDetailQL } from "../config/storeGraphQL";
 import * as FileSystem from "expo-file-system";
 import { Audio } from "expo-av";
@@ -38,6 +36,8 @@ export default function OrderScreen({ route, navigation }) {
   const [cart, setCart] = useState({});
   const [error, setError] = useState(false);
   const [paymentButtonText, setPaymentButtonText] = useState("결제하기");
+  const [payId, setPayId] = useState(null);
+  const [payState, setPayState] = useState(null);
 
   useEffect(() => {
     if (route.params) {
@@ -63,6 +63,7 @@ export default function OrderScreen({ route, navigation }) {
   }, [route.params]);
 
   const handleCreateOrder = async () => {
+    console.log(payId);
     try {
       const userInfo = await UserInformation();
       const storeInfo = await getStoreDetailQL({
@@ -88,12 +89,12 @@ export default function OrderScreen({ route, navigation }) {
         storeMinimumOrderAmount: cart.storeMinimumOrderAmount,
         customerAddress: userInfo.customerAddress,
         customerNickname: userInfo.customerNickname,
-        menuItems: cart.menuItems.map((item) => ({
+        menuItems: cart.menuItems?.map((item) => ({
           menuName: item.menuName,
           totalPrice: item.totalPrice,
-          selectedOptions: item.selectedOptions.map((optionList) => ({
+          selectedOptions: item.selectedOptions?.map((optionList) => ({
             listName: optionList.listName,
-            options: optionList.options.map((option) => ({
+            options: optionList?.options?.map((option) => ({
               optionTitle: option.optionTitle,
               optionPrice: option.optionPrice,
             })),
@@ -104,7 +105,7 @@ export default function OrderScreen({ route, navigation }) {
 
       const savedOrderId = await createOrderAndReturnUUID(userRequest);
       // 결제 내역 생성
-      const paymentRequest = { orderId: savedOrderId };
+      const paymentRequest = { id: payId, orderId: savedOrderId };
       await createPayment(paymentRequest);
 
       console.log("주문건 값들: " + JSON.stringify(userRequest, null, 2));
@@ -127,50 +128,28 @@ export default function OrderScreen({ route, navigation }) {
   };
 
   const handlePayment = async (cartTotal) => {
-    // 카카오 페이 이용
-
-    // let menuNames = "";
-    // cart.menuItems.forEach((el) => {
-    //   menuNames += el.menuName + " ";
-    // });
-
-    // const requestPaymentDto = {
-    //   cid: "TC0ONETIME",
-    //   partner_order_id: "orderId",
-    //   partner_user_id: cart.storeId + "",
-    //   item_name: menuNames,
-    //   quantity: 1,
-    //   total_amount: cartTotal,
-    //   vat_amount: (cartTotal * 10) / 11,
-    //   tax_free_amount: 0,
-    //   approval_url: "https://developers.kakao.com/success",
-    //   fail_url: "https://developers.kakao.com/fail",
-    //   cancel_url: "https://developers.kakao.com/cancel",
-    // };
-
     // 딸깍 페이 이용
     const requestPaymentDto = {
       payNum: 1000,
       payAmount: cartTotal,
-      failRedirUrl: "https://click-market.com/purchase/fail",
-      successRedirUrl: "exp://192.168.0.25:8081",
+      failRedirUrl: "exp://192.168.45.138:8081",
+      successRedirUrl: "exp://192.168.45.138:8081",
     };
 
     const res = await requestDdalkakPayment(requestPaymentDto);
-    console.log(res);
     if (res.data.code === 0) {
-      console.log(res.data);
-      // const isValid = await Linking.openURL(res.data.next_redirect_app_url);
       await Linking.openURL(res.data.appLink);
-      // if (isValid) setPaymentButtonText("주문완료");
-      setPaymentButtonText("주문완료");
+      setPayId(res.data.payId);
     }
   };
 
   const handlePaymentAndOrder = async (cartTotal) => {
-    if (paymentButtonText === "결제하기") await handlePayment(cartTotal);
-    else await handleCreateOrder();
+    if (payState === "PAY_COMPLETE") {
+      console.log(payState, "결제 진행");
+      await handleCreateOrder();
+    } else await handlePayment(cartTotal);
   };
+
   const notifyAndPlayAudio = async (ownerId) => {
     try {
       const response = await fetch(
@@ -243,6 +222,22 @@ export default function OrderScreen({ route, navigation }) {
       </View>
     );
   }
+
+  const savePaymentState = async (e) => {
+    if (payId && e.url === "exp://192.168.45.138:8081") {
+      Linking.removeAllListeners("url");
+      console.log(payId, "결제 시");
+      const paymentState = await getPaymentState(payId);
+      setPayState(paymentState.payState);
+      if (paymentState.payState === "PAY_COMPLETE") {
+        console.log(paymentState.payState, "결제 직후");
+        setPaymentButtonText("주문 완료");
+      }
+    }
+  };
+
+  // 결제 앱에서 결제 완료 후 돌아올 때 url 을 읽어오는 이벤트 리스너
+  Linking.addEventListener("url", savePaymentState);
 
   return (
     <ScrollView
@@ -331,12 +326,6 @@ export default function OrderScreen({ route, navigation }) {
         <Text style={styles.paymentText}>결제금액</Text>
         <Text style={styles.cartDetail}>총 가격: {cartTotal}원</Text>
       </View>
-
-      {/* <View style={styles.container}>
-        <TouchableOpacity style={styles.button} onPress={handleCreateOrder}>
-          <Text style={styles.buttonText}>주문하기</Text>
-        </TouchableOpacity>
-      </View> */}
 
       <View style={styles.container}>
         <TouchableOpacity
