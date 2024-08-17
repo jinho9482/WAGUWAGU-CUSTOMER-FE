@@ -5,7 +5,7 @@ import { riderLocationApi } from "./RiderLocationNetwork";
 export const getRiderLocationAndTransportation = async (orderId) => {
   try {
     const res = await riderLocationApi(
-      `/api/v1/rider-locations/${orderId}`,
+      `/api/v1/riders/rider-locations/${orderId}`,
       "get"
     );
     console.log(res.data);
@@ -50,7 +50,7 @@ export const calculateTimeToDestinationWithNavi = async (params) => {
 // 두 지점 간 직선 거리 계산
 export const calculateStraightLineDistance = async (body) => {
   try {
-    const res = await riderLocationApi("/api/v1/geo", "post", body);
+    const res = await riderLocationApi("/api/v1/riders/geo", "post", body);
     return res.data;
   } catch (error) {
     console.log("Error in calculateStraightLineDistance", error);
