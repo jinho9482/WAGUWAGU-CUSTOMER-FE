@@ -175,7 +175,7 @@ export default function App() {
             }}
           />
 
-          <BottomTab.Screen
+          {/* <BottomTab.Screen
             name="메뉴"
             component={MenuDetailScreen}
             options={{
@@ -188,7 +188,7 @@ export default function App() {
                 />
               ),
             }}
-          />
+          /> */}
         </BottomTab.Navigator>
       </View>
     );
