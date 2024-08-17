@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import axios from "axios";
-import { COLORS, SIZES, FONTS } from "../assets/constants/theme";
+import { COLORS, SIZES } from "../assets/constants/theme";
 import OptionList from "../components/OptionList.jsx";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { getMenuByIdQL } from "../config/storeGraphQL.jsx";
@@ -423,7 +423,7 @@ const styles = StyleSheet.create({
   },
 
   menuName: {
-    ...FONTS.h1,
+    // ...FONTS.h1,
     fontWeight: "bold",
     color: "black",
     textAlign: "center",
@@ -448,19 +448,19 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   menuIntroduction: {
-    ...FONTS.body2,
+    // ...FONTS.body2,
     color: COLORS.darkGray,
     textAlign: "center",
     marginBottom: SIZES.padding,
   },
   menuPrice: {
-    ...FONTS.h2,
+    // ...FONTS.h2,
     color: "#FF3B30",
     fontWeight: "bold",
     textAlign: "center",
   },
   loadingText: {
-    ...FONTS.body1,
+    // ...FONTS.body1,
     color: COLORS.darkGray,
     textAlign: "center",
     marginTop: SIZES.padding,

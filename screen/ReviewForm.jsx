@@ -132,19 +132,19 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   storeNames: {
-    fontSize: 24, // Increased font size
-    fontWeight: "bold", // Bold font weight
-    color: "#333", // Dark color for good contrast
-    marginBottom: 8, // Space below the text
-    textAlign: "center", // Center align the text
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "#333",
+    marginBottom: 8,
+    textAlign: "center",
   },
 
   header: {
-    fontSize: 20, // Increased font size
-    fontWeight: "600", // Semi-bold font weight
-    color: "#4CAF50", // Green color to match the theme
-    marginVertical: 16, // Space above and below the text
-    textAlign: "center", // Center align the text
+    fontSize: 20,
+    fontWeight: "600",
+    color: "#4CAF50",
+    marginVertical: 16,
+    textAlign: "center",
   },
 });
 
