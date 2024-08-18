@@ -1,9 +1,23 @@
 import { serchApi } from "./serchNetwork";
 
 export const createStore = async (data) => {
-    const response = await serchApi("api/v2/elastic", "post", data);
+  console.log("createStore data: " + JSON.stringify(data, null, 2));
+    const response = await serchApi("api/v2/elastic/", "post", data);
     return response.data;
 };
+
+export const deleteByCustomerId = async (id) => {
+  console.log(`Deleting store with customer id: ${id}`);
+  
+  try {
+    await serchApi(`api/v2/elastic/${id}`, "delete");
+    return "삭제 성공";
+  } catch (error) {
+    console.error("Error deleting store:", error);
+    throw error;
+  }
+};
+
 
 export const analyzeEntity = async (data) => {
     const response = await serchApi("api/v2/elastic/analyzeEntity", "post", data);
@@ -37,8 +51,11 @@ export const searchByKeyword = async (keyword, pageable) => {
       ...pageable,
     });
 
-    // Return only the content array from the response
-    return res.data.content;
+    if (res.data && res.data.content) {
+      return res.data.content;
+    } else {
+      throw new Error("Content not found in the response");
+    }
   } catch (error) {
     console.error("Keyword search failed:", error);
     throw error;
