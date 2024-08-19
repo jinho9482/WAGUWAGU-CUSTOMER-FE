@@ -10,7 +10,6 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import axios from "axios";
-import { COLORS, SIZES } from "../assets/constants/theme";
 import OptionList from "../components/OptionList.jsx";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { getMenuByIdQL } from "../config/storeGraphQL.jsx";
@@ -314,7 +313,7 @@ const MenuDetailScreen = ({ navigation, route }) => {
   if (loading) {
     return (
       <SafeAreaView style={styles.container}>
-        <ActivityIndicator size="large" color={COLORS.red} />
+        <ActivityIndicator size="large" color={"#FF3B30"} />
       </SafeAreaView>
     );
   }
@@ -349,14 +348,14 @@ const MenuDetailScreen = ({ navigation, route }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "",
   },
   header: {
     flexDirection: "row",
-    paddingHorizontal: SIZES.padding * 2,
-    paddingVertical: SIZES.padding,
+    paddingHorizontal: 10 * 2,
+    paddingVertical: 10,
     alignItems: "center",
-    backgroundColor: COLORS.white,
+    backgroundColor: "#FFFFFF",
   },
   backButton: {
     width: 50,
@@ -414,58 +413,58 @@ const styles = StyleSheet.create({
     padding: 15,
     alignItems: "center",
     justifyContent: "center",
-    borderRadius: SIZES.radius,
-    margin: SIZES.padding,
+    borderRadius: 30,
+    margin: 30,
   },
   addToCartButtonText: {
-    color: COLORS.white,
+    color: "#FFFFFF",
     fontSize: 18,
   },
 
   menuName: {
-    // ...FONTS.h1,
+    fontSize: 30,
     fontWeight: "bold",
     color: "black",
     textAlign: "center",
-    marginVertical: SIZES.padding,
+    marginVertical: 30,
   },
   imageContainer: {
     width: "90%",
     alignSelf: "center",
-    borderRadius: SIZES.radius,
+    borderRadius: 30,
     overflow: "hidden",
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.2,
     shadowRadius: 8,
     elevation: 4,
-    marginBottom: SIZES.padding,
+    marginBottom: 30,
   },
   image: {
     width: "100%",
     height: 200,
   },
   detailsContainer: {
-    paddingHorizontal: SIZES.padding,
+    paddingHorizontal: 30,
     alignItems: "center",
   },
   menuIntroduction: {
-    // ...FONTS.body2,
-    color: COLORS.darkGray,
+    fontSize: 20,
+    color: "#3A3737",
     textAlign: "center",
-    marginBottom: SIZES.padding,
+    marginBottom: 30,
   },
   menuPrice: {
-    // ...FONTS.h2,
+    fontSize: 22,
     color: "#FF3B30",
     fontWeight: "bold",
     textAlign: "center",
   },
   loadingText: {
-    // ...FONTS.body1,
-    color: COLORS.darkGray,
+    fontSize: 30,
+    color: "#898C95",
     textAlign: "center",
-    marginTop: SIZES.padding,
+    marginTop: 30,
   },
 });
 
