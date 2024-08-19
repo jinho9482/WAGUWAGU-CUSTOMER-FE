@@ -53,7 +53,7 @@ export default function HomeScreen({ navigation }) {
     },
   ];
   const [selectedId, setSelectedId] = useState();
-  const dimensionWidth = Dimensions.get("window").width / 4.3;
+  const dimensionWidth = (Dimensions.get("window").width - 6 * 20) / 3;
   const Item = ({ item, onPress, backgroundColor, textColor }) => (
     <TouchableOpacity onPress={onPress} style={[styles.item]}>
       <SpeechBubble
@@ -131,7 +131,7 @@ const styles = StyleSheet.create({
     flexWrap: "wrap",
     justifyContent: "center",
     alignItems: "center",
-    paddingHorizontal: 8,
+    // paddingHorizontal: 8,
   },
   item: {
     // padding: 20,
