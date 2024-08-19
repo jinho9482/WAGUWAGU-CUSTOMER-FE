@@ -1,6 +1,6 @@
 import React from "react";
-import { Pressable, StyleSheet, TouchableOpacity, View } from "react-native";
-import { Button, Text } from "react-native-paper";
+import { StyleSheet, View } from "react-native";
+import { Text } from "react-native-paper";
 
 export default SpeechBubble = (props) => {
   return (
