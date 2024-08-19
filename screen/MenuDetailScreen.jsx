@@ -290,7 +290,7 @@ const MenuDetailScreen = ({ navigation, route }) => {
         />
       </TouchableOpacity>
       <View style={styles.headerTitleContainer}>
-        <Text style={styles.headerTitle}>상세 메뉴</Text>
+        <Text style={styles.headerTitle}>Menu Details</Text>
       </View>
       <TouchableOpacity
         style={styles.cartButton}
@@ -349,7 +349,6 @@ const MenuDetailScreen = ({ navigation, route }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    // backgroundColor: COLORS.lightGray2,
     backgroundColor: "#FFFFFF",
   },
   header: {
@@ -392,10 +391,10 @@ const styles = StyleSheet.create({
   imageContainer: {
     height: 200,
   },
-  // image: {
-  //   width: "100%",
-  //   height: "100%",
-  // },
+  image: {
+    width: "100%",
+    height: "100%",
+  },
   detailsContainer: {
     width: "100%",
     alignItems: "center",
@@ -419,7 +418,7 @@ const styles = StyleSheet.create({
     margin: SIZES.padding,
   },
   addToCartButtonText: {
-    // color: COLORS.white,
+    color: COLORS.white,
     fontSize: 18,
   },
 
