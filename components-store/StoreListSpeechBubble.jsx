@@ -8,7 +8,7 @@ export default StoreListSpeechBubble = (props) => {
       style={[
         styles.container,
         { width: props.width },
-        { backgroundColor: props.backgroundColor },
+        { backgroundColor: "#FFFFFF" },
       ]}
     >
       <View style={styles.imageContainer}>
@@ -59,9 +59,11 @@ const styles = StyleSheet.create({
   textTitle: {
     fontSize: 25,
     paddingBottom: 15,
+    fontFamily: "Regular",
   },
   text: {
     fontSize: 17,
+    fontFamily: "런드리고딕OTF Regular",
   },
   image: {
     width: 50,

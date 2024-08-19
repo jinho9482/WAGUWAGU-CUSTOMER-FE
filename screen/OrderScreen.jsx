@@ -55,6 +55,10 @@ export default function OrderScreen({ route, navigation }) {
         setCustomerLatitude(userInfo.customerLatitude);
       } catch (error) {
         console.error("Failed to fetch user information:", error);
+        Alert.alert(
+          "오류",
+          "사용자 정보를 가져오지 못했습니다. 네트워크를 확인하고 다시 시도해 주세요."
+        );
         setError(true);
       }
     };
@@ -178,7 +182,6 @@ export default function OrderScreen({ route, navigation }) {
         const { sound } = await Audio.Sound.createAsync({ uri });
         await sound.playAsync();
 
-        // After playback, unload the sound and delete the file
         sound.setOnPlaybackStatusUpdate((status) => {
           if (status.didJustFinish) {
             sound.unloadAsync();
@@ -193,7 +196,6 @@ export default function OrderScreen({ route, navigation }) {
     }
   };
 
-  // Helper function to convert Blob to ArrayBuffer
   const blobToArrayBuffer = (blob) => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -204,7 +206,6 @@ export default function OrderScreen({ route, navigation }) {
     });
   };
 
-  // Helper function to convert ArrayBuffer to Base64
   const arrayBufferToBase64 = (arrayBuffer) => {
     let binary = "";
     const bytes = new Uint8Array(arrayBuffer);
@@ -212,7 +213,7 @@ export default function OrderScreen({ route, navigation }) {
     for (let i = 0; i < len; i++) {
       binary += String.fromCharCode(bytes[i]);
     }
-    return window.btoa(binary); // Convert binary string to base64
+    return window.btoa(binary);
   };
 
   if (error) {
@@ -369,7 +370,7 @@ const styles = StyleSheet.create({
   },
   deliveryText: {
     fontSize: 16,
-    backgroundColor: "#E0F7EF",
+    backgroundColor: "#F1D3CE",
     padding: 10,
     borderRadius: 20,
   },
@@ -377,7 +378,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   button: {
-    backgroundColor: "#94D35C",
+    backgroundColor: "#EECAD5",
     padding: 15,
     borderRadius: 25,
     marginVertical: 5,
@@ -396,7 +397,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   paymentSection: {
-    backgroundColor: "#A5D6A7",
+    backgroundColor: "#F1D3CE",
     padding: 20,
     borderRadius: 25,
     marginBottom: 20,

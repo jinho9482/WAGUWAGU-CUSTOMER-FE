@@ -80,7 +80,7 @@ export default function StoreScreen({ navigation, route }) {
   const dimensionWidth = Dimensions.get("window").width / 1.2;
 
   return (
-    <ScrollView>
+    <ScrollView style={styles.box}>
       <View>
         {console.log("image check" + store.storeImage)}
         <Image
@@ -220,6 +220,9 @@ export default function StoreScreen({ navigation, route }) {
 }
 
 const styles = StyleSheet.create({
+  box: {
+    backgroundColor: "#FFFFFF",
+  },
   image: {
     height: 150,
     marginTop: 20,
@@ -263,7 +266,7 @@ const styles = StyleSheet.create({
   },
   reviewButton: {
     padding: 12,
-    backgroundColor: "#85DB65",
+    backgroundColor: "#EECAD5",
     borderRadius: 8,
     alignItems: "center",
     justifyContent: "center",
