@@ -113,7 +113,7 @@ export default function OrderScreen({ route, navigation }) {
       console.log("Order created successfully:", savedOrderId);
 
       // 주문 생성 후 알림 요청을 보내고 음성 파일 재생
-      await notifyAndPlayAudio(storeId);
+      // await notifyAndPlayAudio(storeId);
 
       Alert.alert("주문 성공", "주문이 성공적으로 생성되었습니다.", [
         {
@@ -225,11 +225,11 @@ export default function OrderScreen({ route, navigation }) {
 
   const savePaymentState = async (e) => {
     if (payId && e.url === "exp://192.168.45.138:8081") {
-      Linking.removeAllListeners("url");
       console.log(payId, "결제 시");
       const paymentState = await getPaymentState(payId);
       setPayState(paymentState.payState);
       if (paymentState.payState === "PAY_COMPLETE") {
+        Linking.removeAllListeners("url");
         console.log(paymentState.payState, "결제 직후");
         setPaymentButtonText("주문 완료");
       }
