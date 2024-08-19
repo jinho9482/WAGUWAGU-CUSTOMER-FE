@@ -30,7 +30,7 @@ export const createOrder = async (data) => {
   };
 
   try {
-    const res = await orderApi("api/v1/order/", "post", userRequestDto);
+    const res = await orderApi("api/v1/orders/", "post", userRequestDto);
     return res.data;
   } catch (error) {
     console.error("Error creating order:", error);
@@ -41,7 +41,7 @@ export const createOrder = async (data) => {
 export const selectByConsumerAll = async (offset) => {
   console.log("offset : " + offset);
   try{
-      const res = await orderApi('api/v1/order/customer/history','get',null, { 
+      const res = await orderApi('api/v1/orders/customer/history','get',null, { 
         offset,
       });
       console.log(res.data);
@@ -53,7 +53,7 @@ export const selectByConsumerAll = async (offset) => {
 
 export const searchOrder = async () => {
   try {
-    const res = await orderApi("api/v1/order/customer", "get");
+    const res = await orderApi("api/v1/orders/customer", "get");
     console.log(res.data);
     return res.data;
   } catch (error) {
@@ -67,7 +67,7 @@ export const searchOrderHistory = async (startDate, endDate, pageNumber) => {
   console.log("endDate : " + endDate);
   console.log("pageNumber : " + pageNumber);
   try {
-    const res = await orderApi("api/v1/order/customer/history", "get", null, {
+    const res = await orderApi("api/v1/orders/customer/history", "get", null, {
       startDate,
       endDate,
       pageNumber,
@@ -82,7 +82,7 @@ export const searchOrderHistory = async (startDate, endDate, pageNumber) => {
 export const UserInformation = async () => {
   try {
     console.log("UserInformation 반응");
-    const res = await orderApi("api/v1/order/userInformation", "get");
+    const res = await orderApi("api/v1/orders/userInformation", "get");
       console.log(res.data);
     return res.data;
   } catch (error) {
@@ -93,7 +93,7 @@ export const UserInformation = async () => {
 
 export const updateState = async (orderId, data) => {
   try {
-    const res = await orderApi(`api/v1/order/request/${orderId}`, "post", data);
+    const res = await orderApi(`api/v1/orders/request/${orderId}`, "post", data);
     return res.data;
   } catch (error) {
     console.error("Error in updateState", error);
@@ -130,7 +130,7 @@ export const createOrderAndReturnUUID = async (data) => {
   };
 
   try {
-    const res = await orderApi("/api/v1/order/return", "post", userRequestDto);
+    const res = await orderApi("/api/v1/orders/return", "post", userRequestDto);
     return res.data;
   } catch (error) {
     console.error("Error creating order:", error);
