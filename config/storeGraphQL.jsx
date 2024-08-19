@@ -94,6 +94,7 @@ export const getAllStoresNearUserQL = async (variables) => {
         },
       }
     );
+    console.log("+_+_+_" + data.data.data.userNearStore);
 
     return data.status === 200 ? data.data.data.userNearStore : null;
   } catch (error) {

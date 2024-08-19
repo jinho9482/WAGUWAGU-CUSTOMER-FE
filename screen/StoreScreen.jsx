@@ -10,13 +10,13 @@ import {
 } from "react-native";
 import { StyleSheet } from "react-native";
 import { Text } from "react-native";
-import SpeechBubble from "../components-common/SpeechBubble";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
   getMenuByMenuCategoryQL,
   getMenuCategoryByStoreQL,
   getStoreDetailQL,
 } from "../config/storeGraphQL";
+import StoreScreenSpeechBubble from "../components-store/StoreScreenSpeechBubble";
 
 export default function StoreScreen({ navigation, route }) {
   const { storeId } = route.params;
@@ -25,7 +25,6 @@ export default function StoreScreen({ navigation, route }) {
   const [menus, setMenus] = useState([]);
 
   const getStoreDetailApi = async () => {
-    console.log(storeId);
     try {
       const response = await getStoreDetailQL({
         storeId: storeId,
@@ -85,7 +84,15 @@ export default function StoreScreen({ navigation, route }) {
       <View>
         <Image
           style={[styles.image, { width: dimensionWidth }]}
-          source={store.storeImage?{uri:"https://storage.googleapis.com/wgwg_bucket/"+store.storeImage}:require("./../assets/food icon.png")}
+          source={
+            store.storeImage
+              ? {
+                  uri:
+                    "https://storage.googleapis.com/wgwg_bucket/" +
+                    store.storeImage,
+                }
+              : require("./../assets/food icon.png")
+          }
         />
         <View style={styles.textContainer}>
           <Text style={styles.textTitle}>{store.storeName}</Text>
@@ -114,7 +121,7 @@ export default function StoreScreen({ navigation, route }) {
         </View>
 
         <View style={{ alignSelf: "center" }}>
-          <SpeechBubble
+          <StoreScreenSpeechBubble
             height={80}
             width={dimensionWidth}
             content={store.storeIntroduction}
@@ -178,7 +185,15 @@ export default function StoreScreen({ navigation, route }) {
                           <View>
                             <Image
                               style={[styles.menuImage]}
-                              source={menu.menuImage?{uri:"https://storage.googleapis.com/wgwg_bucket/"+menu.menuImage}:require("./../assets/menu.png")}
+                              source={
+                                menu.menuImage
+                                  ? {
+                                      uri:
+                                        "https://storage.googleapis.com/wgwg_bucket/" +
+                                        menu.menuImage,
+                                    }
+                                  : require("./../assets/menu.png")
+                              }
                             />
                           </View>
                         </View>
