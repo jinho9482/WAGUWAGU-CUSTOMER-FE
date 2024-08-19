@@ -35,7 +35,7 @@ export default function OrderHistoryScreen({ navigation }) {
 
       const result = await searchOrder({ customerId });
 
-      // Compare the new result with the existing orders
+
       if (JSON.stringify(result) !== JSON.stringify(orders)) {
         setOrders(result);
       }
@@ -43,7 +43,7 @@ export default function OrderHistoryScreen({ navigation }) {
       const historyResult = await selectByConsumerAll(offset);
 
       if (historyResult.length > 0) {
-        // Compare the new historyResult with the existing orderHistory
+
         const newOrderHistory = [...orderHistory, ...historyResult];
         if (JSON.stringify(newOrderHistory) !== JSON.stringify(orderHistory)) {
           setOrderHistory(newOrderHistory);
@@ -62,7 +62,7 @@ export default function OrderHistoryScreen({ navigation }) {
 
   useFocusEffect(
     useCallback(() => {
-      handledGetHistory(); // Initial fetch
+      handledGetHistory(); 
 
       const interval = setInterval(() => {
         handledGetHistory();
