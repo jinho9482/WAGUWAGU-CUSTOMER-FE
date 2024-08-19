@@ -9,6 +9,7 @@ import {
   TouchableWithoutFeedback,
   RefreshControl,
 } from "react-native";
+import { useFocusEffect } from "@react-navigation/native";
 import {
   searchOrder,
   UserInformation,
@@ -33,13 +34,21 @@ export default function OrderHistoryScreen({ navigation }) {
       setUserName(userInfo.customerNickname);
 
       const result = await searchOrder({ customerId });
-      setOrders(result);
+
+      // Compare the new result with the existing orders
+      if (JSON.stringify(result) !== JSON.stringify(orders)) {
+        setOrders(result);
+      }
 
       const historyResult = await selectByConsumerAll(offset);
 
       if (historyResult.length > 0) {
-        setOrderHistory((prevOrders) => [...prevOrders, ...historyResult]);
-        setOffset((prevOffset) => prevOffset + 10);
+        // Compare the new historyResult with the existing orderHistory
+        const newOrderHistory = [...orderHistory, ...historyResult];
+        if (JSON.stringify(newOrderHistory) !== JSON.stringify(orderHistory)) {
+          setOrderHistory(newOrderHistory);
+          setOffset((prevOffset) => prevOffset + 10);
+        }
       } else {
         setHasMore(false);
       }
@@ -51,9 +60,17 @@ export default function OrderHistoryScreen({ navigation }) {
     }
   };
 
-  useEffect(() => {
-    handledGetHistory();
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      handledGetHistory(); // Initial fetch
+
+      const interval = setInterval(() => {
+        handledGetHistory();
+      }, 10000); 
+
+      return () => clearInterval(interval);
+    }, [orders, orderHistory])
+  );
 
   const onRefresh = useCallback(() => {
     setRefreshing(true);
@@ -119,7 +136,6 @@ export default function OrderHistoryScreen({ navigation }) {
   };
 
   const handleBackgroundPress = () => {
-    // setIsDetailsVisible(false);
   };
 
   return (
