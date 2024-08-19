@@ -5,7 +5,7 @@ export const serchApi = async (url, method, body, params) => {
   const response = await axios({
     url,
     method,
-    baseURL: "http://192.168.0.20:8080", // baseURL
+    baseURL: "http://172.30.1.41:8080", // baseURL
     // baseURL: "http://35.223.83.225",
     data: body,
     params: params,

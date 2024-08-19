@@ -64,6 +64,35 @@ export const getMenuByMenuCategoryQL = async (variables) => {
   }
 };
 
+export const getAllMenuByStoreIdQL = async (variables) => {
+  try {
+    const data = await axios.post(
+      endpoint,
+      {
+        query: `
+          query getAllMenuByStoreId($storeId: ID) {
+            getAllMenuByStoreId(storeId: $storeId) {
+              menuName
+              menuIntroduction
+            }
+          }
+        `,
+        variables: variables,
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    return data.status === 200
+      ? data.data.data.getAllMenuByStoreId
+      : "error";
+  } catch (error) {
+    return error;
+  }
+};
+
 export const getAllStoresNearUserQL = async (variables) => {
   try {
     const data = await axios.post(
@@ -97,6 +126,43 @@ export const getAllStoresNearUserQL = async (variables) => {
     console.log("+_+_+_" + data.data.data.userNearStore);
 
     return data.status === 200 ? data.data.data.userNearStore : null;
+  } catch (error) {
+    return error;
+  }
+};
+
+export const getAllStoresNearUserNoCategoryQL = async (variables) => {
+  try {
+    const data = await axios.post(
+      endpoint,
+      {
+        query: `
+            mutation userNearStoreAll($input:UserLocationRequest ) {
+              userNearStoreAll(input:$input) {
+                ownerId
+                storeId
+                storeName
+                storeAddress
+                storeLongitude
+                storeLatitude
+                storeMinimumOrderAmount
+                storeIntroduction
+                storeImage
+                distanceFromStoreToCustomer
+                deliveryFee
+              }
+            }
+          `,
+        variables: variables,
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    return data.status === 200 ? data.data.data.userNearStoreAll : null;
   } catch (error) {
     return error;
   }
