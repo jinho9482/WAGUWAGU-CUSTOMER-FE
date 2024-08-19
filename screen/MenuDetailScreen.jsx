@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import axios from "axios";
-import { COLORS, SIZES, FONTS } from "../assets/constants/theme";
+import { COLORS, SIZES } from "../assets/constants/theme";
 import OptionList from "../components/OptionList.jsx";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { getMenuByIdQL } from "../config/storeGraphQL.jsx";
@@ -74,9 +74,7 @@ const MenuDetailScreen = ({ navigation, route }) => {
     }
   `;
     try {
-
       const response = await axios.post(`http://34.69.39.99/graphql`, {
-
         query: GET_OPTION_LISTS,
         variables: { menuId },
       });
@@ -100,7 +98,6 @@ const MenuDetailScreen = ({ navigation, route }) => {
     // };
 
     const fetchData = () => {
-
       fetchMenuDetails();
       fetchOptionList();
 
@@ -160,7 +157,7 @@ const MenuDetailScreen = ({ navigation, route }) => {
             menuId: menuDetails.menuId,
             menuName: menuDetails.menuName,
             totalPrice: totalPrice,
-            selectedOptions: selectedOptions.map((list) => ({
+            selectedOptions: selectedOptions?.map((list) => ({
               listId: list.listId,
               listName: list.listName,
               options: list.options.filter((op) => op.isChecked),
@@ -172,7 +169,7 @@ const MenuDetailScreen = ({ navigation, route }) => {
             menuId: menuDetails.menuId,
             menuName: menuDetails.menuName,
             totalPrice: totalPrice,
-            selectedOptions: selectedOptions.map((list) => ({
+            selectedOptions: selectedOptions?.map((list) => ({
               listId: list.listId,
               listName: list.listName,
               options: list.options.filter((op) => op.isChecked),
@@ -262,7 +259,7 @@ const MenuDetailScreen = ({ navigation, route }) => {
 
   const renderOptionLists = () => (
     <View>
-      {selectedOptions&&selectedOptions.length > 0 ? (
+      {selectedOptions && selectedOptions.length > 0 ? (
         selectedOptions.map((list) => (
           <OptionList
             key={list.listId}
@@ -426,7 +423,7 @@ const styles = StyleSheet.create({
   },
 
   menuName: {
-    ...FONTS.h1,
+    // ...FONTS.h1,
     fontWeight: "bold",
     color: "black",
     textAlign: "center",
@@ -451,19 +448,19 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   menuIntroduction: {
-    ...FONTS.body2,
+    // ...FONTS.body2,
     color: COLORS.darkGray,
     textAlign: "center",
     marginBottom: SIZES.padding,
   },
   menuPrice: {
-    ...FONTS.h2,
+    // ...FONTS.h2,
     color: "#FF3B30",
     fontWeight: "bold",
     textAlign: "center",
   },
   loadingText: {
-    ...FONTS.body1,
+    // ...FONTS.body1,
     color: COLORS.darkGray,
     textAlign: "center",
     marginTop: SIZES.padding,

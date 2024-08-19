@@ -53,7 +53,7 @@ export default function HomeScreen({ navigation }) {
     },
   ];
   const [selectedId, setSelectedId] = useState();
-  const dimensionWidth = Dimensions.get("window").width / 4;
+  const dimensionWidth = Dimensions.get("window").width / 4.3;
   const Item = ({ item, onPress, backgroundColor, textColor }) => (
     <TouchableOpacity onPress={onPress} style={[styles.item]}>
       <SpeechBubble
@@ -88,13 +88,14 @@ export default function HomeScreen({ navigation }) {
         />
 
         <Search />
-        <View
+        {/* <View
           style={{
             flexDirection: "row",
             flexWrap: "wrap",
             flexShrink: 1,
           }}
-        >
+        > */}
+        <View style={styles.categoryContainer}>
           {DATA.map((item) => {
             const backgroundColor =
               item.id === selectedId ? "#94D35C" : "#ffffff";
@@ -112,10 +113,10 @@ export default function HomeScreen({ navigation }) {
               />
             );
           })}
-          <Pressable onPress={() => navigation.navigate("ReviewScreen")}>
-            <Text>리뷰</Text>
-          </Pressable>
         </View>
+        <Pressable onPress={() => navigation.navigate("ReviewScreen")}>
+          <Text>리뷰</Text>
+        </Pressable>
       </View>
     </ScrollView>
   );
@@ -124,6 +125,13 @@ export default function HomeScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  categoryContainer: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 8,
   },
   item: {
     // padding: 20,

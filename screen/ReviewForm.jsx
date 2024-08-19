@@ -13,7 +13,7 @@ import { Rating } from "react-native-ratings";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 
-const ReviewForm = ({ route }) => {
+const ReviewForm = ({ route, navigation }) => {
   const { storeId, storeName, userName } = route.params;
   const [rating, setRating] = useState(1);
   const [content, setContent] = useState("");
@@ -32,7 +32,7 @@ const ReviewForm = ({ route }) => {
 
     try {
       const request = await axios.post(
-        "http://192.168.0.26:8080/api/v1/reviews",
+        "http://34.45.108.74/api/v1/reviews",
         reviewReq,
         {
           headers: {
@@ -40,6 +40,10 @@ const ReviewForm = ({ route }) => {
           },
         }
       );
+      navigation.navigate("ReviewSection", {
+        storeId,
+        storeName,
+      });
       console.log("revieqw request :", reviewReq);
     } catch (error) {
       console.error("Error uploading review:", error.message);
@@ -126,6 +130,21 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 16,
     fontWeight: "bold",
+  },
+  storeNames: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "#333",
+    marginBottom: 8,
+    textAlign: "center",
+  },
+
+  header: {
+    fontSize: 20,
+    fontWeight: "600",
+    color: "#4CAF50",
+    marginVertical: 16,
+    textAlign: "center",
   },
 });
 

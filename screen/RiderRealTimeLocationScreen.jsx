@@ -10,6 +10,7 @@ import {
 } from "../config/RiderLocation";
 import WebView from "react-native-webview";
 import { Image, StyleSheet, View, Text, Alert } from "react-native";
+import { ActivityIndicator } from "react-native-paper";
 
 const RiderRealTimeLocationScreen = ({ route, navigation }) => {
   const [riderLocation, setRiderLocation] = useState({
@@ -21,6 +22,7 @@ const RiderRealTimeLocationScreen = ({ route, navigation }) => {
   const [duration, setDuration] = useState(0);
   const [intervalId, setIntervalId] = useState(null);
   const [deliveryIsdone, setDeliveryIsdone] = useState(false);
+  const [loading, setLoading] = useState(true);
   const webviewRef = useRef(null);
 
   const customerImage = Image.resolveAssetSource(
@@ -323,12 +325,16 @@ const RiderRealTimeLocationScreen = ({ route, navigation }) => {
 
   return (
     <View style={styles.riderLocationContainer}>
+      {loading && (
+        <ActivityIndicator size="20" color="#94D35C" style={styles.loading} />
+      )}
       <WebView
         ref={webviewRef}
         style={styles.webview}
         originWhitelist={["*"]}
         source={{ html: mapHtml }}
         injectedJavaScript={setMarkerPosition}
+        onLoadEnd={() => setLoading(false)}
       />
       <View style={styles.timeInfo}>
         <Text style={styles.timeToDestination}>
@@ -347,6 +353,11 @@ const RiderRealTimeLocationScreen = ({ route, navigation }) => {
 const styles = StyleSheet.create({
   riderLocationContainer: {
     flex: 1,
+  },
+
+  loading: {
+    justifyContent: "center",
+    alignSelf: "center",
   },
 
   webview: {

@@ -175,7 +175,7 @@ export default function App() {
             }}
           />
 
-          <BottomTab.Screen
+          {/* <BottomTab.Screen
             name="메뉴"
             component={MenuDetailScreen}
             options={{
@@ -188,7 +188,7 @@ export default function App() {
                 />
               ),
             }}
-          />
+          /> */}
         </BottomTab.Navigator>
       </View>
     );
@@ -293,7 +293,7 @@ export default function App() {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 0.0000005,
+    flex: 0.005,
     padding: 16,
     backgroundColor: "#94D35C",
     alignItems: "center",
