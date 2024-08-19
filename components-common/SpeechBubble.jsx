@@ -1,6 +1,6 @@
 import React from "react";
-import { Pressable, StyleSheet, TouchableOpacity, View } from "react-native";
-import { Button, Text } from "react-native-paper";
+import { StyleSheet, View } from "react-native";
+import { Text } from "react-native-paper";
 
 export default SpeechBubble = (props) => {
   return (
@@ -31,8 +31,8 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 25,
     borderTopRightRadius: 25,
     borderBottomRightRadius: 25,
-    borderWidth: 1, 
-    borderColor: '#dcdcdc', 
+    borderWidth: 1,
+    borderColor: "#dcdcdc",
     // padding: 25,
     // height: 80,
     // width: 30,
@@ -43,6 +43,6 @@ const styles = StyleSheet.create({
   },
   text: {
     fontSize: 17,
-     textAlign: "center"
+    textAlign: "center",
   },
 });

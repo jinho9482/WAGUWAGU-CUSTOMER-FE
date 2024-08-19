@@ -1,19 +1,12 @@
-import React, { useEffect, useState } from "react";
-import {
-  Image,
-  Pressable,
-  StyleSheet,
-  TouchableOpacity,
-  View,
-} from "react-native";
-import { Button, Text } from "react-native-paper";
+import React from "react";
+import { Image, StyleSheet, View } from "react-native";
+import { Text } from "react-native-paper";
 
 export default StoreListSpeechBubble = (props) => {
   return (
     <View
       style={[
         styles.container,
-        // { width: props.width },
         { width: props.width },
         { backgroundColor: props.backgroundColor },
       ]}
@@ -21,22 +14,23 @@ export default StoreListSpeechBubble = (props) => {
       <View style={styles.imageContainer}>
         <Image
           style={[styles.image, { resizeMode: "contain" }]}
-          source={props.image?{uri:"https://storage.googleapis.com/wgwg_bucket/"+props.image}:require("./../assets/food icon.png")}
+          source={
+            props.image
+              ? {
+                  uri:
+                    "https://storage.googleapis.com/wgwg_bucket/" + props.image,
+                }
+              : require("./../assets/food icon.png")
+          }
         />
       </View>
-      <View>
-        <Text
-          numberOfLines={1}
-          style={[styles.textTitle, { paddingBottom: 15 }]}
-        >
+      <View style={styles.textContainer}>
+        <Text numberOfLines={1} ellipsizeMode="tail" style={styles.textTitle}>
           {props.title}
         </Text>
-
-        <Text style={[styles.text]}>{props.time}</Text>
-
-        <Text style={[styles.text]}>{props.storeMinimumOrderAmount}</Text>
-
-        <Text style={[styles.text]}>{props.fee}</Text>
+        <Text style={styles.text}>{props.time}</Text>
+        <Text style={styles.text}>{props.storeMinimumOrderAmount}</Text>
+        <Text style={styles.text}>{props.fee}</Text>
       </View>
     </View>
   );
@@ -58,8 +52,13 @@ const styles = StyleSheet.create({
     borderWidth: 3,
     borderColor: "#dcdcdc",
   },
+  textContainer: {
+    flex: 1,
+    justifyContent: "center",
+  },
   textTitle: {
     fontSize: 25,
+    paddingBottom: 15,
   },
   text: {
     fontSize: 17,
@@ -68,8 +67,7 @@ const styles = StyleSheet.create({
     width: 50,
     height: 50,
     padding: 50,
-    marginRight: 20,
-    // margin: 20,
+    marginRight: 10,
     alignSelf: "flex-start",
     borderRadius: 10,
   },
