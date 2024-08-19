@@ -9,19 +9,20 @@ import {
   StyleSheet,
   Pressable,
 } from "react-native";
-import { AirbnbRating } from "react-native-ratings";
+import { Rating } from "react-native-ratings";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 
-const ReviewForm = () => {
+const ReviewForm = ({ route, navigation }) => {
+  const { storeId, storeName, userName } = route.params;
   const [rating, setRating] = useState(1);
   const [content, setContent] = useState("");
 
   const handlePostReview = async () => {
     const userId = await AsyncStorage.getItem("customerId");
-    const storeId = 4;
-    const userName = "소성민";
+
     const reviewReq = {
+      storeName: storeName,
       reviewerId: userId,
       content: content,
       userName: userName,
@@ -31,7 +32,7 @@ const ReviewForm = () => {
 
     try {
       const request = await axios.post(
-        "http://192.168.0.26:8080/api/v1/reviews",
+        "http://34.45.108.74/api/v1/reviews",
         reviewReq,
         {
           headers: {
@@ -39,6 +40,10 @@ const ReviewForm = () => {
           },
         }
       );
+      navigation.navigate("ReviewSection", {
+        storeId,
+        storeName,
+      });
       console.log("revieqw request :", reviewReq);
     } catch (error) {
       console.error("Error uploading review:", error.message);
@@ -48,9 +53,10 @@ const ReviewForm = () => {
   return (
     <View style={styles.container}>
       <View style={styles.headerContainer}>
-        <Text style={styles.header}></Text>
+        <Text style={styles.storeNames}>{storeName}</Text>
+        <Text style={styles.header}>리뷰 작성을 해보세요</Text>
       </View>
-      <Text style={styles.label}></Text>
+      <Text style={styles.label}>{userName}</Text>
       <TextInput
         style={styles.input}
         placeholder="리뷰를 작성하세요."
@@ -60,7 +66,7 @@ const ReviewForm = () => {
         onChangeText={setContent}
       />
 
-      <AirbnbRating onFinishRating={(value) => setRating(value)} />
+      <Rating onFinishRating={(value) => setRating(value)} />
 
       <Pressable style={styles.reviewButton} onPress={handlePostReview}>
         <Text style={styles.reviewButtonText}>리뷰 작성하기</Text>
@@ -124,6 +130,21 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 16,
     fontWeight: "bold",
+  },
+  storeNames: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "#333",
+    marginBottom: 8,
+    textAlign: "center",
+  },
+
+  header: {
+    fontSize: 20,
+    fontWeight: "600",
+    color: "#4CAF50",
+    marginVertical: 16,
+    textAlign: "center",
   },
 });
 

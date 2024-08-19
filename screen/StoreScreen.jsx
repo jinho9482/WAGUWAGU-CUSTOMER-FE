@@ -82,6 +82,7 @@ export default function StoreScreen({ navigation, route }) {
   return (
     <ScrollView>
       <View>
+        {console.log("image check" + store.storeImage)}
         <Image
           style={[styles.image, { width: dimensionWidth }]}
           source={
@@ -101,6 +102,7 @@ export default function StoreScreen({ navigation, route }) {
             onPress={() =>
               navigation.navigate("ReviewSection", {
                 storeId: storeId,
+                storeName: store.storeName,
               })
             }
           >

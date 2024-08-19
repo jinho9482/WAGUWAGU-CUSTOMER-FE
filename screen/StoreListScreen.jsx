@@ -72,7 +72,7 @@ export default function StoreListScreen({ navigation, route }) {
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
       >
-        {stores ? (
+        {stores && stores.length > 0 ? (
           stores.map((store) => {
             return (
               <TouchableOpacity

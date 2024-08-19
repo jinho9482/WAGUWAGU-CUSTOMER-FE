@@ -9,8 +9,11 @@ import {
   TouchableWithoutFeedback,
   RefreshControl,
 } from "react-native";
-import { searchOrder, UserInformation, selectByConsumerAll } from "../config/orderApi";
-import OrderHistorySpeechBubble from "../components-order/OrderHistorySpeechBubble";
+import {
+  searchOrder,
+  UserInformation,
+  selectByConsumerAll,
+} from "../config/orderApi";
 import { Button } from "react-native-elements";
 
 export default function OrderHistoryScreen({ navigation }) {
@@ -18,35 +21,28 @@ export default function OrderHistoryScreen({ navigation }) {
   const [orders, setOrders] = useState([]);
   const [orderHistory, setOrderHistory] = useState([]);
   const [error, setError] = useState(null);
-  const [selectedOrder, setSelectedOrder] = useState(null);
-  const [isDetailsVisible, setIsDetailsVisible] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
-  const [offset, setOffset] = useState(0); 
-  const [hasMore, setHasMore] = useState(true); 
-
-  const dimensionWidth = Dimensions.get("window").width / 1.6;
-  const dimensionHeight = 90;
+  const [offset, setOffset] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
+  const [userName, setUserName] = useState("");
 
   const handledGetHistory = async () => {
     try {
       const userInfo = await UserInformation();
       const customerId = userInfo.customerId;
+      setUserName(userInfo.customerNickname);
 
       const result = await searchOrder({ customerId });
-      console.log(result);
       setOrders(result);
 
-    
       const historyResult = await selectByConsumerAll(offset);
-      console.log(historyResult);
-      
+
       if (historyResult.length > 0) {
         setOrderHistory((prevOrders) => [...prevOrders, ...historyResult]);
-        setOffset((prevOffset) => prevOffset + 10); 
+        setOffset((prevOffset) => prevOffset + 10);
       } else {
-        setHasMore(false); 
+        setHasMore(false);
       }
-
     } catch (error) {
       console.error("Failed to fetch data:", error);
       setError("Failed to fetch order history");
@@ -62,7 +58,7 @@ export default function OrderHistoryScreen({ navigation }) {
   const onRefresh = useCallback(() => {
     setRefreshing(true);
     setOffset(0);
-    setOrderHistory([]); 
+    setOrderHistory([]);
     handledGetHistory();
   }, []);
 
@@ -96,36 +92,34 @@ export default function OrderHistoryScreen({ navigation }) {
   const OrderItem = ({ item, onPress }) => {
     const lastStatus = extractStatusText(item.orderState);
     const backgroundColor = getStatusColor(lastStatus);
-    const textColor = item.orderId === selectedId ? "white" : "black";
 
     return (
-      <TouchableOpacity
-        onPress={onPress}
-        style={[styles.item, { backgroundColor }]}
-      >
-        <OrderHistorySpeechBubble
-          height={dimensionHeight}
-          width={dimensionWidth}
-          textColor={textColor}
-          content={`${item.storeName}\n${lastStatus || "No status"}\n${
-            item && item.menuItems && item.menuItems.length > 0
-              ? item.menuItems[0].menuName
-              : "No menu items"
-          }`}
-          backgroundColor={backgroundColor}
-        />
+      <TouchableOpacity onPress={onPress} style={[styles.item]}>
+        <View style={[styles.orderCard, { backgroundColor }]}>
+          <View style={styles.textContainer}>
+            <Text style={styles.storeName}>{item.storeName}</Text>
+            <Text style={styles.orderStatus}>{lastStatus || "No status"}</Text>
+            <Text style={styles.menuItem}>
+              {item && item.menuItems && item.menuItems.length > 0
+                ? item.menuItems[0].menuName
+                : "No menu items"}
+            </Text>
+          </View>
+        </View>
       </TouchableOpacity>
     );
   };
 
   const handleItemPress = (item) => {
     setSelectedId(item.orderId);
-    setSelectedOrder(item);
-    setIsDetailsVisible(true);
+    navigation.navigate("OrderDetailScreen", {
+      selectedOrder: item,
+      userName: userName,
+    });
   };
 
   const handleBackgroundPress = () => {
-    setIsDetailsVisible(false);
+    // setIsDetailsVisible(false);
   };
 
   return (
@@ -138,94 +132,34 @@ export default function OrderHistoryScreen({ navigation }) {
             <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
           }
         >
-          <Text style={styles.sectionTitle}>현재 주문건</Text>
-          {orders.map((item) => (
-            <OrderItem
-              key={item.orderId}
-              item={item}
-              onPress={() => handleItemPress(item)}
-            />
-          ))}
+          <View style={styles.sectionContainer}>
+            <Text style={styles.sectionTitle}>현재 주문건</Text>
+            {orders.map((item) => (
+              <OrderItem
+                key={item.orderId}
+                item={item}
+                onPress={() => handleItemPress(item)}
+              />
+            ))}
+          </View>
 
-          <Text style={styles.sectionTitle}>배달완료건</Text>
-          {orderHistory.map((item, index) => (
-            <OrderItem
-              key={index}
-              item={item}
-              onPress={() => handleItemPress(item)}
-            />
-          ))}
-          
+          <View style={styles.sectionContainer}>
+            <Text style={styles.sectionTitle}>배달완료건</Text>
+            {orderHistory.map((item, index) => (
+              <OrderItem
+                key={index}
+                item={item}
+                onPress={() => handleItemPress(item)}
+              />
+            ))}
+          </View>
+
           {hasMore && (
             <TouchableOpacity onPress={handledGetHistory}>
               <Text style={styles.loadMoreText}>더 보기</Text>
             </TouchableOpacity>
           )}
         </ScrollView>
-        {isDetailsVisible && selectedOrder && (
-          <View style={styles.detailsContainer}>
-            <Text style={styles.centeredText}>
-              가게 이름: {selectedOrder.storeName}
-            </Text>
-            <Text style={styles.centeredText}>
-              가게 주소: {selectedOrder.storeAddress}
-            </Text>
-            <Text style={styles.centeredText}>
-              고객 주소: {selectedOrder.customerAddress}
-            </Text>
-            <Text style={styles.centeredText}>
-              주문 상태: {extractStatusText(selectedOrder.orderState)}
-            </Text>
-            <Text style={styles.centeredText}>
-              Customer Requests: {selectedOrder.customerRequests}
-            </Text>
-            <Text style={styles.centeredText}>
-              Rider Requests: {selectedOrder.riderRequests}
-            </Text>
-            {selectedOrder.menuItems &&
-              selectedOrder.menuItems.map((menuItem, index) => (
-                <View key={index} style={styles.menuItemDetail}>
-                  <Text style={styles.centeredText}>
-                    메뉴: {menuItem.menuName}
-                  </Text>
-                  {menuItem.selectedOptions &&
-                    menuItem.selectedOptions.map((optionList, optListIndex) => (
-                      <View key={optListIndex} style={styles.optionList}>
-                        {optionList.options &&
-                          optionList.options.map((option, optIndex) => (
-                            <Text key={optIndex} style={styles.centeredText}>
-                              옵션: {option.optionTitle}: {option.optionPrice}원
-                            </Text>
-                          ))}
-                        <Text style={styles.centeredText}>
-                          주문 금액: {menuItem.totalPrice}원
-                        </Text>
-                      </View>
-                    ))}
-                </View>
-              ))}
-            <Text style={styles.centeredText}>
-              총 주문 금액: {selectedOrder.orderTotalPrice}원
-            </Text>
-
-            {extractStatusText(selectedOrder.orderState) === "배달 완료" && (
-              <Button
-                title="리뷰 쓰러가기"
-                onPress={() => navigation.navigate("ReviewScreen")}
-              />
-            )}
-            {extractStatusText(selectedOrder.orderState) === "배달중" && (
-              <Button
-                title="라이더 실시간 위치 확인"
-                onPress={() =>
-                  navigation.navigate("RiderRealTimeLocationScreen", {
-                    orderItem: selectedOrder,
-                  })
-                }
-              />
-            )}
-          </View>
-        )}
       </View>
     </TouchableWithoutFeedback>
   );
@@ -235,55 +169,60 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 10,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  item: {
-    marginVertical: 8,
-    marginHorizontal: 16,
-    borderRadius: 10,
-    padding: 10,
+    backgroundColor: "#f5f5f5",
   },
   scrollViewContainer: {
     alignItems: "center",
+    paddingBottom: 20,
   },
   errorText: {
     color: "red",
     textAlign: "center",
     marginVertical: 10,
   },
-  detailsContainer: {
-    padding: 20,
-    backgroundColor: "#fff",
-    borderRadius: 10,
-    margin: 20,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.8,
-    shadowRadius: 2,
-    elevation: 5,
-    justifyContent: "center",
+  sectionContainer: {
+    width: "100%",
+    marginBottom: 20,
+    paddingHorizontal: 10,
+  },
+  orderCard: {
+    flexDirection: "row",
     alignItems: "center",
+    justifyContent: "space-between",
+    borderRadius: 10,
+    padding: 15,
+    marginBottom: 10,
+    borderWidth: 1,
   },
-  menuItemDetail: {
-    marginVertical: 10,
+  textContainer: {
+    flex: 1,
+    paddingHorizontal: 10,
   },
-  optionList: {
-    marginLeft: 10,
+  storeName: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#333",
   },
-  centeredText: {
-    textAlign: "center",
+  orderStatus: {
+    fontSize: 16,
+    color: "#666",
+    marginVertical: 5,
+  },
+  menuItem: {
+    fontSize: 14,
+    color: "#999",
   },
   sectionTitle: {
-    fontSize: 17,
+    fontSize: 20,
     fontWeight: "bold",
-    marginVertical: 15,
-    textAlign: "center",
+    marginBottom: 15,
+    textAlign: "left",
     color: "#333",
   },
   loadMoreText: {
     color: "#007BFF",
     marginVertical: 10,
     fontSize: 16,
+    textAlign: "center",
   },
 });

@@ -1,13 +1,12 @@
-// orderNetwork.js
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-export const orderApi = async (url, method, body, params) => {
-  const res = await axios({
+export const serchApi = async (url, method, body, params) => {
+  const response = await axios({
     url,
     method,
-    // baseURL: "http://35.223.83.225:8080", // baseURL
-    baseURL: "http://35.223.83.225",
+    baseURL: "http://192.168.0.20:8080", // baseURL
+    // baseURL: "http://35.223.83.225",
     data: body,
     params: params,
     headers: {
@@ -15,5 +14,5 @@ export const orderApi = async (url, method, body, params) => {
     },
   });
 
-  return res;
+  return response;
 };
