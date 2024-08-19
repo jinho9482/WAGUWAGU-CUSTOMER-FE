@@ -84,10 +84,10 @@ export default function HomeScreen({ navigation }) {
       <View>
         <Image
           style={[styles.image, { resizeMode: "contain" }]}
-          source={require("./../assets/waguwagu.png")}
+          source={require("./../assets/waguwagu6.png")}
         />
 
-        <Search />
+        {/* <Search /> */}
         {/* <View
           style={{
             flexDirection: "row",
@@ -114,9 +114,9 @@ export default function HomeScreen({ navigation }) {
             );
           })}
         </View>
-        <Pressable onPress={() => navigation.navigate("ReviewScreen")}>
+        {/* <Pressable onPress={() => navigation.navigate("ReviewScreen")}>
           <Text>리뷰</Text>
-        </Pressable>
+        </Pressable> */}
       </View>
     </ScrollView>
   );
@@ -136,6 +136,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     // paddingHorizontal: 8,
+    marginTop: 30,
   },
   item: {
     // padding: 20,
@@ -147,10 +148,11 @@ const styles = StyleSheet.create({
     fontSize: 32,
   },
   image: {
-    width: Dimensions.get("window").width - 50,
-    height: 150,
+    width: Dimensions.get("window").width - 20,
+    height: 180,
     padding: 50,
     alignSelf: "center",
+    marginBottom: 50,
   },
   search: {
     margin: 20,
