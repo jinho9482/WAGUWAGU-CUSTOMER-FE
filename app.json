@@ -12,7 +12,10 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "infoPlist": {
+        "UIAppFonts": ["assets/fonts/런드리고딕OTF Regular.otf"]
+      }
     },
     "android": {
       "adaptiveIcon": {

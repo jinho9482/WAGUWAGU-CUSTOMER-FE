@@ -10,7 +10,9 @@ export default StoreScreenSpeechBubble = (props) => {
         styles.container,
         { width: props.width }, // 동적 너비
         { height: props.height }, // 동적 높이
-        { backgroundColor: props.backgroundColor }, // 동적 배경색
+        { backgroundColor: "#FFFFFF" }, // 동적 배경색
+        { borderColor: "#EECAD5" },
+        { borderWidth: 3 },
       ]}
     >
       <ScrollView contentContainerStyle={styles.scrollContainer}>

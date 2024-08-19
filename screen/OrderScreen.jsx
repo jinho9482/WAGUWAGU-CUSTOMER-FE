@@ -369,7 +369,7 @@ const styles = StyleSheet.create({
   },
   deliveryText: {
     fontSize: 16,
-    backgroundColor: "#E0F7EF",
+    backgroundColor: "#F1D3CE",
     padding: 10,
     borderRadius: 20,
   },
@@ -377,7 +377,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   button: {
-    backgroundColor: "#94D35C",
+    backgroundColor: "#EECAD5",
     padding: 15,
     borderRadius: 25,
     marginVertical: 5,
@@ -396,7 +396,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   paymentSection: {
-    backgroundColor: "#A5D6A7",
+    backgroundColor: "#F1D3CE",
     padding: 20,
     borderRadius: 25,
     marginBottom: 20,

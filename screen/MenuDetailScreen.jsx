@@ -409,7 +409,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   addToCartButton: {
-    backgroundColor: "#FF3B30",
+    backgroundColor: "#EECAD5",
     padding: 15,
     alignItems: "center",
     justifyContent: "center",
@@ -429,6 +429,8 @@ const styles = StyleSheet.create({
     marginVertical: 30,
   },
   imageContainer: {
+    width: "90%",
+    alignSelf: "center",
     borderRadius: 30,
     overflow: "hidden",
     shadowColor: "#000",
@@ -448,7 +450,7 @@ const styles = StyleSheet.create({
   },
   menuIntroduction: {
     fontSize: 20,
-    color: "#F5F5F6",
+    color: "#3A3737",
     textAlign: "center",
     marginBottom: 30,
   },
