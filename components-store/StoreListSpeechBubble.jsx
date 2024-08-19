@@ -8,7 +8,7 @@ export default StoreListSpeechBubble = (props) => {
       style={[
         styles.container,
         { width: props.width },
-        { backgroundColor: props.backgroundColor },
+        { backgroundColor: "#FFFFFF" },
       ]}
     >
       <View style={styles.imageContainer}>

@@ -80,7 +80,7 @@ export default function HomeScreen({ navigation }) {
   };
 
   return (
-    <ScrollView>
+    <ScrollView style={styles.box}>
       <View>
         <Image
           style={[styles.image, { resizeMode: "contain" }]}
@@ -98,7 +98,7 @@ export default function HomeScreen({ navigation }) {
         <View style={styles.categoryContainer}>
           {DATA.map((item) => {
             const backgroundColor =
-              item.id === selectedId ? "#94D35C" : "#ffffff";
+              item.id === selectedId ? "#EECAD5" : "#ffffff";
             const color = item.id === selectedId ? "white" : "black";
             return (
               <Item
@@ -123,6 +123,10 @@ export default function HomeScreen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
+  box: {
+    backgroundColor: "#FFFFFF",
+  },
+
   container: {
     flex: 1,
   },

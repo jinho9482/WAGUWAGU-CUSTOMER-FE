@@ -105,7 +105,7 @@ export default function App() {
         <BottomTab.Navigator
           initialRouteName="Home"
           activeColor="#f0edf6"
-          barStyle={{ backgroundColor: "#94D35C" }}
+          barStyle={{ backgroundColor: "#EECAD5" }}
         >
           <BottomTab.Screen
             name="홈"
@@ -198,7 +198,14 @@ export default function App() {
     <RecoilRoot>
       <NavigationContainer>
         <View style={styles.container}></View>
-        <Stack.Navigator initialRouteName="Login">
+        <Stack.Navigator
+          initialRouteName="Login"
+          screenOptions={{
+            headerMode: "screen",
+            headerTintColor: "white",
+            headerStyle: { backgroundColor: "#F1D3CE" },
+          }}
+        >
           <Stack.Screen
             name="Login"
             component={LoginScreen}
@@ -225,11 +232,20 @@ export default function App() {
             component={OrderHistoryScreen}
           />
           <Stack.Screen name="SearchScreen" component={SearchScreen} />
-          <Stack.Screen name="StoreList" component={StoreListScreen} />
+          <Stack.Screen
+            name="StoreList"
+            component={StoreListScreen}
+            options={{
+              title: "",
+              headerTransparent: true,
+              headerBackTitleVisible: false,
+              headerTintColor: "#000",
+            }}
+          />
           <Stack.Screen
             name="Main"
             component={BottomView}
-            options={{ headerShown: false }}
+            options={{ headerShown: false, title: "" }}
           />
           <Stack.Screen
             name="SignUp"
@@ -254,9 +270,23 @@ export default function App() {
           <Stack.Screen
             name="Store"
             component={StoreScreen}
-            // options={{ headerShown: false }}
+            options={{
+              title: "",
+              headerTransparent: true,
+              // headerBackTitleVisible: false,
+              headerTintColor: "#000",
+            }}
           />
-          <Stack.Screen name="CartScreen" component={CartScreen} />
+          <Stack.Screen
+            name="CartScreen"
+            component={CartScreen}
+            options={{
+              title: "장바구니",
+              headerTintColor: "#000",
+              headerBackTitleVisible: false,
+              // headerTransparent: true,
+            }}
+          />
           <Stack.Screen
             name="MenuDetailScreen"
             component={MenuDetailScreen}
@@ -293,9 +323,9 @@ export default function App() {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 0.005,
+    flex: 0.02,
     padding: 16,
-    backgroundColor: "#94D35C",
+    backgroundColor: "#F1D3CE",
     alignItems: "center",
     justifyContent: "center",
   },
