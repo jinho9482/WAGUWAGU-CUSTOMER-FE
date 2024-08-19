@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { Text, View, FlatList, TouchableOpacity } from "react-native";
+import { Text, View, FlatList, Alert } from "react-native";
 import { Searchbar } from "react-native-paper";
 import { useFocusEffect } from "@react-navigation/native";
 import { searchByKeyword, createStore, deleteByCustomerId } from "../config/serchApi";
 import { getAllStoresNearUserNoCategoryQL, getAllMenuByStoreIdQL } from "../config/storeGraphQL";
 import { UserInformation } from "../config/orderApi";
+import SearchStoreListSpeechBubble from "../components-store/SearchStoreListSpeechBubble";
 
 export default function SearchScreen({ navigation }) {
   const [keywordQuery, setKeywordQuery] = useState("");
@@ -12,6 +13,9 @@ export default function SearchScreen({ navigation }) {
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
+  const [searchHistory, setSearchHistory] = useState([]); // State for search history
+
+  const dimensionWidth = 300; // Set your desired width for the speech bubble
 
   const handleSearch = async (type, reset = false) => {
     try {
@@ -23,6 +27,10 @@ export default function SearchScreen({ navigation }) {
 
       let data = [];
       if (type === "keyword") {
+        if (!keywordQuery) {
+          Alert.alert("알림", "검색할 키워드를 입력해주세요.");
+          return;
+        }
         data = await searchByKeyword(keywordQuery, pageable);
       }
 
@@ -35,6 +43,10 @@ export default function SearchScreen({ navigation }) {
       }
 
       setTotalPages(Math.ceil(data.total / pageable.size));
+
+      // Update search history
+      setSearchHistory((prevHistory) => [...prevHistory, keywordQuery]);
+
     } catch (error) {
       console.error(`${type} search failed:`, error);
     } finally {
@@ -53,37 +65,63 @@ export default function SearchScreen({ navigation }) {
       setLoading(true);
 
       const userInfo = await UserInformation();
+      if (!userInfo) {
+        Alert.alert("알림", "사용자 정보를 가져올 수 없습니다.");
+        navigation.navigate("HomeScreen");
+        return;
+      }
       console.log("User Information:", userInfo);
 
-      const storesNearUser = await getAllStoresNearUserNoCategoryQL({
-        input: {
-          longitude: userInfo.customerLongitude,
-          latitude: userInfo.customerLatitude,
-        },
-      });
-      console.log("Stores near user:", storesNearUser);
-
-      for (const store of storesNearUser) {
-        const menuDetail = await getAllMenuByStoreIdQL({
+      let storesNearUser = [];
+      try {
+        storesNearUser = await getAllStoresNearUserNoCategoryQL({
           input: {
-            storeId: store.storeId,
+            longitude: userInfo.customerLongitude,
+            latitude: userInfo.customerLatitude,
           },
         });
+        if (!storesNearUser || storesNearUser.length === 0) {
+          throw new Error("No stores found near user.");
+        }
+        console.log("Stores near user:", storesNearUser);
+      } catch (error) {
+        Alert.alert("알림", "주변 가게 정보를 가져올 수 없습니다.");
+        navigation.navigate("HomeScreen");
+        return;
+      }
 
-        const storeData = {
-          storeId: store.storeId,
-          customerId: userInfo.customerId,
-          storeName: store.storeName,
-          storeIntroduction: store.storeIntroduction,
-          menuName: menuDetail?.menuName || "Default Menu Name",
-          menuIntroduction: menuDetail?.menuIntroduction || "Default Menu Introduction",
-        };
-
+      for (const store of storesNearUser) {
+        let menuDetails = [];
         try {
-          const response = await createStore(storeData);
-          console.log("Store saved successfully:", response);
+          menuDetails = await getAllMenuByStoreIdQL({
+            storeId: store.storeId,
+          });
+          if (!menuDetails || menuDetails.length === 0) {
+            throw new Error("No menu details found for the store.");
+          }
+          console.log("Menu details:", menuDetails);
         } catch (error) {
-          console.error("Failed to save store:", error);
+          Alert.alert("알림", "메뉴 정보를 가져올 수 없습니다.");
+          navigation.navigate("HomeScreen");
+          return;
+        }
+
+        for (const menuDetail of menuDetails) {
+          const storeData = {
+            storeId: store.storeId || '1',
+            customerId: userInfo.customerId,
+            storeName: store.storeName || "초록마을 짱구할아버지네",
+            storeIntroduction: store.storeIntroduction || "안녕하세요~ 초록마을에 사는 짱구할아버지예요~",
+            menuName: menuDetail.menuName || "Default Menu Name",
+            menuIntroduction: menuDetail.menuIntroduction || "Default Menu Introduction",
+          };
+
+          try {
+            const response = await createStore(storeData);
+            console.log("Store saved successfully:", response);
+          } catch (error) {
+            console.error("Failed to save store:", error);
+          }
         }
       }
 
@@ -98,13 +136,27 @@ export default function SearchScreen({ navigation }) {
   const handleItemPress = async (storeId) => {
     try {
       const userInfo = await UserInformation();
+      if (!userInfo) {
+        Alert.alert("알림", "사용자 정보를 가져올 수 없습니다.");
+        navigation.navigate("HomeScreen");
+        return;
+      }
       await deleteByCustomerId(userInfo.customerId);
       console.log("Store deleted successfully for customer ID:", userInfo.customerId);
+
+      // Remove last search query from history
+      setSearchHistory((prevHistory) => prevHistory.slice(0, -1));
+
+      // Clear keyword query
+      setKeywordQuery("");
+
+      // Navigate to Store screen
+      navigation.navigate("Store", { storeId });
+
     } catch (error) {
       console.error("Failed to delete store by customer ID:", error);
+      Alert.alert("알림", "가게를 삭제하는 중에 문제가 발생했습니다.");
     }
-
-    navigation.navigate("Store", { storeId });
   };
 
   useFocusEffect(
@@ -118,6 +170,11 @@ export default function SearchScreen({ navigation }) {
       const deleteStoreByCustomerId = async () => {
         try {
           const userInfo = await UserInformation();
+          if (!userInfo) {
+            Alert.alert("알림", "사용자 정보를 가져올 수 없습니다.");
+            navigation.navigate("HomeScreen");
+            return;
+          }
           await deleteByCustomerId(userInfo.customerId);
           console.log("Store deleted successfully for customer ID:", userInfo.customerId);
         } catch (error) {
@@ -131,17 +188,14 @@ export default function SearchScreen({ navigation }) {
 
   return (
     <View style={{ padding: 20 }}>
-      <Text style={{ fontSize: 24, marginBottom: 20 }}>검색 및 저장</Text>
-
-      {/* Searchbar */}
       <Searchbar
-        placeholder="Keyword를 입력하세요"
+        placeholder={"검색할 키워드를 입력해주세요"}
         value={keywordQuery}
         onChangeText={(text) => {
           setKeywordQuery(text);
           setPage(0);
         }}
-        onSubmitEditing={() => handleSearch("keyword", true)} // Trigger search on submit
+        onSubmitEditing={() => handleSearch("keyword", true)}
         style={{ marginBottom: 20 }}
       />
 
@@ -151,18 +205,13 @@ export default function SearchScreen({ navigation }) {
         data={results}
         keyExtractor={(item) => (item.storeId !== null ? item.storeId.toString() : Math.random().toString())}
         renderItem={({ item }) => (
-          <TouchableOpacity
+          <SearchStoreListSpeechBubble
             key={item.storeId}
+            width={dimensionWidth}
+            title={item.storeName}
+            image={item.storeImage} 
             onPress={() => handleItemPress(item.storeId)}
-          >
-            <View style={{ padding: 10, borderBottomWidth: 1, borderBottomColor: '#ccc' }}>
-              <Text>가게 ID: {item.storeId}</Text>
-              <Text>가게 이름: {item.storeName}</Text>
-              <Text>소개: {item.storeIntroduction}</Text>
-              <Text>메뉴 이름: {item.menuName}</Text>
-              <Text>메뉴 소개: {item.menuIntroduction}</Text>
-            </View>
-          </TouchableOpacity>
+          />
         )}
         onEndReached={loadMoreResults}
         onEndReachedThreshold={0.5}

@@ -132,12 +132,13 @@ export const getAllStoresNearUserQL = async (variables) => {
 };
 
 export const getAllStoresNearUserNoCategoryQL = async (variables) => {
+  console.log("getAllStoresNearUserNoCategoryQL api 반응 @@@@@@@@@@@@");
   try {
     const data = await axios.post(
       endpoint,
       {
         query: `
-            mutation userNearStoreAll($input:UserLocationRequest ) {
+            mutation userNearStoreAll($input: UserLocationRequest ) {
               userNearStoreAll(input:$input) {
                 ownerId
                 storeId
