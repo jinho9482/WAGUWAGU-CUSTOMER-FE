@@ -108,6 +108,7 @@ const MenuDetailScreen = ({ navigation, route }) => {
       const response = await axios.get(
         `http://35.184.212.63/api/v1/cart/${userId}`
       );
+      console.log("ggggggggggg", response.data);
       return response.data;
     } catch (error) {
       console.error("Error fetching cart items:", error);
@@ -115,22 +116,18 @@ const MenuDetailScreen = ({ navigation, route }) => {
     }
   };
   const handleAddToCart = async () => {
+    let cartItem; // Declare the variable here to use in error handling
+
     try {
+      // Retrieve userId from AsyncStorage
       const userId = await AsyncStorage.getItem("customerId");
+      console.log("User ID:", userId);
 
+      // Fetch existing cart items
       const cartData = await fetchCartItems();
-
-      if (cartData) {
-        const existingStoreId = cartData.storeId;
-
-        if (existingStoreId && existingStoreId !== storeId) {
-          Alert.alert("오류", "같은 가게의 상품만 담을 수 있습니다", [
-            { text: "OK" },
-          ]);
-          return;
-        }
-
-        // Prepare the new menu item to be added
+      console.log("Fetched Cart Data:", cartData);
+      if (!(cartData && cartData.storeId)) {
+        // If cartData is null or doesn't have storeId, proceed as if it's a new cart
         const newMenuItem = {
           menuId: menuDetails.menuId,
           menuName: menuDetails.menuName,
@@ -141,26 +138,26 @@ const MenuDetailScreen = ({ navigation, route }) => {
             options: list.options.filter((op) => op.isChecked),
           })),
         };
-
-        // Append new menu item to existing items or create a new array
-        const menuItems = [...(cartData.menuItems || []), newMenuItem];
+        console.log("New Menu Item:", newMenuItem);
 
         // Prepare the cart object
-        const cartItem = {
+        cartItem = {
           storeName: storeName,
           storeId: storeId,
           userId,
           totalPrice: totalPrice,
-          menuItems,
+          menuItems: [newMenuItem],
         };
+        console.log("New Cart Item to Save:", cartItem);
 
-        // Attempt to save the cart item
+        // Attempt to save the new cart item
         await axios.post("http://35.184.212.63/api/v1/cart/save", cartItem, {
           headers: {
             "Content-Type": "application/json",
           },
         });
 
+        // Navigate to the cart screen on successful save
         navigation.navigate("CartScreen", {
           menuId: menuDetails.menuId,
           menuName: menuDetails.menuName,
@@ -168,19 +165,86 @@ const MenuDetailScreen = ({ navigation, route }) => {
           storeId: storeId,
           totalPrice: totalPrice,
         });
+        return;
       }
+      // Check if cartData exists and has a valid structure
+
+      const existingStoreId = cartData.storeId;
+      console.log("Existing Store ID:", existingStoreId);
+
+      // Check if the user is trying to add items from a different store
+      if (existingStoreId !== storeId && cartData.menuItems.length > 0) {
+        Alert.alert("오류", "같은 가게의 상품만 담을 수 있습니다", [
+          { text: "OK" },
+        ]);
+        return; // Stop further execution
+      }
+      if (existingStoreId !== storeId && cartData.menuItems.length === 0) {
+        const res = await axios.delete(
+          `http://35.184.212.63/api/v1/cart/clear/${userId}`
+        );
+        console.log({ res });
+      }
+      // Prepare the new menu item to be added
+      const newMenuItem = {
+        menuId: menuDetails.menuId,
+        menuName: menuDetails.menuName,
+        totalPrice: totalPrice,
+        selectedOptions: selectedOptions.map((list) => ({
+          listId: list.listId,
+          listName: list.listName,
+          options: list.options.filter((op) => op.isChecked),
+        })),
+      };
+      console.log("New Menu Item:", newMenuItem);
+
+      // Append new menu item to existing items or create a new array
+      const menuItems = [...(cartData.menuItems || []), newMenuItem];
+      console.log("Updated Menu Items:", menuItems);
+
+      // Prepare the cart object
+      cartItem = {
+        storeName: storeName,
+        storeId: storeId,
+        userId,
+        totalPrice: totalPrice,
+        menuItems,
+      };
+      console.log("Cart Item to Save:", cartItem);
+
+      // Attempt to save the cart item
+      await axios.post("http://35.184.212.63/api/v1/cart/save", cartItem, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      // Navigate to the cart screen on successful save
+      navigation.navigate("CartScreen", {
+        menuId: menuDetails.menuId,
+        menuName: menuDetails.menuName,
+        storeName: storeName,
+        storeId: storeId,
+        totalPrice: totalPrice,
+      });
     } catch (error) {
+      // Enhanced error handling with cartItem logging
+      console.error("Error adding to cart:", error.response);
+      if (cartItem) {
+        console.log("Cart Item at Error:", cartItem);
+      }
       if (
         error.response &&
         error.response.data &&
         error.response.data.message
       ) {
-        Alert.alert("Error", "한 가게의 상품만 담을 수 있습니다");
+        Alert.alert("Error", error.response.data.message);
       } else {
-        console.error("Error adding to cart:", error.message);
+        Alert.alert("Error", "An unexpected error occurred.");
       }
     }
   };
+
   const renderFoodInfo = () => (
     <View>
       {menuDetails ? (
