@@ -114,9 +114,9 @@ export default function HomeScreen({ navigation }) {
             );
           })}
         </View>
-        <Pressable onPress={() => navigation.navigate("ReviewScreen")}>
-          <Text>리뷰</Text>
-        </Pressable>
+        <Pressable
+          onPress={() => navigation.navigate("ReviewScreen")}
+        ></Pressable>
       </View>
     </ScrollView>
   );
