@@ -273,7 +273,7 @@ export default function App() {
             options={{
               title: "",
               headerTransparent: true,
-              // headerBackTitleVisible: false,
+              headerBackTitleVisible: false,
               headerTintColor: "#000",
             }}
           />

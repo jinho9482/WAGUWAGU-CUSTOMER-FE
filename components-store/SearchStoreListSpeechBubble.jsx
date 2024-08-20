@@ -3,6 +3,8 @@ import { Image, StyleSheet, View, TouchableOpacity } from "react-native";
 import { Text } from "react-native-paper";
 
 export default function SearchStoreListSpeechBubble(props) {
+  console.log("QQQQQQQQQQQQQQQQQQQQQQ" + props.title);
+  console.log("QQQQQQQQQQQQQQQQQQQQQQ" + props.image);
   return (
     <TouchableOpacity onPress={props.onPress}>
       <View
@@ -19,7 +21,8 @@ export default function SearchStoreListSpeechBubble(props) {
               props.image
                 ? {
                     uri:
-                      "https://storage.googleapis.com/wgwg_bucket/" + props.image,
+                      "https://storage.googleapis.com/wgwg_bucket/" +
+                      props.image,
                   }
                 : require("./../assets/food icon.png")
             }
@@ -59,7 +62,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   textTitle: {
-    fontSize: 40,
+    fontSize: 30,
     paddingBottom: 15,
   },
   text: {

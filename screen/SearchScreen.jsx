@@ -2,8 +2,15 @@ import React, { useState, useEffect } from "react";
 import { Text, View, FlatList, Alert } from "react-native";
 import { Searchbar } from "react-native-paper";
 import { useFocusEffect } from "@react-navigation/native";
-import { searchByKeyword, createStore, deleteByCustomerId } from "../config/serchApi";
-import { getAllStoresNearUserNoCategoryQL, getAllMenuByStoreIdQL } from "../config/storeGraphQL";
+import {
+  searchByKeyword,
+  createStore,
+  deleteByCustomerId,
+} from "../config/serchApi";
+import {
+  getAllStoresNearUserNoCategoryQL,
+  getAllMenuByStoreIdQL,
+} from "../config/storeGraphQL";
 import { UserInformation } from "../config/orderApi";
 import SearchStoreListSpeechBubble from "../components-store/SearchStoreListSpeechBubble";
 
@@ -46,7 +53,6 @@ export default function SearchScreen({ navigation }) {
 
       // Update search history
       setSearchHistory((prevHistory) => [...prevHistory, keywordQuery]);
-
     } catch (error) {
       console.error(`${type} search failed:`, error);
     } finally {
@@ -108,12 +114,15 @@ export default function SearchScreen({ navigation }) {
 
         for (const menuDetail of menuDetails) {
           const storeData = {
-            storeId: store.storeId || '1',
+            storeId: store.storeId || "1",
             customerId: userInfo.customerId,
             storeName: store.storeName || "초록마을 짱구할아버지네",
-            storeIntroduction: store.storeIntroduction || "안녕하세요~ 초록마을에 사는 짱구할아버지예요~",
+            storeIntroduction:
+              store.storeIntroduction ||
+              "안녕하세요~ 초록마을에 사는 짱구할아버지예요~",
             menuName: menuDetail.menuName || "Default Menu Name",
-            menuIntroduction: menuDetail.menuIntroduction || "Default Menu Introduction",
+            menuIntroduction:
+              menuDetail.menuIntroduction || "Default Menu Introduction",
           };
 
           try {
@@ -142,7 +151,10 @@ export default function SearchScreen({ navigation }) {
         return;
       }
       await deleteByCustomerId(userInfo.customerId);
-      console.log("Store deleted successfully for customer ID:", userInfo.customerId);
+      console.log(
+        "Store deleted successfully for customer ID:",
+        userInfo.customerId
+      );
 
       // Remove last search query from history
       setSearchHistory((prevHistory) => prevHistory.slice(0, -1));
@@ -152,7 +164,6 @@ export default function SearchScreen({ navigation }) {
 
       // Navigate to Store screen
       navigation.navigate("Store", { storeId });
-
     } catch (error) {
       console.error("Failed to delete store by customer ID:", error);
       Alert.alert("알림", "가게를 삭제하는 중에 문제가 발생했습니다.");
@@ -176,7 +187,10 @@ export default function SearchScreen({ navigation }) {
             return;
           }
           await deleteByCustomerId(userInfo.customerId);
-          console.log("Store deleted successfully for customer ID:", userInfo.customerId);
+          console.log(
+            "Store deleted successfully for customer ID:",
+            userInfo.customerId
+          );
         } catch (error) {
           console.error("Failed to delete store by customer ID:", error);
         }
@@ -203,13 +217,17 @@ export default function SearchScreen({ navigation }) {
 
       <FlatList
         data={results}
-        keyExtractor={(item) => (item.storeId !== null ? item.storeId.toString() : Math.random().toString())}
+        keyExtractor={(item) =>
+          item.storeId !== null
+            ? item.storeId.toString()
+            : Math.random().toString()
+        }
         renderItem={({ item }) => (
           <SearchStoreListSpeechBubble
             key={item.storeId}
             width={dimensionWidth}
             title={item.storeName}
-            image={item.storeImage} 
+            image={item.storeImage}
             onPress={() => handleItemPress(item.storeId)}
           />
         )}

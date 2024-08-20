@@ -143,8 +143,7 @@ const CartScreen = ({ route, navigation }) => {
             >
               <View style={{ flexDirection: "row" }}>
                 <Text style={styles.menuName}>
-                  {menu.menuName} = {menu.totalPrice}원, 메뉴아이디{" "}
-                  {menu.menuId}
+                  {menu.menuName} = {menu.totalPrice}원
                 </Text>
                 <Pressable onPress={() => deleteMenuItem(index)}>
                   <Image
@@ -164,7 +163,7 @@ const CartScreen = ({ route, navigation }) => {
                     </View>
                   ))
               ) : (
-                <Text style={styles.text}>No options selected</Text>
+                <View></View>
               )}
             </View>
           ))}
