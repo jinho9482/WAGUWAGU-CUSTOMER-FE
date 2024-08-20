@@ -213,6 +213,8 @@ const MenuDetailScreen = ({ navigation, route }) => {
     </View>
   );
 
+  //sss
+
   const calculateTotalPrice = (selectedOptions = selectedOptions) => {
     const totalPrice = selectedOptions.reduce(
       (sum, list) =>
