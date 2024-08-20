@@ -61,7 +61,7 @@ const SignupScreen = ({ navigation }) => {
     const connectWebSocket = (customerId) => {
         let reconnectInterval = 5000; // 5초 후 재연결 시도
         try {
-            const ws = new WebSocket(`ws://192.168.0.15:8000/alarm/ws/customer/${customerId}`);
+            const ws = new WebSocket(`ws://34.41.123.200/alarm/ws/customer/${customerId}`);
 
             ws.onopen = () => {
                 console.log("WebSocket 연결되었습니다");
@@ -161,7 +161,7 @@ const SignupScreen = ({ navigation }) => {
                     style={styles.iconImage}
                 />
                 <Image
-                    source={require('../assets/waguwagu.png')} // 두 번째 이미지 경로
+                    source={require('../assets/waguwagu6.png')} // 두 번째 이미지 경로
                     style={styles.logoImage}
                     resizeMode="contain" // 이미지가 버튼에 맞게 조정되도록 설정
                 />
