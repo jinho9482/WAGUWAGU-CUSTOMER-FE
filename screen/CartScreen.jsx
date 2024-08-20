@@ -272,7 +272,7 @@ const styles = StyleSheet.create({
     tintColor: "#94D35C",
   },
   checkoutButton: {
-    backgroundColor: "#FF3B30",
+    backgroundColor: "#EECAD5",
     borderRadius: 25,
     paddingVertical: 15,
     paddingHorizontal: 20,

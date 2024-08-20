@@ -117,6 +117,7 @@ const styles = StyleSheet.create({
   safeAreaViewContainer: {
     flex: 1,
     alignItems: "center",
+    backgroundColor: "#FFFFFF",
   },
   container: {
     alignItems: "center",
