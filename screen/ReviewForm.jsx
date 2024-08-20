@@ -32,7 +32,7 @@ const ReviewForm = ({ route, navigation }) => {
 
     try {
       const request = await axios.post(
-        "http://34.45.108.74/api/v1/reviews",
+        "http://35.184.212.63/api/v1/reviews",
         reviewReq,
         {
           headers: {
