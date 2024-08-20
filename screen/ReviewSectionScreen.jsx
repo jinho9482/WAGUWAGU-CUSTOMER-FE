@@ -14,7 +14,7 @@ const ReviewSectionScreen = ({ navigation, route }) => {
   const fetchReviews = async () => {
     try {
       const response = await axios.get(
-        `http://34.45.108.74/api/v1/reviews/store/${storeId}`
+        `http://35.184.212.63/api/v1/reviews/store/${storeId}`
       );
       console.log(storeId);
       setReviews(response.data);

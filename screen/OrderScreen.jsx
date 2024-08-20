@@ -9,6 +9,7 @@ import {
   Alert,
   Linking,
   AppState,
+  Dimensions,
 } from "react-native";
 
 import { createPayment } from "../config/PaymentApi";
@@ -55,7 +56,10 @@ export default function OrderScreen({ route, navigation }) {
         setCustomerLatitude(userInfo.customerLatitude);
       } catch (error) {
         console.error("Failed to fetch user information:", error);
-        Alert.alert("오류", "사용자 정보를 가져오지 못했습니다. 네트워크를 확인하고 다시 시도해 주세요.");
+        Alert.alert(
+          "오류",
+          "사용자 정보를 가져오지 못했습니다. 네트워크를 확인하고 다시 시도해 주세요."
+        );
         setError(true);
       }
     };
@@ -144,11 +148,11 @@ export default function OrderScreen({ route, navigation }) {
     }
   };
 
-  const handlePaymentAndOrder = async (cartTotal) => {
-    if (payState === "PAY_COMPLETE") {
-      console.log(payState, "결제 진행");
-      await handleCreateOrder();
-    } else await handlePayment(cartTotal);
+  const handlePaymentAndOrder = async () => {
+    // if (payState === "PAY_COMPLETE") {
+    //   console.log(payState, "결제 진행");
+    await handleCreateOrder();
+    // } else await handlePayment(cartTotal);
   };
 
   const notifyAndPlayAudio = async (ownerId) => {
@@ -179,7 +183,6 @@ export default function OrderScreen({ route, navigation }) {
         const { sound } = await Audio.Sound.createAsync({ uri });
         await sound.playAsync();
 
-
         sound.setOnPlaybackStatusUpdate((status) => {
           if (status.didJustFinish) {
             sound.unloadAsync();
@@ -193,7 +196,6 @@ export default function OrderScreen({ route, navigation }) {
       console.error("Failed to fetch and play audio:", error);
     }
   };
-
 
   const blobToArrayBuffer = (blob) => {
     return new Promise((resolve, reject) => {
@@ -250,22 +252,29 @@ export default function OrderScreen({ route, navigation }) {
       </View>
 
       <Text style={styles.title}>주문하기</Text>
-      <Text style={styles.cartDetail}>가게 이름: {cart.storeName}</Text>
+      <View style={[styles.deliveryText, { borderRadius: 15 }, { margin: 15 }]}>
+        <Text style={styles.buttonText}>{cart.storeName}</Text>
+      </View>
 
       {cart.menuItems &&
         cart.menuItems.map((item, index) => (
           <View key={index} style={styles.menuItem}>
-            <Text style={styles.menuItemText}>메뉴 이름: {item.menuName}</Text>
-            <Text style={styles.menuItemText}>가격: {item.totalPrice}원</Text>
+            <Text style={styles.storeTitleText}>{item.menuName}</Text>
+            <Text style={[styles.storeTitleText, { paddingLeft: 15 }]}>
+              가격: {item.totalPrice}원
+            </Text>
             {item.selectedOptions &&
               item.selectedOptions.map((optionList, optListIndex) => (
                 <View key={optListIndex} style={styles.optionList}>
-                  <Text style={styles.optionListTitle}>
+                  {/* <Text style={styles.optionListTitle}>
                     {optionList.listName}
-                  </Text>
+                  </Text> */}
                   {optionList.options &&
                     optionList.options.map((option, optIndex) => (
-                      <Text key={optIndex} style={styles.optionText}>
+                      <Text
+                        key={optIndex}
+                        style={[styles.optionText, { paddingLeft: 40 }]}
+                      >
                         옵션: {option.optionTitle} ({option.optionPrice}원)
                       </Text>
                     ))}
@@ -330,7 +339,7 @@ export default function OrderScreen({ route, navigation }) {
       <View style={styles.container}>
         <TouchableOpacity
           style={[styles.button, { marginBottom: 40 }]}
-          onPress={() => handlePaymentAndOrder(cartTotal)}
+          onPress={handlePaymentAndOrder}
         >
           <Text style={styles.buttonText}>{paymentButtonText}</Text>
         </TouchableOpacity>
@@ -340,6 +349,21 @@ export default function OrderScreen({ route, navigation }) {
 }
 
 const styles = StyleSheet.create({
+  menuItem: {
+    display: "flex",
+    alignSelf: "center",
+    alignContent: "center",
+    paddingLeft: 15,
+    borderWidth: 3,
+    borderRadius: 10,
+    borderColor: "#F1D3CE",
+    width: Dimensions.get("window").width - 50,
+    margin: 10,
+    padding: 5,
+  },
+  storeTitleText: {
+    fontSize: 20,
+  },
   scrollContainer: {
     flex: 1,
     padding: 20,

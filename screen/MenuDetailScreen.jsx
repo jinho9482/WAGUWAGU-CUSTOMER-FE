@@ -134,7 +134,7 @@ const MenuDetailScreen = ({ navigation, route }) => {
 
     try {
       const response = await axios.get(
-        `http://34.45.108.74/api/v1/cart/${userId}`
+        `http://35.184.212.63/api/v1/cart/${userId}`
       );
       console.log("xxxxxxxxxxxxxxxxxxxxxxxfgfggf", response.data);
       if (response.data.menuItems) return response.data.menuItems;
@@ -185,7 +185,7 @@ const MenuDetailScreen = ({ navigation, route }) => {
 
     try {
       const request = await axios.post(
-        "http://34.45.108.74/api/v1/cart/save",
+        "http://35.184.212.63/api/v1/cart/save",
         cartItem,
         {
           headers: {
@@ -271,7 +271,7 @@ const MenuDetailScreen = ({ navigation, route }) => {
           />
         ))
       ) : (
-        <Text>No option lists available</Text>
+        <Text></Text>
       )}
     </View>
   );
@@ -289,7 +289,7 @@ const MenuDetailScreen = ({ navigation, route }) => {
         />
       </TouchableOpacity>
       <View style={styles.headerTitleContainer}>
-        <Text style={styles.headerTitle}>Menu Details</Text>
+        <Text style={styles.headerTitle}>상세 메뉴</Text>
       </View>
       <TouchableOpacity
         style={styles.cartButton}
