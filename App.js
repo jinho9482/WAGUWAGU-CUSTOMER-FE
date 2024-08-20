@@ -30,6 +30,7 @@ import ReviewSectionScreen from "./screen/ReviewSectionScreen";
 import MyReviewScreen from "./screen/MyReviewScreen";
 
 import OrderDetailScreen from "./screen/OrderDetailScreen";
+import Toast from "react-native-toast-message";
 // import messaging from "@react-native-firebase/messaging";
 // import AsyncStorage from "@react-native-async-storage/async-storage";
 // import axios from "axios";
@@ -174,6 +175,20 @@ export default function App() {
               ),
             }}
           />
+          <BottomTab.Screen
+            name="장바구니"
+            component={CartScreen}
+            options={{
+              tabBarLabel: "장바구니 ",
+              tabBarIcon: ({ color, size }) => (
+                <MaterialCommunityIcons
+                  name="account-circle"
+                  color={color}
+                  size={20}
+                />
+              ),
+            }}
+          />
 
           {/* <BottomTab.Screen
             name="메뉴"
@@ -197,6 +212,7 @@ export default function App() {
   return (
     <RecoilRoot>
       <NavigationContainer>
+        <Toast />
         <View style={styles.container}></View>
         <Stack.Navigator
           initialRouteName="Login"
