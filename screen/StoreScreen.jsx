@@ -10,13 +10,13 @@ import {
 } from "react-native";
 import { StyleSheet } from "react-native";
 import { Text } from "react-native";
-import SpeechBubble from "../components-common/SpeechBubble";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
   getMenuByMenuCategoryQL,
   getMenuCategoryByStoreQL,
   getStoreDetailQL,
 } from "../config/storeGraphQL";
+import StoreScreenSpeechBubble from "../components-store/StoreScreenSpeechBubble";
 
 export default function StoreScreen({ navigation, route }) {
   const { storeId } = route.params;
@@ -25,7 +25,6 @@ export default function StoreScreen({ navigation, route }) {
   const [menus, setMenus] = useState([]);
 
   const getStoreDetailApi = async () => {
-    console.log(storeId);
     try {
       const response = await getStoreDetailQL({
         storeId: storeId,
@@ -81,8 +80,9 @@ export default function StoreScreen({ navigation, route }) {
   const dimensionWidth = Dimensions.get("window").width / 1.2;
 
   return (
-    <ScrollView>
+    <ScrollView style={styles.box}>
       <View>
+        {console.log("image check" + store.storeImage)}
         <Image
           style={[styles.image, { width: dimensionWidth }]}
           source={
@@ -123,7 +123,7 @@ export default function StoreScreen({ navigation, route }) {
         </View>
 
         <View style={{ alignSelf: "center" }}>
-          <SpeechBubble
+          <StoreScreenSpeechBubble
             height={80}
             width={dimensionWidth}
             content={store.storeIntroduction}
@@ -220,6 +220,9 @@ export default function StoreScreen({ navigation, route }) {
 }
 
 const styles = StyleSheet.create({
+  box: {
+    backgroundColor: "#FFFFFF",
+  },
   image: {
     height: 150,
     marginTop: 20,
@@ -263,7 +266,7 @@ const styles = StyleSheet.create({
   },
   reviewButton: {
     padding: 12,
-    backgroundColor: "#85DB65",
+    backgroundColor: "#EECAD5",
     borderRadius: 8,
     alignItems: "center",
     justifyContent: "center",

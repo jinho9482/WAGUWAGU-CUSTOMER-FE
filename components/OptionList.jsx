@@ -28,11 +28,13 @@ const OptionList = ({ optionList, selectedOptions = [], onOptionChange }) => {
 
 const styles = StyleSheet.create({
   container: {
+    marginHorizontal: 10,
     marginVertical: SIZES.padding,
     padding: SIZES.padding,
     backgroundColor: COLORS.white, // Background color for the option list
     borderRadius: SIZES.radius, // Rounded corners
-
+    borderWidth: 3,
+    borderColor: "#EECAD5",
     elevation: 5, // Shadow elevation for Android
   },
   listName: {

@@ -10,7 +10,6 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import axios from "axios";
-import { COLORS, SIZES, FONTS } from "../assets/constants/theme";
 import OptionList from "../components/OptionList.jsx";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { getMenuByIdQL } from "../config/storeGraphQL.jsx";
@@ -74,9 +73,7 @@ const MenuDetailScreen = ({ navigation, route }) => {
     }
   `;
     try {
-
       const response = await axios.post(`http://34.69.39.99/graphql`, {
-
         query: GET_OPTION_LISTS,
         variables: { menuId },
       });
@@ -100,7 +97,6 @@ const MenuDetailScreen = ({ navigation, route }) => {
     // };
 
     const fetchData = () => {
-
       fetchMenuDetails();
       fetchOptionList();
 
@@ -138,7 +134,7 @@ const MenuDetailScreen = ({ navigation, route }) => {
 
     try {
       const response = await axios.get(
-        `http://34.45.108.74/api/v1/cart/${userId}`
+        `http://35.184.212.63/api/v1/cart/${userId}`
       );
       console.log("xxxxxxxxxxxxxxxxxxxxxxxfgfggf", response.data);
       if (response.data.menuItems) return response.data.menuItems;
@@ -160,7 +156,7 @@ const MenuDetailScreen = ({ navigation, route }) => {
             menuId: menuDetails.menuId,
             menuName: menuDetails.menuName,
             totalPrice: totalPrice,
-            selectedOptions: selectedOptions.map((list) => ({
+            selectedOptions: selectedOptions?.map((list) => ({
               listId: list.listId,
               listName: list.listName,
               options: list.options.filter((op) => op.isChecked),
@@ -172,7 +168,7 @@ const MenuDetailScreen = ({ navigation, route }) => {
             menuId: menuDetails.menuId,
             menuName: menuDetails.menuName,
             totalPrice: totalPrice,
-            selectedOptions: selectedOptions.map((list) => ({
+            selectedOptions: selectedOptions?.map((list) => ({
               listId: list.listId,
               listName: list.listName,
               options: list.options.filter((op) => op.isChecked),
@@ -189,7 +185,7 @@ const MenuDetailScreen = ({ navigation, route }) => {
 
     try {
       const request = await axios.post(
-        "http://34.45.108.74/api/v1/cart/save",
+        "http://35.184.212.63/api/v1/cart/save",
         cartItem,
         {
           headers: {
@@ -262,7 +258,7 @@ const MenuDetailScreen = ({ navigation, route }) => {
 
   const renderOptionLists = () => (
     <View>
-      {selectedOptions&&selectedOptions.length > 0 ? (
+      {selectedOptions && selectedOptions.length > 0 ? (
         selectedOptions.map((list) => (
           <OptionList
             key={list.listId}
@@ -275,7 +271,7 @@ const MenuDetailScreen = ({ navigation, route }) => {
           />
         ))
       ) : (
-        <Text>No option lists available</Text>
+        <Text></Text>
       )}
     </View>
   );
@@ -293,7 +289,7 @@ const MenuDetailScreen = ({ navigation, route }) => {
         />
       </TouchableOpacity>
       <View style={styles.headerTitleContainer}>
-        <Text style={styles.headerTitle}>Menu Details</Text>
+        <Text style={styles.headerTitle}>상세 메뉴</Text>
       </View>
       <TouchableOpacity
         style={styles.cartButton}
@@ -317,7 +313,7 @@ const MenuDetailScreen = ({ navigation, route }) => {
   if (loading) {
     return (
       <SafeAreaView style={styles.container}>
-        <ActivityIndicator size="large" color={COLORS.red} />
+        <ActivityIndicator size="large" color={"#FF3B30"} />
       </SafeAreaView>
     );
   }
@@ -352,14 +348,14 @@ const MenuDetailScreen = ({ navigation, route }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.lightGray2,
+    backgroundColor: "",
   },
   header: {
     flexDirection: "row",
-    paddingHorizontal: SIZES.padding * 2,
-    paddingVertical: SIZES.padding,
+    paddingHorizontal: 10 * 2,
+    paddingVertical: 10,
     alignItems: "center",
-    backgroundColor: COLORS.white,
+    backgroundColor: "#FFFFFF",
   },
   backButton: {
     width: 50,
@@ -413,60 +409,62 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   addToCartButton: {
-    backgroundColor: "#FF3B30",
+    backgroundColor: "#EECAD5",
     padding: 15,
     alignItems: "center",
     justifyContent: "center",
-    borderRadius: SIZES.radius,
-    margin: SIZES.padding,
+    borderRadius: 30,
+    margin: 30,
   },
   addToCartButtonText: {
-    color: COLORS.white,
+    color: "#FFFFFF",
     fontSize: 18,
   },
 
   menuName: {
-    ...FONTS.h1,
+    fontSize: 30,
     fontWeight: "bold",
     color: "black",
     textAlign: "center",
-    marginVertical: SIZES.padding,
+    marginVertical: 30,
   },
   imageContainer: {
-    borderRadius: SIZES.radius,
+    width: "90%",
+    alignSelf: "center",
+    borderRadius: 30,
     overflow: "hidden",
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.2,
     shadowRadius: 8,
     elevation: 4,
-    marginBottom: SIZES.padding,
+    marginBottom: 30,
   },
   image: {
     width: "100%",
     height: 200,
   },
   detailsContainer: {
-    paddingHorizontal: SIZES.padding,
+    paddingHorizontal: 30,
     alignItems: "center",
   },
   menuIntroduction: {
-    ...FONTS.body2,
-    color: COLORS.darkGray,
+    fontSize: 20,
+    color: "#3A3737",
     textAlign: "center",
-    marginBottom: SIZES.padding,
+    marginBottom: 30,
   },
   menuPrice: {
-    ...FONTS.h2,
+    fontSize: 22,
     color: "#FF3B30",
     fontWeight: "bold",
     textAlign: "center",
   },
   loadingText: {
-    ...FONTS.body1,
-    color: COLORS.darkGray,
+    fontSize: 30,
+    color: "#898C95",
     textAlign: "center",
-    marginTop: SIZES.padding,
+    marginTop: 30,
   },
 });
 

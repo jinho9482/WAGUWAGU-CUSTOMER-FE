@@ -72,7 +72,7 @@ export default function StoreListScreen({ navigation, route }) {
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
       >
-        {stores ? (
+        {stores && stores.length > 0 ? (
           stores.map((store) => {
             return (
               <TouchableOpacity
@@ -117,6 +117,7 @@ const styles = StyleSheet.create({
   safeAreaViewContainer: {
     flex: 1,
     alignItems: "center",
+    backgroundColor: "#FFFFFF",
   },
   container: {
     alignItems: "center",

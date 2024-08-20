@@ -53,7 +53,7 @@ export default function HomeScreen({ navigation }) {
     },
   ];
   const [selectedId, setSelectedId] = useState();
-  const dimensionWidth = Dimensions.get("window").width / 4;
+  const dimensionWidth = (Dimensions.get("window").width - 6 * 20) / 3;
   const Item = ({ item, onPress, backgroundColor, textColor }) => (
     <TouchableOpacity onPress={onPress} style={[styles.item]}>
       <SpeechBubble
@@ -80,24 +80,25 @@ export default function HomeScreen({ navigation }) {
   };
 
   return (
-    <ScrollView>
+    <ScrollView style={styles.box}>
       <View>
         <Image
           style={[styles.image, { resizeMode: "contain" }]}
-          source={require("./../assets/waguwagu.png")}
+          source={require("./../assets/waguwagu6.png")}
         />
 
-        <Search />
-        <View
+        {/* <Search /> */}
+        {/* <View
           style={{
             flexDirection: "row",
             flexWrap: "wrap",
             flexShrink: 1,
           }}
-        >
+        > */}
+        <View style={styles.categoryContainer}>
           {DATA.map((item) => {
             const backgroundColor =
-              item.id === selectedId ? "#94D35C" : "#ffffff";
+              item.id === selectedId ? "#EECAD5" : "#ffffff";
             const color = item.id === selectedId ? "white" : "black";
             return (
               <Item
@@ -112,18 +113,30 @@ export default function HomeScreen({ navigation }) {
               />
             );
           })}
-          <Pressable onPress={() => navigation.navigate("ReviewScreen")}>
-            <Text>리뷰</Text>
-          </Pressable>
         </View>
+        {/* <Pressable onPress={() => navigation.navigate("ReviewScreen")}>
+          <Text>리뷰</Text>
+        </Pressable> */}
       </View>
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
+  box: {
+    backgroundColor: "#FFFFFF",
+  },
+
   container: {
     flex: 1,
+  },
+  categoryContainer: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "center",
+    alignItems: "center",
+    // paddingHorizontal: 8,
+    marginTop: 30,
   },
   item: {
     // padding: 20,
@@ -135,10 +148,11 @@ const styles = StyleSheet.create({
     fontSize: 32,
   },
   image: {
-    width: Dimensions.get("window").width - 50,
-    height: 150,
+    width: Dimensions.get("window").width - 20,
+    height: 180,
     padding: 50,
     alignSelf: "center",
+    marginBottom: 50,
   },
   search: {
     margin: 20,

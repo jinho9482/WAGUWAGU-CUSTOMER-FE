@@ -23,7 +23,7 @@ const CartScreen = ({ route, navigation }) => {
     const userId = await AsyncStorage.getItem("customerId");
     try {
       const response = await axios.get(
-        `http://34.45.108.74/api/v1/cart/${userId}`
+        `http://35.184.212.63/api/v1/cart/${userId}`
       );
       const fetchedCart = response.data;
       setCart(fetchedCart);
@@ -74,7 +74,7 @@ const CartScreen = ({ route, navigation }) => {
 
     try {
       // Send the updated cart to the server
-      await axios.post("http://34.45.108.74/api/v1/cart/save", updatedCart, {
+      await axios.post("http://35.184.212.63/api/v1/cart/save", updatedCart, {
         headers: {
           "Content-Type": "application/json",
         },
@@ -143,8 +143,7 @@ const CartScreen = ({ route, navigation }) => {
             >
               <View style={{ flexDirection: "row" }}>
                 <Text style={styles.menuName}>
-                  {menu.menuName} = {menu.totalPrice}원, 메뉴아이디{" "}
-                  {menu.menuId}
+                  {menu.menuName} = {menu.totalPrice}원
                 </Text>
                 <Pressable onPress={() => deleteMenuItem(index)}>
                   <Image
@@ -164,7 +163,7 @@ const CartScreen = ({ route, navigation }) => {
                     </View>
                   ))
               ) : (
-                <Text style={styles.text}>No options selected</Text>
+                <View></View>
               )}
             </View>
           ))}
@@ -272,7 +271,7 @@ const styles = StyleSheet.create({
     tintColor: "#94D35C",
   },
   checkoutButton: {
-    backgroundColor: "#FF3B30",
+    backgroundColor: "#EECAD5",
     borderRadius: 25,
     paddingVertical: 15,
     paddingHorizontal: 20,
