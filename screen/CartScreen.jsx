@@ -81,7 +81,7 @@ const CartScreen = ({ route, navigation }) => {
           "Content-Type": "application/json",
         },
       });
-      console.log("Cart updated successfully");
+      console.log("Cart updated successfully", updatedCart);
     } catch (error) {
       console.error("Error updating cart:", error);
       // Revert the cart state if the server request fails
