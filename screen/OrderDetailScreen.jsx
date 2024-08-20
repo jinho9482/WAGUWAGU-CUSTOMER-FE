@@ -51,13 +51,13 @@ const OrderDetailScreen = ({ route, navigation }) => {
           <Text style={styles.detailText}>
             요청사항:{" "}
             <Text style={styles.detailValue}>
-              {selectedOrder.customerRequests || "N/A"}
+              {selectedOrder.customerRequests || "없음"}
             </Text>
           </Text>
           <Text style={styles.detailText}>
             배달 요청사항:{" "}
             <Text style={styles.detailValue}>
-              {selectedOrder.riderRequests || "N/A"}
+              {selectedOrder.riderRequests || "없음"}
             </Text>
           </Text>
         </View>

@@ -20,9 +20,10 @@ export default function SearchScreen({ navigation }) {
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
-  const [searchHistory, setSearchHistory] = useState([]); // State for search history
+  const [searchHistory, setSearchHistory] = useState([]);
 
-  const dimensionWidth = 300; // Set your desired width for the speech bubble
+  const dimensionWidth = 300;
+  const imageBaseUrl = "https://storage.googleapis.com/wgwg_bucket/";
 
   const handleSearch = async (type, reset = false) => {
     try {
@@ -39,6 +40,7 @@ export default function SearchScreen({ navigation }) {
           return;
         }
         data = await searchByKeyword(keywordQuery, pageable);
+        console.log("Search Results: ", data);
       }
 
       if (reset) {
@@ -113,6 +115,7 @@ export default function SearchScreen({ navigation }) {
         }
 
         for (const menuDetail of menuDetails) {
+          console.log("menuDetail: ", menuDetail);
           const storeData = {
             storeId: store.storeId || "1",
             customerId: userInfo.customerId,
@@ -222,15 +225,20 @@ export default function SearchScreen({ navigation }) {
             ? item.storeId.toString()
             : Math.random().toString()
         }
-        renderItem={({ item }) => (
-          <SearchStoreListSpeechBubble
-            key={item.storeId}
-            width={dimensionWidth}
-            title={item.storeName}
-            image={item.storeImage}
-            onPress={() => handleItemPress(item.storeId)}
-          />
-        )}
+        renderItem={({ item }) => {
+          console.log("Item Data: ", item);  // Log the entire item object
+          return (
+            <SearchStoreListSpeechBubble
+              key={item.storeId}
+              width={dimensionWidth}
+              title={item.storeName}
+              image={item.storeImage ? `${imageBaseUrl}${item.storeImage}` : null}
+              storeMinimumOrderAmount={item.storeMinimumOrderAmount}
+              fee={item.deliveryFee}
+              onPress={() => handleItemPress(item.storeId)}
+            />
+          );
+        }}
         onEndReached={loadMoreResults}
         onEndReachedThreshold={0.5}
       />
