@@ -13,6 +13,8 @@ import axios from "axios";
 import OptionList from "../components/OptionList.jsx";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { getMenuByIdQL } from "../config/storeGraphQL.jsx";
+import { Alert } from "react-native";
+import Toast from "react-native-toast-message";
 
 const MenuDetailScreen = ({ navigation, route }) => {
   const { menuId, storeId, storeName } = route.params;
@@ -22,21 +24,6 @@ const MenuDetailScreen = ({ navigation, route }) => {
   const [loading, setLoading] = useState(true);
   const [totalPrice, setTotalPrice] = useState(0);
 
-  // const fetchMenuDetails = async () => {
-  //   try {
-  //     const response = await axios.get(
-  //       `http://192.168.0.17:8080/api/v1/menu/${menuId}`,
-  //       {
-  //         timeout: 20000,
-  //       }
-  //     );
-  //     console.log("menuid :", menuId);
-  //     setMenuDetails(response.data);
-  //     setTotalPrice(response.data.menuPrice);
-  //   } catch (error) {
-  //     console.error("Error fetching menu details:", error.message);
-  //   }
-  // };
   const fetchMenuDetails = async () => {
     try {
       const response = await getMenuByIdQL({ menuId: menuId });
@@ -48,17 +35,6 @@ const MenuDetailScreen = ({ navigation, route }) => {
     }
   };
 
-  // const fetchOptionList = async () => {
-  //   try {
-  //     const response = await axios.get(
-  //       `http://34.69.39.99/api/v1/option-lists/menu/${menuId}`
-  //     );
-  //     setOptionLists(response.data);
-  //     setCurrentOptions(response.data); // Initialize with fetched option lists
-  //   } catch (error) {
-  //     console.error("Error fetching option lists:", error.message);
-  //   }
-  // };
   const fetchOptionList = async () => {
     const GET_OPTION_LISTS = `
     query optionLists($menuId: Long!) {
@@ -89,13 +65,6 @@ const MenuDetailScreen = ({ navigation, route }) => {
   };
 
   useEffect(() => {
-    // const fetchData = async () => {
-    //   await fetchMenuDetails();
-    //   await fetchOptionList();
-
-    //   setLoading(false);
-    // };
-
     const fetchData = () => {
       fetchMenuDetails();
       fetchOptionList();
@@ -136,76 +105,79 @@ const MenuDetailScreen = ({ navigation, route }) => {
       const response = await axios.get(
         `http://35.184.212.63/api/v1/cart/${userId}`
       );
-      console.log("xxxxxxxxxxxxxxxxxxxxxxxfgfggf", response.data);
-      if (response.data.menuItems) return response.data.menuItems;
-      return null;
+      return response.data;
     } catch (error) {
       console.error("Error fetching cart items:", error);
+      return null;
     }
   };
-
   const handleAddToCart = async () => {
-    const userId = await AsyncStorage.getItem("customerId");
-
-    const data = await fetchCartItems();
-
-    const menuItems = data
-      ? [
-          ...data,
-          {
-            menuId: menuDetails.menuId,
-            menuName: menuDetails.menuName,
-            totalPrice: totalPrice,
-            selectedOptions: selectedOptions?.map((list) => ({
-              listId: list.listId,
-              listName: list.listName,
-              options: list.options.filter((op) => op.isChecked),
-            })),
-          },
-        ]
-      : [
-          {
-            menuId: menuDetails.menuId,
-            menuName: menuDetails.menuName,
-            totalPrice: totalPrice,
-            selectedOptions: selectedOptions?.map((list) => ({
-              listId: list.listId,
-              listName: list.listName,
-              options: list.options.filter((op) => op.isChecked),
-            })),
-          },
-        ];
-    const cartItem = {
-      storeName: storeName,
-      storeId: storeId,
-      userId,
-      totalPrice: totalPrice,
-      menuItems,
-    };
-
     try {
-      const request = await axios.post(
-        "http://35.184.212.63/api/v1/cart/save",
-        cartItem,
-        {
+      const userId = await AsyncStorage.getItem("customerId");
+
+      const cartData = await fetchCartItems();
+
+      if (cartData) {
+        const existingStoreId = cartData.storeId;
+
+        if (existingStoreId && existingStoreId !== storeId) {
+          Alert.alert("오류", "같은 가게의 상품만 담을 수 있습니다", [
+            { text: "OK" },
+          ]);
+          return;
+        }
+
+        // Prepare the new menu item to be added
+        const newMenuItem = {
+          menuId: menuDetails.menuId,
+          menuName: menuDetails.menuName,
+          totalPrice: totalPrice,
+          selectedOptions: selectedOptions.map((list) => ({
+            listId: list.listId,
+            listName: list.listName,
+            options: list.options.filter((op) => op.isChecked),
+          })),
+        };
+
+        // Append new menu item to existing items or create a new array
+        const menuItems = [...(cartData.menuItems || []), newMenuItem];
+
+        // Prepare the cart object
+        const cartItem = {
+          storeName: storeName,
+          storeId: storeId,
+          userId,
+          totalPrice: totalPrice,
+          menuItems,
+        };
+
+        // Attempt to save the cart item
+        await axios.post("http://35.184.212.63/api/v1/cart/save", cartItem, {
           headers: {
             "Content-Type": "application/json",
           },
-        }
-      );
+        });
 
-      navigation.navigate("CartScreen", {
-        menuId: menuDetails.menuId,
-        menuName: menuDetails.menuName,
-        storeName: storeName,
-        storeId: storeId,
-        totalPrice: totalPrice,
-      });
+        navigation.navigate("CartScreen", {
+          menuId: menuDetails.menuId,
+          menuName: menuDetails.menuName,
+          storeName: storeName,
+          storeId: storeId,
+          totalPrice: totalPrice,
+        });
+      }
     } catch (error) {
-      console.error("Error adding to cart:", error.message);
+      if (
+        error.response &&
+        error.response.data &&
+        error.response.data.message
+      ) {
+        Alert.alert("Error", "한 가게의 상품만 담을 수 있습니다");
+      } else {
+        console.error("Error adding to cart:", error.message);
+      }
     }
   };
-
   const renderFoodInfo = () => (
     <View>
       {menuDetails ? (

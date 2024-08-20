@@ -13,12 +13,12 @@ import { Image } from "react-native-elements";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const CartScreen = ({ route, navigation }) => {
-  const { storeName } = route.params;
+  // const { storeName } = route.params;
+  const [storeName, setStoreName] = useState("");
   const [cart, setCart] = useState(null);
   const [cartTotal, setCartTotal] = useState(0);
   const [loading, setLoading] = useState(true);
 
-  // Fetch cart items from the server
   const fetchCartItems = async () => {
     const userId = await AsyncStorage.getItem("customerId");
     try {
@@ -27,6 +27,8 @@ const CartScreen = ({ route, navigation }) => {
       );
       const fetchedCart = response.data;
       setCart(fetchedCart);
+      setStoreName(response.data.storeName);
+      console.log("response data", response.data.storeName);
 
       // Ensure menuItems is defined and is an array
       if (fetchedCart.menuItems && Array.isArray(fetchedCart.menuItems)) {
