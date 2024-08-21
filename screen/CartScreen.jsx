@@ -23,7 +23,7 @@ const CartScreen = ({ route, navigation }) => {
     const userId = await AsyncStorage.getItem("customerId");
     try {
       const response = await axios.get(
-        `http://34.45.108.74/api/v1/cart/${userId}`
+        `http://35.184.212.63/api/v1/cart/${userId}`
       );
       const fetchedCart = response.data;
       setCart(fetchedCart);

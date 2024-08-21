@@ -368,7 +368,7 @@ const styles = StyleSheet.create({
 
   timeInfo: {
     paddingVertical: 10,
-    backgroundColor: "#94D35C",
+    backgroundColor: "#EECAD5",
     textAlign: "center",
   },
 
