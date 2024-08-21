@@ -137,8 +137,8 @@ export default function OrderScreen({ route, navigation }) {
     const requestPaymentDto = {
       payNum: 1000,
       payAmount: cartTotal,
-      failRedirUrl: "exp://192.168.0.20:8081",
-      successRedirUrl: "exp://192.168.0.20:8081",
+      failRedirUrl: "exp://192.168.0.25:8081",
+      successRedirUrl: "exp://192.168.0.25:8081",
     };
 
     const res = await requestDdalkakPayment(requestPaymentDto);
@@ -226,7 +226,7 @@ export default function OrderScreen({ route, navigation }) {
   }
 
   const savePaymentState = async (e) => {
-    if (payId && e.url === "exp://192.168.0.20:8081") {
+    if (payId && e.url === "exp://192.168.0.25:8081") {
       console.log(payId, "결제 시");
       const paymentState = await getPaymentState(payId);
       setPayState(paymentState.payState);
