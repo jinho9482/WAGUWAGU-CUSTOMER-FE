@@ -7,6 +7,7 @@ import {
   Pressable,
   SafeAreaView,
   ScrollView,
+  RefreshControl,
 } from "react-native";
 import axios from "axios";
 import { Image } from "react-native-elements";
@@ -18,6 +19,7 @@ const CartScreen = ({ route, navigation }) => {
   const [cart, setCart] = useState(null);
   const [cartTotal, setCartTotal] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
 
   const fetchCartItems = async () => {
     const userId = await AsyncStorage.getItem("customerId");
@@ -41,7 +43,13 @@ const CartScreen = ({ route, navigation }) => {
       // Handle error and provide feedback to the user if needed
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
+  };
+
+  const onRefresh = () => {
+    setRefreshing(true);
+    fetchCartItems(); // Fetch cart items when the user pulls to refresh
   };
 
   // Calculate cart total based on menu items and their options
@@ -130,7 +138,11 @@ const CartScreen = ({ route, navigation }) => {
   return (
     <View style={styles.container}>
       <SafeAreaView style={styles.scrollViewCon}>
-        <ScrollView>
+        <ScrollView
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          }
+        >
           <Pressable
             style={styles.storeContainer}
             onPress={() => navigation.navigate("Store")}

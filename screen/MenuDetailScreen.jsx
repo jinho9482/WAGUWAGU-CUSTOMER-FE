@@ -113,14 +113,12 @@ const MenuDetailScreen = ({ navigation, route }) => {
     }
   };
   const handleAddToCart = async () => {
-    let cartItem; // Declare the variable here to use in error handling
+    let cartItem;
 
     try {
-      // Retrieve userId from AsyncStorage
       const userId = await AsyncStorage.getItem("customerId");
       console.log("User ID:", userId);
 
-      // Fetch existing cart items
       const cartData = await fetchCartItems();
       console.log("Fetched Cart Data:", cartData);
       if (!(cartData && cartData.storeId)) {
