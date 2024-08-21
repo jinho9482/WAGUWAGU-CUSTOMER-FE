@@ -25,17 +25,17 @@ const RiderRealTimeLocationScreen = ({ route, navigation }) => {
   const [loading, setLoading] = useState(true);
   const webviewRef = useRef(null);
 
-  const customerImage = Image.resolveAssetSource(
-    require("../assets/my-location-marker.png")
-  ).uri;
+  // const customerImage = Image.resolveAssetSource(
+  //   require("../assets/my-location-marker.png")
+  // ).uri;
 
-  const riderImage = Image.resolveAssetSource(
-    require("../assets/rider.png")
-  ).uri;
+  // const riderImage = Image.resolveAssetSource(
+  //   require("../assets/rider.png")
+  // ).uri;
 
-  const storeImage = Image.resolveAssetSource(
-    require("../assets/store.png")
-  ).uri;
+  // const storeImage = Image.resolveAssetSource(
+  //   require("../assets/store.png")
+  // ).uri;
 
   const getRealTimeData = async (customerCoord) => {
     const orderId = route.params.orderItem.orderId; // 주문 id 뽑기
@@ -193,9 +193,9 @@ const RiderRealTimeLocationScreen = ({ route, navigation }) => {
                 
                 const map = new kakao.maps.Map(mapContainer, mapOption);
 
-                const customerImageSrc = '${customerImage}'; // 고객 마커이미지의 주소
-                const riderImageSrc = '${riderImage}'; // 라이더 마커이미지의 주소
-                const storeImageSrc = '${storeImage}'; // 가게 마커이미지의 주소
+                const customerImageSrc = 'https://cdn-icons-png.flaticon.com/128/14831/14831599.png'; // 고객 마커이미지의 주소
+                const riderImageSrc = 'https://cdn-icons-png.flaticon.com/128/7910/7910028.png'; // 라이더 마커이미지의 주소
+                const storeImageSrc = 'https://cdn-icons-png.flaticon.com/128/948/948036.png'; // 가게 마커이미지의 주소
 
                 const imageSize = new kakao.maps.Size(53, 50); // 마커이미지의 크기입니다
                 const imageOption = {offset: new kakao.maps.Point(27, 69)}; // 마커이미지의 옵션입니다. 마커의 좌표와 일치시킬 이미지 안에서의 좌표를 설정합니다.
