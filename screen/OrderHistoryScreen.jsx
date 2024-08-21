@@ -60,11 +60,11 @@ export default function OrderHistoryScreen({ navigation }) {
 
   useFocusEffect(
     useCallback(() => {
-      handledGetHistory(); 
+      handledGetHistory();
 
       const interval = setInterval(() => {
         handledGetHistory();
-      }, 10000); 
+      }, 10000);
 
       return () => clearInterval(interval);
     }, [orders, orderHistory])
@@ -88,17 +88,17 @@ export default function OrderHistoryScreen({ navigation }) {
   const getStatusColor = (status) => {
     switch (status) {
       case "배달요청":
-        return "#2B6DEF80";
+        return "#D7E9FA";
       case "배달 수락":
-        return "#F3DD0F80";
+        return "#F8EB71";
       case "조리중":
         return "#94D35C80";
       case "주문 요청":
         return "#E5595980";
       case "배달중":
-        return "#6E565680";
+        return "#EACCBA";
       case "배달 완료":
-        return "#80808080";
+        return "#6E565680";
       default:
         return "#ffffff80";
     }
@@ -228,11 +228,11 @@ const styles = StyleSheet.create({
   },
   menuItem: {
     fontSize: 14,
-    color: "#999",
+    color: "#3C3232",
   },
   deliveryRequest: {
     fontSize: 14,
-    color: "#999",
+    color: "#3C3232",
     marginTop: 5,
   },
   sectionTitle: {
