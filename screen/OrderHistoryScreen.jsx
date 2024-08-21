@@ -35,7 +35,6 @@ export default function OrderHistoryScreen({ navigation }) {
 
       const result = await searchOrder({ customerId });
 
-
       if (JSON.stringify(result) !== JSON.stringify(orders)) {
         setOrders(result);
       }
@@ -43,7 +42,6 @@ export default function OrderHistoryScreen({ navigation }) {
       const historyResult = await selectByConsumerAll(offset);
 
       if (historyResult.length > 0) {
-
         const newOrderHistory = [...orderHistory, ...historyResult];
         if (JSON.stringify(newOrderHistory) !== JSON.stringify(orderHistory)) {
           setOrderHistory(newOrderHistory);
@@ -62,11 +60,11 @@ export default function OrderHistoryScreen({ navigation }) {
 
   useFocusEffect(
     useCallback(() => {
-      handledGetHistory(); 
+      handledGetHistory();
 
       const interval = setInterval(() => {
         handledGetHistory();
-      }, 10000); 
+      }, 10000);
 
       return () => clearInterval(interval);
     }, [orders, orderHistory])
@@ -90,17 +88,17 @@ export default function OrderHistoryScreen({ navigation }) {
   const getStatusColor = (status) => {
     switch (status) {
       case "배달요청":
-        return "#2B6DEF80";
+        return "#D7E9FA";
       case "배달 수락":
-        return "#F3DD0F80";
+        return "#F8EB71";
       case "조리중":
         return "#94D35C80";
       case "주문 요청":
         return "#E5595980";
       case "배달중":
-        return "#6E565680";
+        return "#EACCBA";
       case "배달 완료":
-        return "#80808080";
+        return "#6E565680";
       default:
         return "#ffffff80";
     }
@@ -119,7 +117,12 @@ export default function OrderHistoryScreen({ navigation }) {
             <Text style={styles.menuItem}>
               {item && item.menuItems && item.menuItems.length > 0
                 ? item.menuItems[0].menuName
-                : "No menu items"}
+                : "요청 사항 없음"}
+            </Text>
+            <Text style={styles.deliveryRequest}>
+              {item && item.deliveryRequest
+                ? item.deliveryRequest
+                : "요청 사항 없음"}
             </Text>
           </View>
         </View>
@@ -135,8 +138,7 @@ export default function OrderHistoryScreen({ navigation }) {
     });
   };
 
-  const handleBackgroundPress = () => {
-  };
+  const handleBackgroundPress = () => {};
 
   return (
     <TouchableWithoutFeedback onPress={handleBackgroundPress}>
@@ -226,7 +228,12 @@ const styles = StyleSheet.create({
   },
   menuItem: {
     fontSize: 14,
-    color: "#999",
+    color: "#3C3232",
+  },
+  deliveryRequest: {
+    fontSize: 14,
+    color: "#3C3232",
+    marginTop: 5,
   },
   sectionTitle: {
     fontSize: 20,

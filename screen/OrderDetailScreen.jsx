@@ -17,7 +17,7 @@ const OrderDetailScreen = ({ route, navigation }) => {
   return (
     <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContainer}>
-        <Text style={styles.headerText}>주문 상세</Text>
+        {/* <Text style={styles.headerText}>주문 상세</Text> */}
         <View style={styles.detailCard}>
           <Text style={styles.detailText}>
             가게 이름:{" "}
@@ -51,13 +51,13 @@ const OrderDetailScreen = ({ route, navigation }) => {
           <Text style={styles.detailText}>
             요청사항:{" "}
             <Text style={styles.detailValue}>
-              {selectedOrder.customerRequests || "N/A"}
+              {selectedOrder.customerRequests || "없음"}
             </Text>
           </Text>
           <Text style={styles.detailText}>
             배달 요청사항:{" "}
             <Text style={styles.detailValue}>
-              {selectedOrder.riderRequests || "N/A"}
+              {selectedOrder.riderRequests || "없음"}
             </Text>
           </Text>
         </View>
@@ -225,7 +225,7 @@ const styles = StyleSheet.create({
     color: "#E55959",
   },
   button: {
-    backgroundColor: "#2B6DEF",
+    backgroundColor: "#E5595980",
     borderRadius: 10,
     marginTop: 20,
   },

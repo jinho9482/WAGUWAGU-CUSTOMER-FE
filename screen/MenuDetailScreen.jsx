@@ -49,10 +49,13 @@ const MenuDetailScreen = ({ navigation, route }) => {
     }
   `;
     try {
-      const response = await axios.post(`http://34.69.39.99/graphql`, {
-        query: GET_OPTION_LISTS,
-        variables: { menuId },
-      });
+      const response = await axios.post(
+        `http://34.69.39.99/api/v1/store/graphql`,
+        {
+          query: GET_OPTION_LISTS,
+          variables: { menuId },
+        }
+      );
 
       const data = response.data.data.optionLists;
 
