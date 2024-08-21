@@ -35,7 +35,6 @@ export default function OrderHistoryScreen({ navigation }) {
 
       const result = await searchOrder({ customerId });
 
-
       if (JSON.stringify(result) !== JSON.stringify(orders)) {
         setOrders(result);
       }
@@ -43,7 +42,6 @@ export default function OrderHistoryScreen({ navigation }) {
       const historyResult = await selectByConsumerAll(offset);
 
       if (historyResult.length > 0) {
-
         const newOrderHistory = [...orderHistory, ...historyResult];
         if (JSON.stringify(newOrderHistory) !== JSON.stringify(orderHistory)) {
           setOrderHistory(newOrderHistory);
@@ -119,7 +117,12 @@ export default function OrderHistoryScreen({ navigation }) {
             <Text style={styles.menuItem}>
               {item && item.menuItems && item.menuItems.length > 0
                 ? item.menuItems[0].menuName
-                : "No menu items"}
+                : "요청 사항 없음"}
+            </Text>
+            <Text style={styles.deliveryRequest}>
+              {item && item.deliveryRequest
+                ? item.deliveryRequest
+                : "요청 사항 없음"}
             </Text>
           </View>
         </View>
@@ -135,8 +138,7 @@ export default function OrderHistoryScreen({ navigation }) {
     });
   };
 
-  const handleBackgroundPress = () => {
-  };
+  const handleBackgroundPress = () => {};
 
   return (
     <TouchableWithoutFeedback onPress={handleBackgroundPress}>
@@ -227,6 +229,11 @@ const styles = StyleSheet.create({
   menuItem: {
     fontSize: 14,
     color: "#999",
+  },
+  deliveryRequest: {
+    fontSize: 14,
+    color: "#999",
+    marginTop: 5,
   },
   sectionTitle: {
     fontSize: 20,
