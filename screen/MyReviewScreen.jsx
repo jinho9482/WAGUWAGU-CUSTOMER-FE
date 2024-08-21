@@ -55,7 +55,7 @@ const MyReviewScreen = ({ userId }) => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>내 리뷰</Text>
+      {/* <Text style={styles.title}>내 리뷰</Text> */}
       <FlatList
         data={reviews}
         keyExtractor={(item, index) => index.toString()}

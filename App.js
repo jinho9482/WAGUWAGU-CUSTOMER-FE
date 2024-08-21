@@ -158,7 +158,7 @@ export default function App() {
             }}
           />
 
-          <BottomTab.Screen
+          {/* <BottomTab.Screen
             name="내리뷰"
             component={MyReviewScreen}
             options={{
@@ -171,7 +171,7 @@ export default function App() {
                 />
               ),
             }}
-          />
+          /> */}
 
           <BottomTab.Screen
             name="마이페이지"
@@ -238,7 +238,10 @@ export default function App() {
           <Stack.Screen
             name="OrderDetailScreen"
             component={OrderDetailScreen}
-            options={{ headerShown: false }}
+            options={{
+              headerTitle: "주문 상세",
+              headerBackTitleVisible: false,
+            }}
           />
           <Stack.Screen name="MypageScreen" component={MypageScreen} />
           <Stack.Screen
@@ -309,8 +312,20 @@ export default function App() {
           <Stack.Screen
             name="ReviewScreen"
             component={ReviewForm}
-            options={{ headerShown: false }}
+            options={{
+              headerTitle: "리뷰",
+              headerBackTitleVisible: false,
+            }}
           />
+          <Stack.Screen
+            name="내리뷰"
+            component={MyReviewScreen}
+            options={{
+              headerTitle: "MY 리뷰",
+              headerBackTitleVisible: false,
+            }}
+          />
+
           <Stack.Screen name="ReviewSection" component={ReviewSectionScreen} />
           <Stack.Screen
             name="RiderRealTimeLocationScreen"

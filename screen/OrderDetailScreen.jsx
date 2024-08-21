@@ -17,7 +17,7 @@ const OrderDetailScreen = ({ route, navigation }) => {
   return (
     <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContainer}>
-        <Text style={styles.headerText}>주문 상세</Text>
+        {/* <Text style={styles.headerText}>주문 상세</Text> */}
         <View style={styles.detailCard}>
           <Text style={styles.detailText}>
             가게 이름:{" "}
@@ -225,7 +225,7 @@ const styles = StyleSheet.create({
     color: "#E55959",
   },
   button: {
-    backgroundColor: "#2B6DEF",
+    backgroundColor: "#E5595980",
     borderRadius: 10,
     marginTop: 20,
   },
