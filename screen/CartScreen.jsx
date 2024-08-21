@@ -13,20 +13,22 @@ import { Image } from "react-native-elements";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const CartScreen = ({ route, navigation }) => {
-  const { storeName } = route.params;
+  // const { storeName } = route.params;
+  const [storeName, setStoreName] = useState("");
   const [cart, setCart] = useState(null);
   const [cartTotal, setCartTotal] = useState(0);
   const [loading, setLoading] = useState(true);
 
-  // Fetch cart items from the server
   const fetchCartItems = async () => {
     const userId = await AsyncStorage.getItem("customerId");
     try {
       const response = await axios.get(
-        `http://34.45.108.74/api/v1/cart/${userId}`
+        `http://35.184.212.63/api/v1/cart/${userId}`
       );
       const fetchedCart = response.data;
       setCart(fetchedCart);
+      setStoreName(response.data.storeName);
+      console.log("response data", response.data.storeName);
 
       // Ensure menuItems is defined and is an array
       if (fetchedCart.menuItems && Array.isArray(fetchedCart.menuItems)) {
@@ -74,12 +76,12 @@ const CartScreen = ({ route, navigation }) => {
 
     try {
       // Send the updated cart to the server
-      await axios.post("http://34.45.108.74/api/v1/cart/save", updatedCart, {
+      await axios.post("http://35.184.212.63/api/v1/cart/save", updatedCart, {
         headers: {
           "Content-Type": "application/json",
         },
       });
-      console.log("Cart updated successfully");
+      console.log("Cart updated successfully", updatedCart);
     } catch (error) {
       console.error("Error updating cart:", error);
       // Revert the cart state if the server request fails
@@ -143,8 +145,7 @@ const CartScreen = ({ route, navigation }) => {
             >
               <View style={{ flexDirection: "row" }}>
                 <Text style={styles.menuName}>
-                  {menu.menuName} = {menu.totalPrice}원, 메뉴아이디{" "}
-                  {menu.menuId}
+                  {menu.menuName} = {menu.totalPrice}원
                 </Text>
                 <Pressable onPress={() => deleteMenuItem(index)}>
                   <Image
@@ -164,7 +165,7 @@ const CartScreen = ({ route, navigation }) => {
                     </View>
                   ))
               ) : (
-                <Text style={styles.text}>No options selected</Text>
+                <View></View>
               )}
             </View>
           ))}

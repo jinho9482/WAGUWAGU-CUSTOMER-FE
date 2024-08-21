@@ -1,5 +1,5 @@
 import axios from "axios";
-const endpoint = "http://34.69.39.99/graphql";
+const endpoint = "http://34.69.39.99/api/v1/store/graphql";
 
 export const getMenuCategoryByStoreQL = async (variables) => {
   try {
@@ -85,9 +85,7 @@ export const getAllMenuByStoreIdQL = async (variables) => {
         },
       }
     );
-    return data.status === 200
-      ? data.data.data.getAllMenuByStoreId
-      : "error";
+    return data.status === 200 ? data.data.data.getAllMenuByStoreId : "error";
   } catch (error) {
     return error;
   }

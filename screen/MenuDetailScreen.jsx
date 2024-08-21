@@ -13,6 +13,8 @@ import axios from "axios";
 import OptionList from "../components/OptionList.jsx";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { getMenuByIdQL } from "../config/storeGraphQL.jsx";
+import { Alert } from "react-native";
+import Toast from "react-native-toast-message";
 
 const MenuDetailScreen = ({ navigation, route }) => {
   const { menuId, storeId, storeName } = route.params;
@@ -22,21 +24,6 @@ const MenuDetailScreen = ({ navigation, route }) => {
   const [loading, setLoading] = useState(true);
   const [totalPrice, setTotalPrice] = useState(0);
 
-  // const fetchMenuDetails = async () => {
-  //   try {
-  //     const response = await axios.get(
-  //       `http://192.168.0.17:8080/api/v1/menu/${menuId}`,
-  //       {
-  //         timeout: 20000,
-  //       }
-  //     );
-  //     console.log("menuid :", menuId);
-  //     setMenuDetails(response.data);
-  //     setTotalPrice(response.data.menuPrice);
-  //   } catch (error) {
-  //     console.error("Error fetching menu details:", error.message);
-  //   }
-  // };
   const fetchMenuDetails = async () => {
     try {
       const response = await getMenuByIdQL({ menuId: menuId });
@@ -48,17 +35,6 @@ const MenuDetailScreen = ({ navigation, route }) => {
     }
   };
 
-  // const fetchOptionList = async () => {
-  //   try {
-  //     const response = await axios.get(
-  //       `http://34.69.39.99/api/v1/option-lists/menu/${menuId}`
-  //     );
-  //     setOptionLists(response.data);
-  //     setCurrentOptions(response.data); // Initialize with fetched option lists
-  //   } catch (error) {
-  //     console.error("Error fetching option lists:", error.message);
-  //   }
-  // };
   const fetchOptionList = async () => {
     const GET_OPTION_LISTS = `
     query optionLists($menuId: Long!) {
@@ -73,10 +49,13 @@ const MenuDetailScreen = ({ navigation, route }) => {
     }
   `;
     try {
-      const response = await axios.post(`http://34.69.39.99/graphql`, {
-        query: GET_OPTION_LISTS,
-        variables: { menuId },
-      });
+      const response = await axios.post(
+        `http://34.69.39.99/api/v1/store/graphql`,
+        {
+          query: GET_OPTION_LISTS,
+          variables: { menuId },
+        }
+      );
 
       const data = response.data.data.optionLists;
 
@@ -89,13 +68,6 @@ const MenuDetailScreen = ({ navigation, route }) => {
   };
 
   useEffect(() => {
-    // const fetchData = async () => {
-    //   await fetchMenuDetails();
-    //   await fetchOptionList();
-
-    //   setLoading(false);
-    // };
-
     const fetchData = () => {
       fetchMenuDetails();
       fetchOptionList();
@@ -134,66 +106,120 @@ const MenuDetailScreen = ({ navigation, route }) => {
 
     try {
       const response = await axios.get(
-        `http://34.45.108.74/api/v1/cart/${userId}`
+        `http://35.184.212.63/api/v1/cart/${userId}`
       );
-      console.log("xxxxxxxxxxxxxxxxxxxxxxxfgfggf", response.data);
-      if (response.data.menuItems) return response.data.menuItems;
-      return null;
+      console.log("ggggggggggg", response.data);
+      return response.data;
     } catch (error) {
       console.error("Error fetching cart items:", error);
+      return null;
     }
   };
-
   const handleAddToCart = async () => {
-    const userId = await AsyncStorage.getItem("customerId");
-
-    const data = await fetchCartItems();
-
-    const menuItems = data
-      ? [
-          ...data,
-          {
-            menuId: menuDetails.menuId,
-            menuName: menuDetails.menuName,
-            totalPrice: totalPrice,
-            selectedOptions: selectedOptions?.map((list) => ({
-              listId: list.listId,
-              listName: list.listName,
-              options: list.options.filter((op) => op.isChecked),
-            })),
-          },
-        ]
-      : [
-          {
-            menuId: menuDetails.menuId,
-            menuName: menuDetails.menuName,
-            totalPrice: totalPrice,
-            selectedOptions: selectedOptions?.map((list) => ({
-              listId: list.listId,
-              listName: list.listName,
-              options: list.options.filter((op) => op.isChecked),
-            })),
-          },
-        ];
-    const cartItem = {
-      storeName: storeName,
-      storeId: storeId,
-      userId,
-      totalPrice: totalPrice,
-      menuItems,
-    };
+    let cartItem; // Declare the variable here to use in error handling
 
     try {
-      const request = await axios.post(
-        "http://34.45.108.74/api/v1/cart/save",
-        cartItem,
-        {
+      // Retrieve userId from AsyncStorage
+      const userId = await AsyncStorage.getItem("customerId");
+      console.log("User ID:", userId);
+
+      // Fetch existing cart items
+      const cartData = await fetchCartItems();
+      console.log("Fetched Cart Data:", cartData);
+      if (!(cartData && cartData.storeId)) {
+        // If cartData is null or doesn't have storeId, proceed as if it's a new cart
+        const newMenuItem = {
+          menuId: menuDetails.menuId,
+          menuName: menuDetails.menuName,
+          totalPrice: totalPrice,
+          selectedOptions: selectedOptions.map((list) => ({
+            listId: list.listId,
+            listName: list.listName,
+            options: list.options.filter((op) => op.isChecked),
+          })),
+        };
+        console.log("New Menu Item:", newMenuItem);
+
+        // Prepare the cart object
+        cartItem = {
+          storeName: storeName,
+          storeId: storeId,
+          userId,
+          totalPrice: totalPrice,
+          menuItems: [newMenuItem],
+        };
+        console.log("New Cart Item to Save:", cartItem);
+
+        // Attempt to save the new cart item
+        await axios.post("http://35.184.212.63/api/v1/cart/save", cartItem, {
           headers: {
             "Content-Type": "application/json",
           },
-        }
-      );
+        });
 
+        // Navigate to the cart screen on successful save
+        navigation.navigate("CartScreen", {
+          menuId: menuDetails.menuId,
+          menuName: menuDetails.menuName,
+          storeName: storeName,
+          storeId: storeId,
+          totalPrice: totalPrice,
+        });
+        return;
+      }
+      // Check if cartData exists and has a valid structure
+
+      const existingStoreId = cartData.storeId;
+      console.log("Existing Store ID:", existingStoreId);
+
+      // Check if the user is trying to add items from a different store
+      if (existingStoreId !== storeId && cartData.menuItems.length > 0) {
+        Alert.alert("오류", "같은 가게의 상품만 담을 수 있습니다", [
+          { text: "OK" },
+        ]);
+        return; // Stop further execution
+      }
+      if (existingStoreId !== storeId && cartData.menuItems.length === 0) {
+        const res = await axios.delete(
+          `http://35.184.212.63/api/v1/cart/clear/${userId}`
+        );
+        console.log({ res });
+      }
+      // Prepare the new menu item to be added
+      const newMenuItem = {
+        menuId: menuDetails.menuId,
+        menuName: menuDetails.menuName,
+        totalPrice: totalPrice,
+        selectedOptions: selectedOptions.map((list) => ({
+          listId: list.listId,
+          listName: list.listName,
+          options: list.options.filter((op) => op.isChecked),
+        })),
+      };
+      console.log("New Menu Item:", newMenuItem);
+
+      // Append new menu item to existing items or create a new array
+      const menuItems = [...(cartData.menuItems || []), newMenuItem];
+      console.log("Updated Menu Items:", menuItems);
+
+      // Prepare the cart object
+      cartItem = {
+        storeName: storeName,
+        storeId: storeId,
+        userId,
+        totalPrice: totalPrice,
+        menuItems,
+      };
+      console.log("Cart Item to Save:", cartItem);
+
+      // Attempt to save the cart item
+      await axios.post("http://35.184.212.63/api/v1/cart/save", cartItem, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      // Navigate to the cart screen on successful save
       navigation.navigate("CartScreen", {
         menuId: menuDetails.menuId,
         menuName: menuDetails.menuName,
@@ -202,7 +228,20 @@ const MenuDetailScreen = ({ navigation, route }) => {
         totalPrice: totalPrice,
       });
     } catch (error) {
-      console.error("Error adding to cart:", error.message);
+      // Enhanced error handling with cartItem logging
+      console.error("Error adding to cart:", error.response);
+      if (cartItem) {
+        console.log("Cart Item at Error:", cartItem);
+      }
+      if (
+        error.response &&
+        error.response.data &&
+        error.response.data.message
+      ) {
+        Alert.alert("Error", error.response.data.message);
+      } else {
+        Alert.alert("Error", "An unexpected error occurred.");
+      }
     }
   };
 
@@ -241,6 +280,8 @@ const MenuDetailScreen = ({ navigation, route }) => {
     </View>
   );
 
+  //sss
+
   const calculateTotalPrice = (selectedOptions = selectedOptions) => {
     const totalPrice = selectedOptions.reduce(
       (sum, list) =>
@@ -271,7 +312,7 @@ const MenuDetailScreen = ({ navigation, route }) => {
           />
         ))
       ) : (
-        <Text>No option lists available</Text>
+        <Text></Text>
       )}
     </View>
   );
@@ -289,7 +330,7 @@ const MenuDetailScreen = ({ navigation, route }) => {
         />
       </TouchableOpacity>
       <View style={styles.headerTitleContainer}>
-        <Text style={styles.headerTitle}>Menu Details</Text>
+        <Text style={styles.headerTitle}>상세 메뉴</Text>
       </View>
       <TouchableOpacity
         style={styles.cartButton}

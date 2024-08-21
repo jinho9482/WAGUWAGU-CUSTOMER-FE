@@ -9,17 +9,16 @@ export default function SearchStoreListSpeechBubble(props) {
         style={[
           styles.container,
           { width: props.width },
-          { backgroundColor: props.backgroundColor },
+          { backgroundColor: props.backgroundColor || "#FFFFFF" },
         ]}
       >
         <View style={styles.imageContainer}>
           <Image
-            style={[styles.image, { resizeMode: "contain" }]}
+            style={styles.image}
             source={
               props.image
                 ? {
-                    uri:
-                      "https://storage.googleapis.com/wgwg_bucket/" + props.image,
+                    uri: `https://storage.googleapis.com/wgwg_bucket/${props.image}`,
                   }
                 : require("./../assets/food icon.png")
             }
@@ -30,8 +29,12 @@ export default function SearchStoreListSpeechBubble(props) {
             {props.title}
           </Text>
           <Text style={styles.text}>{props.time}</Text>
-          <Text style={styles.text}>{props.storeMinimumOrderAmount}</Text>
-          <Text style={styles.text}>{props.fee}</Text>
+          <Text style={styles.text}>
+            Minimum Order: {props.storeMinimumOrderAmount}원
+          </Text>
+          <Text style={styles.text}>
+            Delivery Fee: {props.fee}원
+          </Text>
         </View>
       </View>
     </TouchableOpacity>
@@ -46,9 +49,8 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 25,
     borderBottomRightRadius: 25,
     height: 150,
-    color: "#94D35C",
     backgroundColor: "#FFFFFF",
-    alignItems: "flex-end",
+    alignItems: "center",
     justifyContent: "center",
     flexDirection: "row",
     borderWidth: 3,
@@ -57,17 +59,19 @@ const styles = StyleSheet.create({
   textContainer: {
     flex: 1,
     justifyContent: "center",
+    paddingLeft: 10,
   },
   textTitle: {
-    fontSize: 40,
-    paddingBottom: 15,
+    fontSize: 20,
+    fontWeight: "bold",
+    paddingBottom: 10,
   },
   text: {
-    fontSize: 20,
+    fontSize: 16,
   },
   image: {
-    width: 40,
-    height: 40,
+    width: 50,
+    height: 50,
     padding: 50,
     marginRight: 10,
     alignSelf: "flex-start",
