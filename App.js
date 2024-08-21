@@ -132,6 +132,7 @@ export default function App() {
               ),
             }}
           />
+
           <BottomTab.Screen
             name="주문내역"
             component={OrderHistoryScreen}
@@ -147,39 +148,36 @@ export default function App() {
             }}
           />
           <BottomTab.Screen
-            name="마이페이지"
-            component={MypageScreen}
+            name="장바구니"
+            component={CartScreen}
             options={{
-              tabBarLabel: "마이페이지",
+              tabBarLabel: "장바구니 ",
               tabBarIcon: ({ color, size }) => (
-                <MaterialCommunityIcons
-                  name="account-circle"
-                  color={color}
-                  size={20}
-                />
+                <MaterialCommunityIcons name="cart" color={color} size={20} />
               ),
             }}
           />
 
-          <BottomTab.Screen
+          {/* <BottomTab.Screen
             name="내리뷰"
             component={MyReviewScreen}
             options={{
               tabBarLabel: "내 리뷰 ",
               tabBarIcon: ({ color, size }) => (
                 <MaterialCommunityIcons
-                  name="account-circle"
+                  name="pencil-outline"
                   color={color}
                   size={20}
                 />
               ),
             }}
-          />
+          /> */}
+
           <BottomTab.Screen
-            name="장바구니"
-            component={CartScreen}
+            name="마이페이지"
+            component={MypageScreen}
             options={{
-              tabBarLabel: "장바구니 ",
+              tabBarLabel: "마이페이지",
               tabBarIcon: ({ color, size }) => (
                 <MaterialCommunityIcons
                   name="account-circle"
@@ -240,7 +238,10 @@ export default function App() {
           <Stack.Screen
             name="OrderDetailScreen"
             component={OrderDetailScreen}
-            options={{ headerShown: false }}
+            options={{
+              headerTitle: "주문 상세",
+              headerBackTitleVisible: false,
+            }}
           />
           <Stack.Screen name="MypageScreen" component={MypageScreen} />
           <Stack.Screen
@@ -311,8 +312,20 @@ export default function App() {
           <Stack.Screen
             name="ReviewScreen"
             component={ReviewForm}
-            options={{ headerShown: false }}
+            options={{
+              headerTitle: "리뷰",
+              headerBackTitleVisible: false,
+            }}
           />
+          <Stack.Screen
+            name="내리뷰"
+            component={MyReviewScreen}
+            options={{
+              headerTitle: "MY 리뷰",
+              headerBackTitleVisible: false,
+            }}
+          />
+
           <Stack.Screen name="ReviewSection" component={ReviewSectionScreen} />
           <Stack.Screen
             name="RiderRealTimeLocationScreen"

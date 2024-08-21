@@ -130,7 +130,6 @@ export const getAllStoresNearUserQL = async (variables) => {
 };
 
 export const getAllStoresNearUserNoCategoryQL = async (variables) => {
-  console.log("getAllStoresNearUserNoCategoryQL api 반응 @@@@@@@@@@@@");
   try {
     const data = await axios.post(
       endpoint,
