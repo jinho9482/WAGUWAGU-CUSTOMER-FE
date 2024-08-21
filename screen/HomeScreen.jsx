@@ -149,7 +149,7 @@ const styles = StyleSheet.create({
   },
   image: {
     width: Dimensions.get("window").width - 20,
-    height: 180,
+    height: 200,
     padding: 50,
     alignSelf: "center",
     marginBottom: 50,

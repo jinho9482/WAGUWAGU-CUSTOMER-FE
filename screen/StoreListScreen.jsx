@@ -67,6 +67,9 @@ export default function StoreListScreen({ navigation, route }) {
 
   return (
     <SafeAreaView style={styles.safeAreaViewContainer}>
+      <View style={[styles.buttonSection]}>
+        <Text style={styles.buttonText}>{category}</Text>
+      </View>
       <ScrollView
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
@@ -127,5 +130,15 @@ const styles = StyleSheet.create({
   },
   noExistStore: {
     fontSize: 50,
+  },
+  buttonSection: {
+    width: Dimensions.get("window").width,
+    backgroundColor: "#F1D3CE",
+    padding: 10,
+  },
+  buttonText: {
+    fontSize: 23,
+    fontWeight: "700",
+    textAlign: "center",
   },
 });
