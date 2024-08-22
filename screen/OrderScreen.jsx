@@ -24,6 +24,7 @@ import { Audio } from "expo-av";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function OrderScreen({ route, navigation }) {
+  const { storeDeliveryTime } = route.params;
   const [riderRequest, setRiderRequest] = useState("");
   const [consumerRequest, setConsumerRequest] = useState("");
   const [showInput, setShowInput] = useState(false);
@@ -248,7 +249,12 @@ export default function OrderScreen({ route, navigation }) {
     >
       <View style={styles.deliveryInfo}>
         <Text style={styles.deliveryText}>한집 배달</Text>
-        <Text style={styles.deliveryText}>15분~30분</Text>
+        <Text style={styles.deliveryText}>
+          {parseInt(storeDeliveryTime * 4 + 10) +
+            "~" +
+            parseInt(storeDeliveryTime * 4 + 25) +
+            "분"}
+        </Text>
       </View>
 
       <Text style={styles.title}>주문하기</Text>
