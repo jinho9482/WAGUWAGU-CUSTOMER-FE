@@ -109,6 +109,7 @@ export default function StoreScreen({ navigation, route }) {
             <Text>리뷰보러가기</Text>
           </Pressable>
           <Text style={styles.text}>
+            배달 :{" "}
             {parseInt(store.distanceFromStoreToCustomer * 4 + 10) +
               "~" +
               parseInt(store.distanceFromStoreToCustomer * 4 + 25) +
@@ -146,6 +147,8 @@ export default function StoreScreen({ navigation, route }) {
                             menuId: menu.menuId,
                             storeId: storeId,
                             storeName: store.storeName,
+                            storeDeliveryTime:
+                              store.distanceFromStoreToCustomer,
                           })
                         }
                         disabled={!menu.menuPossible}

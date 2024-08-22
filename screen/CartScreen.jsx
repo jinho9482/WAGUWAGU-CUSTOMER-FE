@@ -15,6 +15,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const CartScreen = ({ route, navigation }) => {
   // const { storeName } = route.params;
+  const { storeDeliveryTime } = route.params;
   const [storeName, setStoreName] = useState("");
   const [cart, setCart] = useState(null);
   const [cartTotal, setCartTotal] = useState(0);
@@ -116,6 +117,7 @@ const CartScreen = ({ route, navigation }) => {
     navigation.navigate("OrderScreen", {
       cartTotal,
       cart: cart,
+      storeDeliveryTime: storeDeliveryTime,
     });
     console.log("checkout button log", JSON.stringify(cart));
   };

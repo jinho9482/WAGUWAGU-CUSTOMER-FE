@@ -17,7 +17,7 @@ import { Alert } from "react-native";
 import Toast from "react-native-toast-message";
 
 const MenuDetailScreen = ({ navigation, route }) => {
-  const { menuId, storeId, storeName } = route.params;
+  const { menuId, storeId, storeName, storeDeliveryTime } = route.params;
   const [selectedOptions, setSelectedOptions] = useState([]);
   const [menuDetails, setMenuDetails] = useState(null);
   const [optionLists, setOptionLists] = useState([]);
@@ -162,6 +162,7 @@ const MenuDetailScreen = ({ navigation, route }) => {
           storeName: storeName,
           storeId: storeId,
           totalPrice: totalPrice,
+          storeDeliveryTime: storeDeliveryTime,
         });
         return;
       }
@@ -224,6 +225,7 @@ const MenuDetailScreen = ({ navigation, route }) => {
         storeName: storeName,
         storeId: storeId,
         totalPrice: totalPrice,
+        storeDeliveryTime: storeDeliveryTime,
       });
     } catch (error) {
       // Enhanced error handling with cartItem logging
@@ -337,6 +339,7 @@ const MenuDetailScreen = ({ navigation, route }) => {
             menuId: menuDetails.menuId,
             menuName: menuDetails.menuName,
             storeName: storeName,
+            storeDeliveryTime: storeDeliveryTime,
           })
         }
       >
