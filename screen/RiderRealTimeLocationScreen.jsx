@@ -25,44 +25,17 @@ const RiderRealTimeLocationScreen = ({ route, navigation }) => {
   const [loading, setLoading] = useState(true);
   const webviewRef = useRef(null);
 
-  // const customerImage = Image.resolveAssetSource(
-  //   require("../assets/my-location-marker.png")
-  // ).uri;
-
-  // const riderImage = Image.resolveAssetSource(
-  //   require("../assets/rider.png")
-  // ).uri;
-
-  // const storeImage = Image.resolveAssetSource(
-  //   require("../assets/store.png")
-  // ).uri;
-
   const getRealTimeData = async (customerCoord) => {
     const orderId = route.params.orderItem.orderId; // 주문 id 뽑기
-    let riderCoordAndTransportation = {
-      riderLatitude: 37.48530981806404,
-      riderLongitude: 127.0176355954036,
-      riderTransportation: "WALK",
-    };
     initialIntervalId = setInterval(async () => {
       // 원본
-      // const riderCoordAndTransportation =
-      //   await getRiderLocationAndTransportation(orderId);
-      // newRiderLatitude = riderCoordAndTransportation.riderLatitude;
-      // newRiderLongitude = riderCoordAndTransportation.riderLongitude;
-      // const newRiderCoord = {
-      //   latitude: newRiderLatitude,
-      //   longitude: newRiderLongitude,
-      // };
-
-      // 테스트
-      riderCoordAndTransportation.riderLatitude =
-        riderCoordAndTransportation.riderLatitude + 0.000025;
-      riderCoordAndTransportation.riderLongitude =
-        riderCoordAndTransportation.riderLongitude + 0.0001;
+      const riderCoordAndTransportation =
+        await getRiderLocationAndTransportation(orderId);
+      newRiderLatitude = riderCoordAndTransportation.riderLatitude;
+      newRiderLongitude = riderCoordAndTransportation.riderLongitude;
       const newRiderCoord = {
-        latitude: riderCoordAndTransportation.riderLatitude,
-        longitude: riderCoordAndTransportation.riderLongitude,
+        latitude: newRiderLatitude,
+        longitude: newRiderLongitude,
       };
 
       console.log(newRiderCoord, "라이더 좌표");
@@ -148,10 +121,6 @@ const RiderRealTimeLocationScreen = ({ route, navigation }) => {
     }
     return timeToDestination;
   };
-
-  // else if (naviInfo.routes[0].result_code === 104) {
-  //   Alert.alert("알람", "음식이 5m 이내에 도착했어요!"); // timeToDestination = null
-  // }
 
   const getCustomerCoordinate = async () => {
     console.log(route.params.orderItem.customerAddress, "고객 주소");
@@ -255,15 +224,9 @@ const RiderRealTimeLocationScreen = ({ route, navigation }) => {
     );
 
     // 원본
-    // const riderCoord = {
-    //   latitude: riderCoordAndTransportation.riderLatitude,
-    //   longitude: riderCoordAndTransportation.riderLongitude,
-    // };
-
-    // 테스트
     const riderCoord = {
-      latitude: 37.48530981806404,
-      longitude: 127.0176355954036,
+      latitude: riderCoordAndTransportation.riderLatitude,
+      longitude: riderCoordAndTransportation.riderLongitude,
     };
 
     setMapHtml(generateMapHtml(customerCoord, riderCoord));
@@ -290,26 +253,6 @@ const RiderRealTimeLocationScreen = ({ route, navigation }) => {
     }
   });
 
-  // const setDurationText = () => {
-  //   let text;
-  //   if (!duration) text = "음식이 곧 도착예정이예요";
-  //   else if (deliveryIsdone) text = "음식이 도착했어요!";
-  //   else text = `${duration}분 뒤 음식이 도착 예정이예요`;
-  //   return text;
-  // };
-  // useEffect(() => {
-  //   console.log(navigation, "뒤로가기 클릭");
-  //   if (intervalId) {
-  //     console.log(intervalId, "intervalID");
-  //     // 뒤로 가기 하면 실시간 위치 가져오기 종료하기
-  //     const unsubscribe = navigation.addListener("beforeRemove", () => {
-  //       clearInterval(intervalId);
-  //       console.log("실시간 위치 가져오기 종료");
-  //     });
-  //     // return unsubscribe;
-  //   }
-  // }, [navigation]);
-
   useEffect(() => {
     initSetting();
   }, []);
@@ -318,10 +261,6 @@ const RiderRealTimeLocationScreen = ({ route, navigation }) => {
     if (webviewRef.current)
       webviewRef.current.injectJavaScript(setMarkerPosition);
   }, [riderLocation]);
-
-  // useEffect(() => {
-  //   setDurationText();
-  // }, [duration, deliveryIsdone]);
 
   return (
     <View style={styles.riderLocationContainer}>
