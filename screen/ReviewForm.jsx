@@ -8,10 +8,12 @@ import {
   Button,
   StyleSheet,
   Pressable,
+  Keyboard,
 } from "react-native";
 import { Rating } from "react-native-ratings";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
+import { TouchableWithoutFeedback } from "react-native-gesture-handler";
 
 const ReviewForm = ({ route, navigation }) => {
   const { storeId, storeName, userName } = route.params;
@@ -32,7 +34,7 @@ const ReviewForm = ({ route, navigation }) => {
 
     try {
       const request = await axios.post(
-        "http://35.184.212.63/api/v1/reviews",
+        "https://waguwagu.shop/api/v1/reviews",
         reviewReq,
         {
           headers: {
@@ -54,7 +56,10 @@ const ReviewForm = ({ route, navigation }) => {
     <View style={styles.container}>
       <View style={styles.headerContainer}>
         <Text style={styles.storeNames}>{storeName}</Text>
-        <Text style={styles.header}>리뷰 작성을 해보세요</Text>
+        {/* <Text style={styles.header}>리뷰 작성을 해보세요</Text> */}
+        <Text style={styles.header}>
+          리뷰 작성을 하면 가게에 많은 도움이 됩니다
+        </Text>
       </View>
       <Text style={styles.label}>{userName}</Text>
       <TextInput
@@ -86,9 +91,10 @@ const styles = StyleSheet.create({
     marginVertical: 8,
   },
   input: {
-    height: 40,
+    height: 100,
     borderColor: "gray",
     borderWidth: 1,
+    borderRadius: 10,
     marginBottom: 12,
     paddingHorizontal: 8,
   },
@@ -119,7 +125,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   reviewButton: {
-    backgroundColor: "#4CAF50",
+    backgroundColor: "#E5595980",
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 5,
@@ -142,7 +148,7 @@ const styles = StyleSheet.create({
   header: {
     fontSize: 20,
     fontWeight: "600",
-    color: "#4CAF50",
+    color: "#E5595980",
     marginVertical: 16,
     textAlign: "center",
   },

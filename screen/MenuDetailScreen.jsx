@@ -50,7 +50,7 @@ const MenuDetailScreen = ({ navigation, route }) => {
   `;
     try {
       const response = await axios.post(
-        `http://34.69.39.99/api/v1/store/graphql`,
+        `https://waguwagu.shop/api/v1/store/graphql`,
         {
           query: GET_OPTION_LISTS,
           variables: { menuId },
@@ -106,7 +106,7 @@ const MenuDetailScreen = ({ navigation, route }) => {
 
     try {
       const response = await axios.get(
-        `http://35.184.212.63/api/v1/cart/${userId}`
+        `https://waguwagu.shop/api/v1/cart/${userId}`
       );
       console.log("ggggggggggg", response.data);
       return response.data;
@@ -116,14 +116,12 @@ const MenuDetailScreen = ({ navigation, route }) => {
     }
   };
   const handleAddToCart = async () => {
-    let cartItem; // Declare the variable here to use in error handling
+    let cartItem;
 
     try {
-      // Retrieve userId from AsyncStorage
       const userId = await AsyncStorage.getItem("customerId");
       console.log("User ID:", userId);
 
-      // Fetch existing cart items
       const cartData = await fetchCartItems();
       console.log("Fetched Cart Data:", cartData);
       if (!(cartData && cartData.storeId)) {
@@ -151,7 +149,7 @@ const MenuDetailScreen = ({ navigation, route }) => {
         console.log("New Cart Item to Save:", cartItem);
 
         // Attempt to save the new cart item
-        await axios.post("http://35.184.212.63/api/v1/cart/save", cartItem, {
+        await axios.post("https://waguwagu.shop/api/v1/cart/save", cartItem, {
           headers: {
             "Content-Type": "application/json",
           },
@@ -181,7 +179,7 @@ const MenuDetailScreen = ({ navigation, route }) => {
       }
       if (existingStoreId !== storeId && cartData.menuItems.length === 0) {
         const res = await axios.delete(
-          `http://35.184.212.63/api/v1/cart/clear/${userId}`
+          `https://waguwagu.shop/api/v1/cart/clear/${userId}`
         );
         console.log({ res });
       }
@@ -213,7 +211,7 @@ const MenuDetailScreen = ({ navigation, route }) => {
       console.log("Cart Item to Save:", cartItem);
 
       // Attempt to save the cart item
-      await axios.post("http://35.184.212.63/api/v1/cart/save", cartItem, {
+      await axios.post("https://waguwagu.shop/api/v1/cart/save", cartItem, {
         headers: {
           "Content-Type": "application/json",
         },

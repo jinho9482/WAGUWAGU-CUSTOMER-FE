@@ -1,5 +1,5 @@
 import axios from "axios";
-const endpoint = "http://34.69.39.99/api/v1/store/graphql";
+const endpoint = "https://waguwagu.shop/api/v1/store/graphql";
 
 export const getMenuCategoryByStoreQL = async (variables) => {
   try {
@@ -130,7 +130,6 @@ export const getAllStoresNearUserQL = async (variables) => {
 };
 
 export const getAllStoresNearUserNoCategoryQL = async (variables) => {
-  console.log("getAllStoresNearUserNoCategoryQL api 반응 @@@@@@@@@@@@");
   try {
     const data = await axios.post(
       endpoint,

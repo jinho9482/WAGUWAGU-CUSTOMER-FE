@@ -19,7 +19,7 @@ const MyReviewScreen = ({ userId }) => {
       const userId = await AsyncStorage.getItem("customerId");
       try {
         const response = await fetch(
-          `http://35.184.212.63/api/v1/reviews/myReview/${userId}`
+          `https://waguwagu.com/api/v1/reviews/myReview/${userId}`
         );
         if (!response.ok) {
           throw new Error("Failed to fetch reviews");
@@ -55,7 +55,7 @@ const MyReviewScreen = ({ userId }) => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>내 리뷰</Text>
+      {/* <Text style={styles.title}>내 리뷰</Text> */}
       <FlatList
         data={reviews}
         keyExtractor={(item, index) => index.toString()}
