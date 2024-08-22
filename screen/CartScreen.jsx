@@ -31,7 +31,7 @@ const CartScreen = ({ route, navigation }) => {
       setCart(fetchedCart);
       setStoreName(response.data.storeName);
       console.log("cartcartcartcartcartresponse data", response.data.storeName);
-
+      //       a
       // Ensure menuItems is defined and is an array
       if (fetchedCart.menuItems && Array.isArray(fetchedCart.menuItems)) {
         calculateCartTotal(fetchedCart.menuItems); // Update cart total after fetching data
