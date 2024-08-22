@@ -25,12 +25,12 @@ const CartScreen = ({ route, navigation }) => {
     const userId = await AsyncStorage.getItem("customerId");
     try {
       const response = await axios.get(
-        `http://35.184.212.63/api/v1/cart/${userId}`
+        `https://waguwagu.shop/api/v1/cart/${userId}`
       );
       const fetchedCart = response.data;
       setCart(fetchedCart);
       setStoreName(response.data.storeName);
-      console.log("response data", response.data.storeName);
+      console.log("cartcartcartcartcartresponse data", response.data.storeName);
 
       // Ensure menuItems is defined and is an array
       if (fetchedCart.menuItems && Array.isArray(fetchedCart.menuItems)) {
@@ -39,7 +39,7 @@ const CartScreen = ({ route, navigation }) => {
         setCartTotal(0); // Set total to 0 if menuItems is not available
       }
     } catch (error) {
-      console.error("Error fetching cart items:", error);
+      console.error("Error fetching cart items:", error.response);
       // Handle error and provide feedback to the user if needed
     } finally {
       setLoading(false);
@@ -84,7 +84,7 @@ const CartScreen = ({ route, navigation }) => {
 
     try {
       // Send the updated cart to the server
-      await axios.post("http://35.184.212.63/api/v1/cart/save", updatedCart, {
+      await axios.post("https://waguwagu.shop/api/v1/cart/save", updatedCart, {
         headers: {
           "Content-Type": "application/json",
         },

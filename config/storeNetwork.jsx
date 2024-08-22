@@ -17,7 +17,7 @@ export const storeApi = async (url, method, body, params) => {
   const res = await axios({
     url,
     method,
-    baseURL: "http://34.69.39.99", // baseURL
+    baseURL: "https://waguwagu.shop", // baseURL
     // baseURL: "http://34.69.39.99",
     data: body,
     params: params,
