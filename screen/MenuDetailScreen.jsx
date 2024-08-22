@@ -16,17 +16,14 @@ import { getMenuByIdQL } from "../config/storeGraphQL.jsx";
 import { Alert } from "react-native";
 
 const MenuDetailScreen = ({ navigation, route }) => {
-  const { menuId, storeId, storeName, minOrder } = route.params;
+  const { menuId, storeId, storeName, minOrder, storeDeliveryTime } =
+    route.params;
   const [selectedOptions, setSelectedOptions] = useState([]);
   const [menuDetails, setMenuDetails] = useState(null);
   const [optionLists, setOptionLists] = useState([]);
   const [loading, setLoading] = useState(true);
   const [totalPrice, setTotalPrice] = useState(0);
 
-  console.log(
-    "MenuDetailScreennnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn - minOrder:",
-    minOrder
-  );
   const fetchMenuDetails = async () => {
     try {
       const response = await getMenuByIdQL({ menuId: menuId });
@@ -129,6 +126,7 @@ const MenuDetailScreen = ({ navigation, route }) => {
 
       const cartData = await fetchCartItems();
       console.log("Fetched Cart Data:", cartData);
+
       if (!(cartData && cartData.storeId)) {
         // If cartData is null or doesn't have storeId, proceed as if it's a new cart
         const newMenuItem = {
@@ -165,6 +163,7 @@ const MenuDetailScreen = ({ navigation, route }) => {
           storeName: storeName,
           storeId: storeId,
           totalPrice: totalPrice,
+          storeDeliveryTime: storeDeliveryTime,
           minOrder: minOrder,
         });
 
@@ -227,6 +226,7 @@ const MenuDetailScreen = ({ navigation, route }) => {
         storeName: storeName,
         storeId: storeId,
         totalPrice: totalPrice,
+        storeDeliveryTime: storeDeliveryTime,
         minOrder: minOrder,
       });
     } catch (error) {
@@ -341,6 +341,7 @@ const MenuDetailScreen = ({ navigation, route }) => {
             menuId: menuDetails.menuId,
             menuName: menuDetails.menuName,
             storeName: storeName,
+            storeDeliveryTime: storeDeliveryTime,
           })
         }
       >
