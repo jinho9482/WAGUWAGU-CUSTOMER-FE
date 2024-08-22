@@ -12,12 +12,13 @@ export const storeApi = async (url, method, body, params) => {
   //     return "";
   //   return "Bearer " + localStorage.getItem("token");
   // };
-  // http://34.69.39.99
+  // https://waguwagu.shop
 
   const res = await axios({
     url,
     method,
     baseURL: "https://waguwagu.shop", // baseURL
+    // baseURL: "https://waguwagu.shop",
     // baseURL: "http://34.69.39.99",
     data: body,
     params: params,

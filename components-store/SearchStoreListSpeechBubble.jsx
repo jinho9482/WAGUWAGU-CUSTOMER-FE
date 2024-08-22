@@ -29,8 +29,10 @@ export default function SearchStoreListSpeechBubble(props) {
             {props.title}
           </Text>
           <Text style={styles.text}>{props.time}</Text>
-        <Text style={styles.text}>{props.storeMinimumOrderAmount}</Text>
-        <Text style={styles.text}>{props.fee}</Text>
+          <Text style={styles.text}>
+            Minimum Order: {props.storeMinimumOrderAmount}원
+          </Text>
+          <Text style={styles.text}>Delivery Fee: {props.fee}원</Text>
         </View>
       </View>
     </TouchableOpacity>

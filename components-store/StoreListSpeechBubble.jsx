@@ -18,7 +18,8 @@ export default StoreListSpeechBubble = (props) => {
             props.image
               ? {
                   uri:
-                    "https://storage.googleapis.com/waguwagu_bucket/" + props.image,
+                    "https://storage.googleapis.com/waguwagu_bucket/" +
+                    props.image,
                 }
               : require("./../assets/food icon.png")
           }
