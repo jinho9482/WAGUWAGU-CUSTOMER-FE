@@ -10,6 +10,7 @@ import {
   Linking,
   AppState,
   Dimensions,
+  Platform,
 } from "react-native";
 
 import { createPayment } from "../config/PaymentApi";
@@ -119,7 +120,7 @@ export default function OrderScreen({ route, navigation }) {
       console.log("Order created successfully:", savedOrderId);
 
       // 주문 생성 후 알림 요청을 보내고 음성 파일 재생
-      // await notifyAndPlayAudio(storeId);
+      await notifyAndPlayAudio(storeId);
 
       Alert.alert("주문 성공", "주문이 성공적으로 생성되었습니다.", [
         {
@@ -138,11 +139,12 @@ export default function OrderScreen({ route, navigation }) {
     const requestPaymentDto = {
       payNum: 1000,
       payAmount: cartTotal,
-      failRedirUrl: "exp://192.168.0.25:8081",
-      successRedirUrl: "exp://192.168.0.25:8081",
+      failRedirUrl: "exp://192.168.45.216:8081",
+      successRedirUrl: "exp://192.168.45.216:8081",
     };
 
     const res = await requestDdalkakPayment(requestPaymentDto);
+    console.log(res);
     if (res.data.code === 0) {
       await Linking.openURL(res.data.appLink);
       setPayId(res.data.payId);
@@ -150,10 +152,13 @@ export default function OrderScreen({ route, navigation }) {
   };
 
   const handlePaymentAndOrder = async () => {
-    // if (payState === "PAY_COMPLETE") {
-    //   console.log(payState, "결제 진행");
-    await handleCreateOrder();
-    // } else await handlePayment(cartTotal);
+    console.log(Platform.OS);
+    if (Platform.OS === "android") {
+      if (payState === "PAY_COMPLETE") {
+        console.log(payState, "결제 진행");
+        await handleCreateOrder();
+      } else await handlePayment(cartTotal);
+    } else await handleCreateOrder();
   };
 
   const notifyAndPlayAudio = async (ownerId) => {
@@ -227,7 +232,7 @@ export default function OrderScreen({ route, navigation }) {
   }
 
   const savePaymentState = async (e) => {
-    if (payId && e.url === "exp://192.168.0.25:8081") {
+    if (payId && e.url === "exp://192.168.45.216:8081") {
       console.log(payId, "결제 시");
       const paymentState = await getPaymentState(payId);
       setPayState(paymentState.payState);
