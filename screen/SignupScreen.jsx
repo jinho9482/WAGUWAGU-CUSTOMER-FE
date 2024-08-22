@@ -139,7 +139,7 @@ const SignupScreen = ({ navigation }) => {
         }
 
         try {
-            const res = await updateInfo({ customerNickname, customerAddress, customerLatitude, customerLongitude });
+            const res = await updateInfo({ customerNickname, customerAddress, customerLatitude, customerLongitude, customerPhone });
             if (res.status === 200) {
                 Alert.alert('회원가입 성공', '회원가입이 완료되었습니다!');
                 navigation.replace('Main');
