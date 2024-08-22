@@ -6,7 +6,7 @@ export const serchApi = async (url, method, body, params) => {
     url,
     method,
     // baseURL: "http://192.168.0.20:8080", // baseURL
-    baseURL: "http://35.184.212.63",
+    baseURL:"https://waguwagu.shop",
     data: body,
     params: params,
     headers: {
