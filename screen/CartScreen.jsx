@@ -25,7 +25,7 @@ const CartScreen = ({ route, navigation }) => {
     const userId = await AsyncStorage.getItem("customerId");
     try {
       const response = await axios.get(
-        `https://waguwagu.shop/api/v1/cart/${userId}`
+        `http://34.27.212.162/api/v1/cart/${userId}`
       );
       const fetchedCart = response.data;
       setCart(fetchedCart);
@@ -84,7 +84,7 @@ const CartScreen = ({ route, navigation }) => {
 
     try {
       // Send the updated cart to the server
-      await axios.post("https://waguwagu.shop/api/v1/cart/save", updatedCart, {
+      await axios.post("http://34.27.212.162/api/v1/cart/save", updatedCart, {
         headers: {
           "Content-Type": "application/json",
         },
