@@ -78,6 +78,7 @@ export default function StoreScreen({ navigation, route }) {
   }, []);
 
   const dimensionWidth = Dimensions.get("window").width / 1.2;
+  console.log("Store Minimum Order Amount:", store.storeMinimumOrderAmount);
 
   return (
     <ScrollView style={styles.box}>
@@ -146,6 +147,7 @@ export default function StoreScreen({ navigation, route }) {
                             menuId: menu.menuId,
                             storeId: storeId,
                             storeName: store.storeName,
+                            minOrder: store.storeMinimumOrderAmount,
                           })
                         }
                         disabled={!menu.menuPossible}

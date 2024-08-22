@@ -14,16 +14,19 @@ import OptionList from "../components/OptionList.jsx";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { getMenuByIdQL } from "../config/storeGraphQL.jsx";
 import { Alert } from "react-native";
-import Toast from "react-native-toast-message";
 
 const MenuDetailScreen = ({ navigation, route }) => {
-  const { menuId, storeId, storeName } = route.params;
+  const { menuId, storeId, storeName, minOrder } = route.params;
   const [selectedOptions, setSelectedOptions] = useState([]);
   const [menuDetails, setMenuDetails] = useState(null);
   const [optionLists, setOptionLists] = useState([]);
   const [loading, setLoading] = useState(true);
   const [totalPrice, setTotalPrice] = useState(0);
 
+  console.log(
+    "MenuDetailScreennnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn - minOrder:",
+    minOrder
+  );
   const fetchMenuDetails = async () => {
     try {
       const response = await getMenuByIdQL({ menuId: menuId });
@@ -71,6 +74,7 @@ const MenuDetailScreen = ({ navigation, route }) => {
     const fetchData = () => {
       fetchMenuDetails();
       fetchOptionList();
+      console.log("Menu detail screeen ; ", minOrder);
 
       setLoading(false);
     };
@@ -115,6 +119,7 @@ const MenuDetailScreen = ({ navigation, route }) => {
       return null;
     }
   };
+
   const handleAddToCart = async () => {
     let cartItem;
 
@@ -138,7 +143,6 @@ const MenuDetailScreen = ({ navigation, route }) => {
         };
         console.log("New Menu Item:", newMenuItem);
 
-        // Prepare the cart object
         cartItem = {
           storeName: storeName,
           storeId: storeId,
@@ -155,22 +159,21 @@ const MenuDetailScreen = ({ navigation, route }) => {
           },
         });
 
-        // Navigate to the cart screen on successful save
         navigation.navigate("CartScreen", {
           menuId: menuDetails.menuId,
           menuName: menuDetails.menuName,
           storeName: storeName,
           storeId: storeId,
           totalPrice: totalPrice,
+          minOrder: minOrder,
         });
+
         return;
       }
-      // Check if cartData exists and has a valid structure
 
       const existingStoreId = cartData.storeId;
       console.log("Existing Store ID:", existingStoreId);
 
-      // Check if the user is trying to add items from a different store
       if (existingStoreId !== storeId && cartData.menuItems.length > 0) {
         Alert.alert("오류", "같은 가게의 상품만 담을 수 있습니다", [
           { text: "OK" },
@@ -183,7 +186,7 @@ const MenuDetailScreen = ({ navigation, route }) => {
         );
         console.log({ res });
       }
-      // Prepare the new menu item to be added
+
       const newMenuItem = {
         menuId: menuDetails.menuId,
         menuName: menuDetails.menuName,
@@ -224,6 +227,7 @@ const MenuDetailScreen = ({ navigation, route }) => {
         storeName: storeName,
         storeId: storeId,
         totalPrice: totalPrice,
+        minOrder: minOrder,
       });
     } catch (error) {
       // Enhanced error handling with cartItem logging
@@ -298,9 +302,9 @@ const MenuDetailScreen = ({ navigation, route }) => {
   const renderOptionLists = () => (
     <View>
       {selectedOptions && selectedOptions.length > 0 ? (
-        selectedOptions.map((list) => (
+        selectedOptions.map((list, i) => (
           <OptionList
-            key={list.listId}
+            key={`${list.listId}-${i}`}
             optionList={list}
             selectedOptions={selectedOptions}
             // onOptionChange={(updatedOptions) =>
