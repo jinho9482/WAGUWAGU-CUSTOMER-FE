@@ -19,7 +19,6 @@ const CartScreen = ({ route, navigation }) => {
   const [cart, setCart] = useState(null);
   const [cartTotal, setCartTotal] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
 
   const fetchCartItems = async () => {
     const userId = await AsyncStorage.getItem("customerId");
@@ -39,17 +38,11 @@ const CartScreen = ({ route, navigation }) => {
         setCartTotal(0); // Set total to 0 if menuItems is not available
       }
     } catch (error) {
-      console.error("Error fetching cart items:", error.response);
+      console.error("Error fetching cart items:", error);
       // Handle error and provide feedback to the user if needed
     } finally {
       setLoading(false);
-      setRefreshing(false);
     }
-  };
-
-  const onRefresh = () => {
-    setRefreshing(true);
-    fetchCartItems(); // Fetch cart items when the user pulls to refresh
   };
 
   // Calculate cart total based on menu items and their options
@@ -138,11 +131,7 @@ const CartScreen = ({ route, navigation }) => {
   return (
     <View style={styles.container}>
       <SafeAreaView style={styles.scrollViewCon}>
-        <ScrollView
-          refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-          }
-        >
+        <ScrollView>
           <Pressable
             style={styles.storeContainer}
             onPress={() => navigation.navigate("Store")}

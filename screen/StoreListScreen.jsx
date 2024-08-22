@@ -96,7 +96,7 @@ export default function StoreListScreen({ navigation, route }) {
                   }
                   fee={"배달팁 : " + store.deliveryFee + "원"}
                   onPress={() => {
-                    // navigation.navigate("StoreList");
+      
                   }}
                 />
               </TouchableOpacity>
