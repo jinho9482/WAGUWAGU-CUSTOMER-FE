@@ -34,7 +34,7 @@ const ReviewForm = ({ route, navigation }) => {
 
     try {
       const request = await axios.post(
-        "http://35.184.212.63/api/v1/reviews",
+        "https://waguwagu.shop/api/v1/reviews",
         reviewReq,
         {
           headers: {

@@ -19,6 +19,7 @@ export const storeApi = async (url, method, body, params) => {
     method,
     baseURL: "https://waguwagu.shop", // baseURL
     // baseURL: "https://waguwagu.shop",
+    // baseURL: "http://34.69.39.99",
     data: body,
     params: params,
     //   headers: {

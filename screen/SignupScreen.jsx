@@ -176,28 +176,20 @@ const SignupScreen = ({ navigation }) => {
       return;
     }
 
-    try {
-      const res = await updateInfo({
-        customerNickname,
-        customerAddress,
-        customerLatitude,
-        customerLongitude,
-      });
-      if (res.status === 200) {
-        Alert.alert("회원가입 성공", "회원가입이 완료되었습니다!");
-        navigation.replace("Main");
-        connectWebSocket(await AsyncStorage.setItem("customerId"));
-      } else {
-        Alert.alert(
-          "회원가입 실패",
-          "회원가입에 실패했습니다. 다시 시도해주세요."
-        );
-      }
-    } catch (error) {
-      console.log("회원가입 중 에러", error);
-      Alert.alert("Error", "회원가입 중 에러가 발생했습니다.");
-    }
-  };
+        try {
+            const res = await updateInfo({ customerNickname, customerAddress, customerLatitude, customerLongitude, customerPhone });
+            if (res.status === 200) {
+                Alert.alert('회원가입 성공', '회원가입이 완료되었습니다!');
+                navigation.replace('Main');
+                connectWebSocket(await AsyncStorage.setItem('customerId'));
+            } else {
+                Alert.alert('회원가입 실패', '회원가입에 실패했습니다. 다시 시도해주세요.');
+            }
+        } catch (error) {
+            console.log("회원가입 중 에러", error);
+            Alert.alert('Error', '회원가입 중 에러가 발생했습니다.');
+        }
+    };
 
   return (
     <View style={{ backgroundColor: "#fff" }}>

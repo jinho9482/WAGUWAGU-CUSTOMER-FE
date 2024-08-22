@@ -7,6 +7,7 @@ import {
   Pressable,
   SafeAreaView,
   ScrollView,
+  RefreshControl,
 } from "react-native";
 import axios from "axios";
 import { Image } from "react-native-elements";
@@ -18,17 +19,18 @@ const CartScreen = ({ route, navigation }) => {
   const [cart, setCart] = useState(null);
   const [cartTotal, setCartTotal] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
 
   const fetchCartItems = async () => {
     const userId = await AsyncStorage.getItem("customerId");
     try {
       const response = await axios.get(
-        `http://35.184.212.63/api/v1/cart/${userId}`
+        `https://waguwagu.shop/api/v1/cart/${userId}`
       );
       const fetchedCart = response.data;
       setCart(fetchedCart);
       setStoreName(response.data.storeName);
-      console.log("response data", response.data.storeName);
+      console.log("cartcartcartcartcartresponse data", response.data.storeName);
 
       // Ensure menuItems is defined and is an array
       if (fetchedCart.menuItems && Array.isArray(fetchedCart.menuItems)) {
@@ -37,11 +39,17 @@ const CartScreen = ({ route, navigation }) => {
         setCartTotal(0); // Set total to 0 if menuItems is not available
       }
     } catch (error) {
-      console.error("Error fetching cart items:", error);
+      console.error("Error fetching cart items:", error.response);
       // Handle error and provide feedback to the user if needed
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
+  };
+
+  const onRefresh = () => {
+    setRefreshing(true);
+    fetchCartItems(); // Fetch cart items when the user pulls to refresh
   };
 
   // Calculate cart total based on menu items and their options
@@ -76,7 +84,7 @@ const CartScreen = ({ route, navigation }) => {
 
     try {
       // Send the updated cart to the server
-      await axios.post("http://35.184.212.63/api/v1/cart/save", updatedCart, {
+      await axios.post("https://waguwagu.shop/api/v1/cart/save", updatedCart, {
         headers: {
           "Content-Type": "application/json",
         },
@@ -130,7 +138,11 @@ const CartScreen = ({ route, navigation }) => {
   return (
     <View style={styles.container}>
       <SafeAreaView style={styles.scrollViewCon}>
-        <ScrollView>
+        <ScrollView
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          }
+        >
           <Pressable
             style={styles.storeContainer}
             onPress={() => navigation.navigate("Store")}
