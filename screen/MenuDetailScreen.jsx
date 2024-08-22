@@ -256,7 +256,7 @@ const MenuDetailScreen = ({ navigation, route }) => {
                 menuDetails.menuImage
                   ? {
                       uri:
-                        "https://storage.googleapis.com/wgwg_bucket/" +
+                        "https://storage.googleapis.com/waguwagu_bucket/" +
                         menuDetails.menuImage,
                     }
                   : require("./../assets/menu.png")

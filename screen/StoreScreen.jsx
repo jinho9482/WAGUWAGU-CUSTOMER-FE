@@ -89,7 +89,7 @@ export default function StoreScreen({ navigation, route }) {
             store.storeImage
               ? {
                   uri:
-                    "https://storage.googleapis.com/wgwg_bucket/" +
+                    "https://storage.googleapis.com/waguwagu_bucket/" +
                     store.storeImage,
                 }
               : require("./../assets/food icon.png")
@@ -191,7 +191,7 @@ export default function StoreScreen({ navigation, route }) {
                                 menu.menuImage
                                   ? {
                                       uri:
-                                        "https://storage.googleapis.com/wgwg_bucket/" +
+                                        "https://storage.googleapis.com/waguwagu_bucket/" +
                                         menu.menuImage,
                                     }
                                   : require("./../assets/menu.png")

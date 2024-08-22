@@ -18,7 +18,7 @@ export default function SearchStoreListSpeechBubble(props) {
             source={
               props.image
                 ? {
-                    uri: `https://storage.googleapis.com/wgwg_bucket/${props.image}`,
+                    uri: `https://storage.googleapis.com/waguwagu_bucket/${props.image}`,
                   }
                 : require("./../assets/food icon.png")
             }
@@ -32,9 +32,7 @@ export default function SearchStoreListSpeechBubble(props) {
           <Text style={styles.text}>
             Minimum Order: {props.storeMinimumOrderAmount}원
           </Text>
-          <Text style={styles.text}>
-            Delivery Fee: {props.fee}원
-          </Text>
+          <Text style={styles.text}>Delivery Fee: {props.fee}원</Text>
         </View>
       </View>
     </TouchableOpacity>

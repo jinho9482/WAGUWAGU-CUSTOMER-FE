@@ -93,6 +93,7 @@ export const getAllMenuByStoreIdQL = async (variables) => {
 
 export const getAllStoresNearUserQL = async (variables) => {
   try {
+    console.log("zebal");
     const data = await axios.post(
       endpoint,
       {
