@@ -7,7 +7,7 @@ export const orderApi = async (url, method, body, params) => {
     url,
     method,
     // baseURL: "http://192.168.0.20:8080", // baseURL
-    baseURL: "https://waguwagu.shop",
+    baseURL: "http://34.44.29.146",
     data: body,
     params: params,
     headers: {
