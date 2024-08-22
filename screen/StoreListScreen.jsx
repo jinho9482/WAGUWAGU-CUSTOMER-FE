@@ -16,8 +16,7 @@ export default function StoreListScreen({ navigation, route }) {
   const [refreshing, setRefreshing] = useState(false);
 
   const getAllStoresNearUserApi = async () => {
-    // const customerLatitude = 0.0;
-    // const customerLongitude = 0.0;
+    console.log("121212122121122121211221211221122122121");
     try {
       const response = await getAllStoresNearUserQL({
         category: category,

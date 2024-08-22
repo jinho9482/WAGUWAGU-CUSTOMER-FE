@@ -23,7 +23,7 @@ export default function SearchScreen({ navigation }) {
   const [searchHistory, setSearchHistory] = useState([]);
 
   const dimensionWidth = 300;
-  const imageBaseUrl = "https://storage.googleapis.com/wgwg_bucket/";
+  const imageBaseUrl = "https://storage.googleapis.com/waguwagu_bucket/";
 
   const handleSearch = async (type, reset = false) => {
     try {
@@ -226,13 +226,15 @@ export default function SearchScreen({ navigation }) {
             : Math.random().toString()
         }
         renderItem={({ item }) => {
-          console.log("Item Data: ", item);  // Log the entire item object
+          console.log("Item Data: ", item); // Log the entire item object
           return (
             <SearchStoreListSpeechBubble
               key={item.storeId}
               width={dimensionWidth}
               title={item.storeName}
-              image={item.storeImage ? `${imageBaseUrl}${item.storeImage}` : null}
+              image={
+                item.storeImage ? `${imageBaseUrl}${item.storeImage}` : null
+              }
               storeMinimumOrderAmount={item.storeMinimumOrderAmount}
               fee={item.deliveryFee}
               onPress={() => handleItemPress(item.storeId)}
